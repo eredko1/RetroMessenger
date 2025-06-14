@@ -122,7 +122,7 @@ export default function BuddyList({
       </div>
 
       {/* User Status Bar */}
-      <div className="bg-gradient-to-b from-blue-50 to-blue-100 p-3 border-b border-gray-300">
+      <div className="p-3 border-b" style={{ background: 'var(--xp-gray)', borderColor: 'var(--xp-border-dark)' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="relative">
@@ -139,23 +139,29 @@ export default function BuddyList({
           <div className="flex space-x-2">
             <button 
               onClick={onEditProfile}
-              className="text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-full hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm font-medium flex items-center space-x-1"
+              className="xp-button text-xs flex items-center space-x-1"
             >
-              <span className="text-sm">✏️</span>
+              <span>✏️</span>
               <span>Edit Profile</span>
             </button>
             <button 
               onClick={onShowAddBuddy}
-              className="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full hover:from-green-600 hover:to-green-700 transition-all shadow-sm font-medium flex items-center space-x-1"
+              className="xp-button text-xs flex items-center space-x-1"
             >
-              <span className="text-sm">👥</span>
+              <span>👥</span>
               <span>Add Buddy</span>
             </button>
           </div>
         </div>
         <div className="mt-3">
           <select 
-            className="w-full text-xs bg-white border border-gray-300 rounded-md px-2 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            className="w-full text-xs border px-2 py-1"
+            style={{ 
+              background: 'white',
+              borderColor: 'var(--xp-border-dark)',
+              borderTopColor: 'var(--xp-border-light)',
+              borderLeftColor: 'var(--xp-border-light)'
+            }}
             value={user.status}
             onChange={handleStatusChange}
           >
@@ -167,7 +173,7 @@ export default function BuddyList({
       </div>
 
       {/* Buddy List */}
-      <div className="flex-1 bg-white overflow-y-auto buddy-list-scroll md:flex-1">
+      <div className="flex-1 overflow-y-auto md:flex-1" style={{ background: 'white' }}>
         {/* Online Buddies Group */}
         <div className="border-b border-gray-200">
           <div 

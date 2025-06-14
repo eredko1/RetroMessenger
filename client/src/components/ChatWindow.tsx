@@ -204,7 +204,7 @@ export default function ChatWindow({
   return (
     <div 
       ref={windowRef}
-      className="win-window absolute shadow-2xl md:w-full md:h-full md:inset-0 md:relative border-2 border-gray-400 rounded-lg overflow-hidden select-none"
+      className="xp-window absolute md:w-full md:h-full md:inset-0 md:relative overflow-hidden select-none"
       style={{ 
         left: position.x, 
         top: position.y,
@@ -215,9 +215,9 @@ export default function ChatWindow({
       }}
       onClick={() => onFocus(chatId)}
     >
-      {/* Title Bar */}
+      {/* Windows XP Title Bar */}
       <div 
-        className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500 cursor-move"
+        className="xp-titlebar cursor-move"
         onMouseDown={handleMouseDown}
       >
         <div className="flex items-center space-x-3">
