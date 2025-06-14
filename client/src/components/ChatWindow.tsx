@@ -30,7 +30,7 @@ export default function ChatWindow({
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Fetch conversation history
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<any[]>({
     queryKey: ['/api/conversation', currentUser.id, buddyId],
     refetchInterval: 1000, // Poll for new messages
   });
@@ -133,12 +133,10 @@ export default function ChatWindow({
 
   return (
     <div 
-      className="win-window absolute w-80 h-64 shadow-lg md:relative md:w-full md:h-full md:max-w-none md:max-h-none"
+      className="win-window absolute w-80 h-64 shadow-lg md:w-full md:h-full md:inset-0 md:relative"
       style={{ 
-        left: window.innerWidth <= 768 ? 0 : position.x, 
-        top: window.innerWidth <= 768 ? 0 : position.y,
-        width: window.innerWidth <= 768 ? '100vw' : '320px',
-        height: window.innerWidth <= 768 ? '100vh' : '256px'
+        left: position.x, 
+        top: position.y,
       }}
     >
       {/* Title Bar */}
@@ -161,8 +159,8 @@ export default function ChatWindow({
       </div>
 
       {/* Chat History */}
-      <div className="chat-history h-40 overflow-y-auto">
-        {messages.map((msg: any) => (
+      <div className="chat-history h-40 md:flex-1 overflow-y-auto">
+        {(messages as any[]).map((msg: any) => (
           <div key={msg.id} className="mb-2">
             <div className={`message-sender ${msg.fromUserId === currentUser.id ? 'text-red-600' : 'text-blue-600'}`}>
               {msg.fromUserId === currentUser.id ? currentUser.screenName : buddyName}:

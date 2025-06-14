@@ -51,7 +51,7 @@ export default function BuddyList({
   };
 
   return (
-    <div className="win-window absolute top-8 left-8 w-64 h-96 shadow-lg md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm">
+    <div className="win-window absolute top-8 left-8 w-64 h-96 shadow-lg md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col">
       {/* Title Bar */}
       <div className="win-titlebar px-2 py-1 flex justify-between items-center">
         <div className="flex items-center">
@@ -91,7 +91,7 @@ export default function BuddyList({
       </div>
 
       {/* Buddy List */}
-      <div className="flex-1 bg-white overflow-y-auto">
+      <div className="flex-1 bg-white overflow-y-auto md:flex-1">
         {/* Online Buddies Group */}
         <div className="border-b border-gray-300">
           <div 
