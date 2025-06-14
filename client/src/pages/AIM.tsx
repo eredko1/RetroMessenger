@@ -10,6 +10,8 @@ import BuddyProfile from "@/components/BuddyProfile";
 import AddBuddyDialog from "@/components/AddBuddyDialog";
 import UserProfileEditor from "@/components/UserProfileEditor";
 import OfflineNotification from "@/components/OfflineNotification";
+import SystemTrayNotification from "@/components/SystemTrayNotification";
+import BuddyAlertSettings from "@/components/BuddyAlertSettings";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
 import LoginForm from "@/components/LoginForm";
@@ -38,10 +40,12 @@ export default function AIM() {
   const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
   const [showAddBuddy, setShowAddBuddy] = useState(false);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [showBuddyAlerts, setShowBuddyAlerts] = useState<any>(null);
   const [offlineMessages, setOfflineMessages] = useState<any[]>([]);
+  const [systemNotifications, setSystemNotifications] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1000);
   const { toast } = useToast();
-  const { playMessageSound, playBuddyOnlineSound } = useAIMSounds();
+  const { playMessageSound, playBuddyOnlineSound, playCustomBuddySound, playSystemNotificationSound } = useAIMSounds();
 
   const { socket, isConnected } = useWebSocket(currentUser);
 
@@ -62,6 +66,16 @@ export default function AIM() {
       switch (data.type) {
         case 'new_message':
           playMessageSound();
+          
+          // Show system tray notification for new message
+          const messageNotification = {
+            id: Date.now().toString(),
+            title: 'New Message',
+            message: `Message from ${data.message.fromUser?.screenName || 'Unknown'}`,
+            type: 'info' as const
+          };
+          setSystemNotifications(prev => [...prev, messageNotification]);
+          
           // Add offline notification for messages when user is away
           if (currentUser?.status === 'away') {
             setOfflineMessages(prev => [...prev, {
@@ -79,12 +93,37 @@ export default function AIM() {
           break;
           
         case 'user_online':
-          playBuddyOnlineSound();
           refetchBuddies();
-          toast({
-            title: "Buddy Online",
-            description: `${data.screenName} has signed on`,
-          });
+          
+          // Handle custom buddy alerts with system tray notification
+          if (data.alertSettings?.enableAlerts) {
+            // Show system tray notification
+            const notification = {
+              id: Date.now().toString(),
+              title: 'Buddy Online',
+              message: `${data.screenName} has signed on`,
+              type: 'info' as const
+            };
+            setSystemNotifications(prev => [...prev, notification]);
+            
+            // Play custom sound if specified
+            if (data.alertSettings.customSoundAlert) {
+              if (data.alertSettings.customSoundAlert.startsWith('freq:')) {
+                const freq = parseInt(data.alertSettings.customSoundAlert.split(':')[1]);
+                playCustomBuddySound(freq);
+              } else {
+                playBuddyOnlineSound();
+              }
+            } else {
+              playBuddyOnlineSound();
+            }
+          } else {
+            playBuddyOnlineSound();
+            toast({
+              title: "Buddy Online",
+              description: `${data.screenName} has signed on`,
+            });
+          }
           break;
           
         case 'user_offline':
