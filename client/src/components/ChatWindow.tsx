@@ -133,8 +133,13 @@ export default function ChatWindow({
 
   return (
     <div 
-      className="win-window absolute w-80 h-64 shadow-lg"
-      style={{ left: position.x, top: position.y }}
+      className="win-window absolute w-80 h-64 shadow-lg md:relative md:w-full md:h-full md:max-w-none md:max-h-none"
+      style={{ 
+        left: window.innerWidth <= 768 ? 0 : position.x, 
+        top: window.innerWidth <= 768 ? 0 : position.y,
+        width: window.innerWidth <= 768 ? '100vw' : '320px',
+        height: window.innerWidth <= 768 ? '100vh' : '256px'
+      }}
     >
       {/* Title Bar */}
       <div className="win-titlebar px-2 py-1 flex justify-between items-center">

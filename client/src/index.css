@@ -44,6 +44,16 @@
   font-size: 11px;
   padding: 2px 8px;
   cursor: pointer;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+  .win-button {
+    font-size: 14px;
+    padding: 8px 12px;
+    min-height: 48px;
+  }
 }
 
 .win-button:hover {
@@ -205,6 +215,11 @@
     overflow: hidden;
     font-family: Arial, sans-serif;
     min-height: 100vh;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
   /* Windows XP desktop wallpaper effect */

@@ -148,38 +148,68 @@ export default function AIM() {
   }
 
   return (
-    <div className="w-screen h-screen relative bg-win-gray font-system text-xs overflow-hidden">
-      {/* Desktop Icons */}
-      <DesktopIcons />
+    <div className="w-screen h-screen relative bg-win-gray font-system text-xs overflow-hidden md:flex md:flex-col">
+      {/* Desktop Icons - Hidden on mobile */}
+      <div className="hidden lg:block">
+        <DesktopIcons />
+      </div>
       
-      {/* Buddy List */}
-      <BuddyList
-        user={currentUser}
-        buddies={buddies}
-        onOpenChat={openChat}
-        onShowAwayDialog={() => setShowAwayDialog(true)}
-        onShowProfile={setSelectedBuddy}
-        onLogout={handleLogout}
-        onStatusChange={(status, awayMessage) => 
-          updateUserStatus.mutate({ status, awayMessage })
-        }
-        onShowAddBuddy={() => setShowAddBuddy(true)}
-      />
+      {/* Mobile/Desktop Layout */}
+      <div className="h-full w-full md:flex md:flex-row">
+        {/* Buddy List */}
+        <div className="w-full md:w-80 h-full md:h-auto">
+          <BuddyList
+            user={currentUser}
+            buddies={buddies}
+            onOpenChat={openChat}
+            onShowAwayDialog={() => setShowAwayDialog(true)}
+            onShowProfile={setSelectedBuddy}
+            onLogout={handleLogout}
+            onStatusChange={(status, awayMessage) => 
+              updateUserStatus.mutate({ status, awayMessage })
+            }
+            onShowAddBuddy={() => setShowAddBuddy(true)}
+          />
+        </div>
 
-      {/* Chat Windows */}
-      {openChats.map((chat, index) => (
-        <ChatWindow
-          key={chat.id}
-          chatId={chat.id}
-          currentUser={currentUser}
-          buddyId={chat.buddyId}
-          buddyName={chat.buddyName}
-          isOnline={chat.isOnline}
-          position={{ x: 320 + (index * 50), y: 80 + (index * 50) }}
-          onClose={() => closeChat(chat.id)}
-          socket={socket}
-        />
-      ))}
+        {/* Chat Area - Mobile optimized */}
+        <div className="hidden md:block flex-1 relative">
+          {/* Chat Windows */}
+          {openChats.map((chat, index) => (
+            <ChatWindow
+              key={chat.id}
+              chatId={chat.id}
+              currentUser={currentUser}
+              buddyId={chat.buddyId}
+              buddyName={chat.buddyName}
+              isOnline={chat.isOnline}
+              position={{ x: 20 + (index * 50), y: 20 + (index * 50) }}
+              onClose={() => closeChat(chat.id)}
+              socket={socket}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile Chat Windows - Full screen overlay */}
+      {openChats.length > 0 && (
+        <div className="md:hidden fixed inset-0 z-40">
+          {openChats.map((chat, index) => (
+            <div key={chat.id} className={index === openChats.length - 1 ? 'block' : 'hidden'}>
+              <ChatWindow
+                chatId={chat.id}
+                currentUser={currentUser}
+                buddyId={chat.buddyId}
+                buddyName={chat.buddyName}
+                isOnline={chat.isOnline}
+                position={{ x: 0, y: 0 }}
+                onClose={() => closeChat(chat.id)}
+                socket={socket}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Away Message Dialog */}
       {showAwayDialog && (
