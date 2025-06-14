@@ -271,6 +271,44 @@
     scrollbar-width: thin;
     scrollbar-color: #cbd5e0 #f8f9fa;
   }
+
+  /* Notification animations */
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  /* Rich text formatting styles */
+  .rich-text-message {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .rich-text-message img {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 4px;
+    margin: 4px 0;
+  }
+
+  .rich-text-message a {
+    color: #0066cc;
+    text-decoration: underline;
+  }
+
+  .rich-text-message a:hover {
+    color: #004499;
+  }
   
   .win-window {
     position: fixed !important;
