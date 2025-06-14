@@ -51,18 +51,22 @@ export default function BuddyList({
   };
 
   return (
-    <div className="win-window absolute top-8 left-8 w-64 h-96 shadow-lg md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col">
+    <div className="win-window absolute top-8 left-8 w-72 h-[500px] shadow-2xl md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col border-2 border-gray-400 rounded-lg overflow-hidden">
       {/* Title Bar */}
-      <div className="win-titlebar px-2 py-1 flex justify-between items-center">
-        <div className="flex items-center">
-          <span className="text-white font-bold">AOL Instant Messenger</span>
+      <div className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500">
+        <div className="flex items-center space-x-2">
+          <div className="w-5 h-5 bg-yellow-400 rounded-sm flex items-center justify-center shadow-sm">
+            <span className="text-xs font-bold text-blue-800">AIM</span>
+          </div>
+          <span className="text-white font-bold text-sm">AOL Instant Messenger</span>
         </div>
         <div className="flex space-x-1">
-          <button className="w-4 h-4 bg-gray-300 border border-gray-500 text-xs">_</button>
-          <button className="w-4 h-4 bg-gray-300 border border-gray-500 text-xs">□</button>
+          <button className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors">_</button>
+          <button className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors">□</button>
           <button 
             onClick={onLogout}
-            className="w-4 h-4 bg-red-500 border border-red-700 text-white text-xs"
+            className="w-5 h-5 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs rounded-sm transition-colors"
+            title="Sign Off"
           >
             ×
           </button>
@@ -70,52 +74,72 @@ export default function BuddyList({
       </div>
 
       {/* User Status Bar */}
-      <div className="bg-blue-100 p-2 border-b border-gray-400">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gray-300 border border-gray-400 buddy-icon flex items-center justify-center text-xs">
-            👤
+      <div className="bg-gradient-to-b from-blue-50 to-blue-100 p-3 border-b border-gray-300">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                {user.screenName[0].toUpperCase()}
+              </div>
+              <span className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${user.status === 'away' ? 'bg-yellow-400' : 'bg-green-400'} shadow-sm`}></span>
+            </div>
+            <div>
+              <div className="font-bold text-sm text-gray-800">{user.screenName}</div>
+              <div className="text-xs text-gray-600">{user.status === 'away' ? 'Away' : 'Available'}</div>
+            </div>
           </div>
-          <div className="flex-1">
-            <div className="font-bold text-black text-xs">{user.screenName}</div>
-            <select 
-              className="aim-select w-full text-xs"
-              value={user.status}
-              onChange={handleStatusChange}
-            >
-              <option value="online">Online</option>
-              <option value="away">Away</option>
-              <option value="invisible">Invisible</option>
-            </select>
-          </div>
+          <button 
+            onClick={onShowAddBuddy}
+            className="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full hover:from-green-600 hover:to-green-700 transition-all shadow-sm font-medium"
+          >
+            + Add Buddy
+          </button>
+        </div>
+        <div className="mt-3">
+          <select 
+            className="w-full text-xs bg-white border border-gray-300 rounded-md px-2 py-1.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            value={user.status}
+            onChange={handleStatusChange}
+          >
+            <option value="online">🟢 Available</option>
+            <option value="away">🟡 Away</option>
+            <option value="invisible">⚫ Invisible</option>
+          </select>
         </div>
       </div>
 
       {/* Buddy List */}
       <div className="flex-1 bg-white overflow-y-auto md:flex-1">
         {/* Online Buddies Group */}
-        <div className="border-b border-gray-300">
+        <div className="border-b border-gray-200">
           <div 
-            className="group-header px-2 py-1 text-xs font-bold cursor-pointer"
+            className="group-header px-3 py-2 text-xs font-bold cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 transition-all flex items-center"
             onClick={() => toggleGroup('Buddies')}
           >
-            {expandedGroups.has('Buddies') ? '▼' : '▶'} Buddies ({onlineBuddies.length}/{buddies.length})
+            <span className={`mr-2 transition-transform ${expandedGroups.has('Buddies') ? 'rotate-90' : ''}`}>▶</span>
+            <span className="text-gray-700">Online Buddies ({onlineBuddies.length})</span>
           </div>
           
           {expandedGroups.has('Buddies') && onlineBuddies.map(buddy => (
             <div 
               key={buddy.id}
-              className="buddy-item px-2 py-1 hover:bg-blue-100 cursor-pointer flex items-center space-x-2"
+              className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors"
               onClick={() => onOpenChat(buddy)}
               onDoubleClick={() => onShowProfile(buddy)}
             >
-              <span className={`status-dot ${getStatusDotClass(buddy)}`}></span>
-              <div className="w-4 h-4 bg-gray-300 buddy-icon flex items-center justify-center text-xs">
-                👤
+              <div className="relative">
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
+                  {buddy.screenName[0].toUpperCase()}
+                </div>
+                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${getStatusDotClass(buddy)} shadow-sm`}></span>
               </div>
-              <span className="text-xs">{buddy.screenName}</span>
-              {buddy.status === 'away' && (
-                <span className="text-gray-500 text-xs">(Away)</span>
-              )}
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-800 truncate">{buddy.screenName}</div>
+                {buddy.status === 'away' && buddy.awayMessage && (
+                  <div className="text-xs text-gray-500 truncate">{buddy.awayMessage}</div>
+                )}
+              </div>
+              <div className="text-xs text-gray-400">💬</div>
             </div>
           ))}
         </div>
@@ -124,23 +148,30 @@ export default function BuddyList({
         {offlineBuddies.length > 0 && (
           <div>
             <div 
-              className="group-header px-2 py-1 text-xs font-bold cursor-pointer"
+              className="group-header px-3 py-2 text-xs font-bold cursor-pointer bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 transition-all flex items-center"
               onClick={() => toggleGroup('Offline')}
             >
-              {expandedGroups.has('Offline') ? '▼' : '▶'} Offline ({offlineBuddies.length})
+              <span className={`mr-2 transition-transform ${expandedGroups.has('Offline') ? 'rotate-90' : ''}`}>▶</span>
+              <span className="text-gray-700">Offline ({offlineBuddies.length})</span>
             </div>
             
             {expandedGroups.has('Offline') && offlineBuddies.map(buddy => (
               <div 
                 key={buddy.id}
-                className="buddy-item px-2 py-1 text-gray-500 flex items-center space-x-2"
+                className="buddy-item px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors opacity-60"
                 onDoubleClick={() => onShowProfile(buddy)}
               >
-                <span className="status-dot status-offline"></span>
-                <div className="w-4 h-4 bg-gray-300 buddy-icon grayscale flex items-center justify-center text-xs">
-                  👤
+                <div className="relative">
+                  <div className="w-8 h-8 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
+                    {buddy.screenName[0].toUpperCase()}
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white bg-gray-400 shadow-sm"></span>
                 </div>
-                <span className="text-xs">{buddy.screenName}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-600 truncate">{buddy.screenName}</div>
+                  <div className="text-xs text-gray-400">Offline</div>
+                </div>
+                <div className="text-xs text-gray-300">💭</div>
               </div>
             ))}
           </div>

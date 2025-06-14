@@ -133,25 +133,29 @@ export default function ChatWindow({
 
   return (
     <div 
-      className="win-window absolute w-80 h-64 shadow-lg md:w-full md:h-full md:inset-0 md:relative"
+      className="win-window absolute w-96 h-80 shadow-2xl md:w-full md:h-full md:inset-0 md:relative border-2 border-gray-400 rounded-lg overflow-hidden"
       style={{ 
         left: position.x, 
         top: position.y,
       }}
     >
       {/* Title Bar */}
-      <div className="win-titlebar px-2 py-1 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className={`status-dot ${isOnline ? 'status-online' : 'status-offline'}`}></span>
-          <span className="text-white font-bold text-xs">
-            Instant Message from {buddyName}
-          </span>
+      <div className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500">
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
+              {buddyName[0].toUpperCase()}
+            </div>
+            <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${isOnline ? 'bg-green-400' : 'bg-gray-400'} shadow-sm`}></span>
+          </div>
+          <span className="text-white font-bold text-sm">Chat with {buddyName}</span>
         </div>
         <div className="flex space-x-1">
-          <button className="w-4 h-4 bg-gray-300 border border-gray-500 text-xs">_</button>
+          <button className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors">_</button>
           <button 
             onClick={onClose}
-            className="w-4 h-4 bg-red-500 border border-red-700 text-white text-xs"
+            className="w-5 h-5 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs rounded-sm transition-colors"
+            title="Close Chat"
           >
             ×
           </button>
@@ -159,19 +163,37 @@ export default function ChatWindow({
       </div>
 
       {/* Chat History */}
-      <div className="chat-history h-40 md:flex-1 overflow-y-auto">
+      <div className="chat-history flex-1 overflow-y-auto bg-white p-3 md:flex-1">
         {(messages as any[]).map((msg: any) => (
-          <div key={msg.id} className="mb-2">
-            <div className={`message-sender ${msg.fromUserId === currentUser.id ? 'text-red-600' : 'text-blue-600'}`}>
-              {msg.fromUserId === currentUser.id ? currentUser.screenName : buddyName}:
+          <div key={msg.id} className="mb-3">
+            <div className="flex items-start space-x-2">
+              <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm flex-shrink-0">
+                {(msg.fromUserId === currentUser.id ? currentUser.screenName : buddyName)[0].toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline space-x-2">
+                  <span className={`font-medium text-sm ${msg.fromUserId === currentUser.id ? 'text-blue-600' : 'text-purple-600'}`}>
+                    {msg.fromUserId === currentUser.id ? currentUser.screenName : buddyName}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {formatTime(new Date(msg.timestamp))}
+                  </span>
+                </div>
+                <div className="message-content text-gray-800 text-sm mt-1 break-words">
+                  {msg.content}
+                </div>
+              </div>
             </div>
-            <div className="message-content">{msg.content}</div>
-            <div className="message-time">{formatTime(msg.timestamp)}</div>
           </div>
         ))}
         {buddyTyping && (
-          <div className="mb-2 text-gray-500 italic text-xs">
-            {buddyName} is typing...
+          <div className="flex items-center space-x-2 text-gray-500 text-sm italic">
+            <div className="flex space-x-1">
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+            <span>{buddyName} is typing...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
