@@ -308,6 +308,15 @@ export default function ChatWindow({
           </button>
         </form>
       </div>
+      
+      {/* Resize Handle */}
+      <div 
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-nw-resize opacity-50 hover:opacity-100 transition-opacity"
+        onMouseDown={handleResizeMouseDown}
+        style={{
+          background: 'linear-gradient(-45deg, transparent 40%, #666 40%, #666 60%, transparent 60%)',
+        }}
+      />
     </div>
   );
 }

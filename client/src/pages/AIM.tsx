@@ -24,6 +24,9 @@ interface ChatWindowData {
   buddyId: number;
   buddyName: string;
   isOnline: boolean;
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  zIndex: number;
 }
 
 export default function AIM() {
@@ -33,6 +36,7 @@ export default function AIM() {
   const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
   const [showAddBuddy, setShowAddBuddy] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [nextZIndex, setNextZIndex] = useState(1000);
   const { toast } = useToast();
   const { playMessageSound, playBuddyOnlineSound } = useAIMSounds();
 
@@ -121,17 +125,58 @@ export default function AIM() {
   const openChat = (buddy: any) => {
     const chatId = `chat-${buddy.id}`;
     if (!openChats.find(chat => chat.id === chatId)) {
-      setOpenChats(prev => [...prev, {
+      const newChat: ChatWindowData = {
         id: chatId,
         buddyId: buddy.id,
         buddyName: buddy.screenName,
-        isOnline: buddy.isOnline
-      }]);
+        isOnline: buddy.isOnline,
+        position: { 
+          x: 300 + (openChats.length * 30), 
+          y: 100 + (openChats.length * 30) 
+        },
+        size: { width: 400, height: 320 },
+        zIndex: nextZIndex
+      };
+      setOpenChats(prev => [...prev, newChat]);
+      setNextZIndex(prev => prev + 1);
+    } else {
+      // If chat already exists, bring it to front
+      setOpenChats(prev => prev.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, zIndex: nextZIndex }
+          : chat
+      ));
+      setNextZIndex(prev => prev + 1);
     }
   };
 
   const closeChat = (chatId: string) => {
     setOpenChats(prev => prev.filter(chat => chat.id !== chatId));
+  };
+
+  const focusChat = (chatId: string) => {
+    setOpenChats(prev => prev.map(chat => 
+      chat.id === chatId 
+        ? { ...chat, zIndex: nextZIndex }
+        : chat
+    ));
+    setNextZIndex(prev => prev + 1);
+  };
+
+  const moveChat = (chatId: string, position: { x: number; y: number }) => {
+    setOpenChats(prev => prev.map(chat => 
+      chat.id === chatId 
+        ? { ...chat, position }
+        : chat
+    ));
+  };
+
+  const resizeChat = (chatId: string, size: { width: number; height: number }) => {
+    setOpenChats(prev => prev.map(chat => 
+      chat.id === chatId 
+        ? { ...chat, size }
+        : chat
+    ));
   };
 
   const updateUserStatus = useMutation({
@@ -176,7 +221,7 @@ export default function AIM() {
         {/* Chat Area - Mobile optimized */}
         <div className="hidden md:block flex-1 relative">
           {/* Chat Windows */}
-          {openChats.map((chat, index) => (
+          {openChats.map((chat) => (
             <ChatWindow
               key={chat.id}
               chatId={chat.id}
@@ -184,8 +229,13 @@ export default function AIM() {
               buddyId={chat.buddyId}
               buddyName={chat.buddyName}
               isOnline={chat.isOnline}
-              position={{ x: 20 + (index * 50), y: 20 + (index * 50) }}
+              position={chat.position}
+              size={chat.size}
+              zIndex={chat.zIndex}
               onClose={() => closeChat(chat.id)}
+              onMove={moveChat}
+              onResize={resizeChat}
+              onFocus={focusChat}
               socket={socket}
             />
           ))}
@@ -204,7 +254,12 @@ export default function AIM() {
                 buddyName={chat.buddyName}
                 isOnline={chat.isOnline}
                 position={{ x: 0, y: 0 }}
+                size={{ width: window.innerWidth, height: window.innerHeight }}
+                zIndex={chat.zIndex}
                 onClose={() => closeChat(chat.id)}
+                onMove={moveChat}
+                onResize={resizeChat}
+                onFocus={focusChat}
                 socket={socket}
               />
             </div>
