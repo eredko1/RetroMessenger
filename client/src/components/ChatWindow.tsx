@@ -176,7 +176,7 @@ export default function ChatWindow({
                     {msg.fromUserId === currentUser.id ? currentUser.screenName : buddyName}
                   </span>
                   <span className="text-xs text-gray-500">
-                    {formatTime(new Date(msg.timestamp))}
+                    {formatTime(msg.timestamp)}
                   </span>
                 </div>
                 <div className="message-content text-gray-800 text-sm mt-1 break-words">

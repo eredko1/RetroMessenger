@@ -112,6 +112,13 @@ Changelog:
   - Added desktop icons (My Computer, Recycle Bin, etc.)
   - Seeded sample users for testing buddy system
   - Users can now add buddies by screen name
+- June 14, 2025. Enhanced buddy list system and improved design
+  - Fixed unique buddy lists for each user with proper isolation
+  - Added real-time online status tracking via WebSocket connections
+  - Modernized buddy list UI with gradient avatars and status indicators
+  - Improved chat window design with better message styling
+  - Enhanced mobile responsiveness for phone usage
+  - Fixed conversation system to work properly between users
 
 ## User Preferences
 

@@ -40,8 +40,9 @@ export default function AIM() {
 
   // Fetch buddy list
   const { data: buddies = [], refetch: refetchBuddies } = useQuery<any[]>({
-    queryKey: ['/api/user', currentUser?.id, 'buddies'],
+    queryKey: [`/api/user/${currentUser?.id}/buddies`],
     enabled: !!currentUser,
+    refetchInterval: 5000, // Refresh every 5 seconds to update online status
   });
 
   // Listen for WebSocket messages
