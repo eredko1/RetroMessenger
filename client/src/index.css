@@ -209,8 +209,8 @@
 
   body {
     @apply font-sans antialiased;
-    background: linear-gradient(135deg, #5A9FD4 0%, #306998 25%, #5A9FD4 50%, #306998 75%, #5A9FD4 100%);
-    background-attachment: fixed;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%2387CEEB;stop-opacity:1" /><stop offset="100%" style="stop-color:%23E0F6FF;stop-opacity:1" /></linearGradient><linearGradient id="hills" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%2332CD32;stop-opacity:1" /><stop offset="100%" style="stop-color:%23228B22;stop-opacity:1" /></linearGradient></defs><rect width="800" height="600" fill="url(%23sky)"/><path d="M0,400 Q200,350 400,380 T800,360 L800,600 L0,600 Z" fill="url(%23hills)"/><path d="M0,450 Q150,420 300,440 T600,430 T800,420 L800,600 L0,600 Z" fill="%23228B22" opacity="0.8"/></svg>') no-repeat center center fixed;
+    background-size: cover;
     color: var(--foreground);
     overflow: hidden;
     font-family: Arial, sans-serif;
@@ -222,7 +222,7 @@
     user-select: none;
   }
 
-  /* Windows XP desktop wallpaper effect */
+  /* Windows XP desktop wallpaper effect - Rolling Hills */
   body::before {
     content: '';
     position: fixed;
@@ -231,8 +231,8 @@
     width: 100%;
     height: 100%;
     background: 
-      radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, transparent 70%),
-      linear-gradient(135deg, #5A9FD4 0%, #306998 25%, #5A9FD4 50%, #306998 75%, #5A9FD4 100%);
+      radial-gradient(ellipse 800px 400px at 50% 100%, rgba(255,255,255,0.3) 0%, transparent 50%),
+      linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 40%, #32CD32 60%, #228B22 100%);
     z-index: -1;
   }
 }

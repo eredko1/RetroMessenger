@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface BuddyListProps {
   user: any;
@@ -22,6 +22,9 @@ export default function BuddyList({
   onShowAddBuddy
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const onlineBuddies = buddies.filter(buddy => buddy.isOnline);
   const offlineBuddies = buddies.filter(buddy => !buddy.isOnline);
@@ -50,10 +53,54 @@ export default function BuddyList({
     return buddy.status === 'away' ? 'status-away' : 'status-online';
   };
 
+  // Drag handlers for buddy list
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('.win-titlebar')) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+      e.preventDefault();
+    }
+  };
+
+  // Mouse events for dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setPosition({
+          x: Math.max(0, Math.min(window.innerWidth - 300, e.clientX - dragStart.x)),
+          y: Math.max(0, Math.min(window.innerHeight - 500, e.clientY - dragStart.y))
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
+
   return (
     <div 
-      className="win-window absolute top-8 left-8 w-72 h-[500px] shadow-2xl md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col border-2 border-gray-400 rounded-lg overflow-hidden select-none"
-      style={{ zIndex: 1001 }}
+      className="win-window absolute w-72 h-[400px] shadow-2xl md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col border-2 border-gray-400 rounded-lg overflow-hidden select-none"
+      style={{ 
+        left: position.x, 
+        top: position.y, 
+        zIndex: 1001,
+        cursor: isDragging ? 'move' : 'default'
+      }}
+      onMouseDown={handleMouseDown}
     >
       {/* Title Bar */}
       <div 
