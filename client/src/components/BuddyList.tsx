@@ -125,7 +125,7 @@ export default function BuddyList({
       </div>
 
       {/* Buddy List */}
-      <div className="flex-1 bg-white overflow-y-auto md:flex-1">
+      <div className="flex-1 bg-white overflow-y-auto buddy-list-scroll md:flex-1">
         {/* Online Buddies Group */}
         <div className="border-b border-gray-200">
           <div 
@@ -138,7 +138,7 @@ export default function BuddyList({
           
           {expandedGroups.has('Buddies') && onlineBuddies.map(buddy => (
             <div 
-              key={buddy.id}
+              key={`online-${buddy.id}`}
               className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors"
               onClick={() => onOpenChat(buddy)}
               onDoubleClick={() => onShowProfile(buddy)}
@@ -173,7 +173,7 @@ export default function BuddyList({
             
             {expandedGroups.has('Offline') && offlineBuddies.map(buddy => (
               <div 
-                key={buddy.id}
+                key={`offline-${buddy.id}`}
                 className="buddy-item px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors opacity-60"
                 onDoubleClick={() => onShowProfile(buddy)}
               >
