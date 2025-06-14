@@ -6,10 +6,17 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   screenName: text("screen_name").notNull().unique(),
   password: text("password").notNull(),
-  status: text("status").notNull().default("online"), // online, away, offline
+  status: text("status").notNull().default("online"), // online, away, offline, invisible
   awayMessage: text("away_message"),
   profileText: text("profile_text"),
+  profileQuote: text("profile_quote"),
+  interests: text("interests"),
+  location: text("location"),
+  occupation: text("occupation"),
+  hobbies: text("hobbies"),
   avatarUrl: text("avatar_url"),
+  isInvisible: boolean("is_invisible").notNull().default(false),
+  allowDirectIMs: boolean("allow_direct_ims").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -26,8 +33,26 @@ export const messages = pgTable("messages", {
   fromUserId: integer("from_user_id").notNull().references(() => users.id),
   toUserId: integer("to_user_id").notNull().references(() => users.id),
   content: text("content").notNull(),
+  formatting: text("formatting"), // JSON string for rich text formatting
   timestamp: timestamp("timestamp").defaultNow(),
   isRead: boolean("is_read").notNull().default(false),
+});
+
+export const blockedUsers = pgTable("blocked_users", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  blockedUserId: integer("blocked_user_id").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userWarnings = pgTable("user_warnings", {
+  id: serial("id").primaryKey(),
+  reporterId: integer("reporter_id").notNull().references(() => users.id),
+  reportedUserId: integer("reported_user_id").notNull().references(() => users.id),
+  reason: text("reason").notNull(),
+  description: text("description"),
+  status: text("status").notNull().default("pending"), // pending, reviewed, resolved
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({

@@ -1,6 +1,6 @@
-import { users, buddyLists, messages, type User, type InsertUser, type BuddyList, type InsertBuddyList, type Message, type InsertMessage, type UserWithStatus } from "@shared/schema";
+import { users, buddyLists, messages, blockedUsers, userWarnings, type User, type InsertUser, type BuddyList, type InsertBuddyList, type Message, type InsertMessage, type UserWithStatus } from "@shared/schema";
 import { db } from "./db";
-import { eq, or, and } from "drizzle-orm";
+import { eq, or, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -8,7 +8,7 @@ export interface IStorage {
   getUserByScreenName(screenName: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserStatus(id: number, status: string, awayMessage?: string): Promise<void>;
-  updateUserProfile(id: number, profileText: string, avatarUrl?: string): Promise<void>;
+  updateUserProfile(id: number, profileData: any): Promise<void>;
   
   // Buddy list operations
   getBuddyList(userId: number): Promise<UserWithStatus[]>;
@@ -19,6 +19,15 @@ export interface IStorage {
   saveMessage(message: InsertMessage): Promise<Message>;
   getConversation(userId1: number, userId2: number, limit?: number): Promise<Message[]>;
   markMessagesAsRead(userId: number, fromUserId: number): Promise<void>;
+  searchMessages(userId: number, query: string, limit?: number): Promise<Message[]>;
+  getUnreadMessagesCount(userId: number): Promise<number>;
+  
+  // Privacy and blocking
+  blockUser(userId: number, blockedUserId: number): Promise<void>;
+  unblockUser(userId: number, blockedUserId: number): Promise<void>;
+  getBlockedUsers(userId: number): Promise<number[]>;
+  isUserBlocked(userId: number, blockedUserId: number): Promise<boolean>;
+  reportUser(reporterId: number, reportedUserId: number, reason: string, description?: string): Promise<void>;
   
   // Online status tracking
   setUserOnline(userId: number): Promise<void>;
