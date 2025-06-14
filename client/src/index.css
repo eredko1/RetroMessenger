@@ -248,6 +248,19 @@
   font-family: Arial, sans-serif;
   font-size: 11px;
   line-height: 1.3;
+}
+
+/* Mobile responsive background */
+@media (max-width: 768px) {
+  body {
+    background-size: cover;
+    background-position: center center;
+    background-attachment: fixed;
+    overflow: auto;
+  }
+}
+
+.message-area {
   overflow-y: auto;
   padding: 4px;
   background: hsl(0, 0%, 100%);

@@ -5,6 +5,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAIMSounds } from "@/hooks/useAIMSounds";
 import BuddyList from "@/components/BuddyList";
 import ChatWindow from "@/components/ChatWindow";
+import GroupChatWindow from "@/components/GroupChatWindow";
 import AwayMessageDialog from "@/components/AwayMessageDialog";
 import BuddyProfile from "@/components/BuddyProfile";
 import AddBuddyDialog from "@/components/AddBuddyDialog";
