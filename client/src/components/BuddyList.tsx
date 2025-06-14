@@ -188,12 +188,12 @@ export default function BuddyList({
             <div 
               key={`online-${buddy.id}`}
               className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
-              onClick={() => onOpenChat(buddy)}
-              onDoubleClick={() => onShowProfile(buddy)}
+              onDoubleClick={() => onOpenChat(buddy)}
               onContextMenu={(e) => {
                 e.preventDefault();
-                if (onShowBuddyAlerts) onShowBuddyAlerts(buddy);
+                onShowProfile(buddy);
               }}
+              title="Right-click to view profile, double-click to chat"
             >
               <div className="relative">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
@@ -227,7 +227,11 @@ export default function BuddyList({
               <div 
                 key={`offline-${buddy.id}`}
                 className="buddy-item px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors opacity-60"
-                onDoubleClick={() => onShowProfile(buddy)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  onShowProfile(buddy);
+                }}
+                title="Right-click to view profile"
               >
                 <div className="relative">
                   <div className="w-8 h-8 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
