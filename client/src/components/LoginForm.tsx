@@ -66,15 +66,17 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-win-gray">
-      <div className="login-form w-80 p-6 shadow-lg">
-        {/* Title Bar */}
-        <div className="win-titlebar -mx-6 -mt-6 mb-4 px-4 py-2 flex justify-between items-center">
-          <span className="text-white font-bold">AOL Instant Messenger</span>
-          <div className="flex space-x-1">
-            <button className="w-4 h-4 bg-gray-300 border border-gray-500 text-xs">_</button>
-            <button className="w-4 h-4 bg-red-500 border border-red-700 text-white text-xs">×</button>
+    <div className="xp-desktop w-screen h-screen flex items-center justify-center">
+      <div className="xp-window w-80 p-4">
+        {/* Windows XP Title Bar */}
+        <div className="xp-titlebar -mx-4 -mt-4 mb-4">
+          <div className="flex items-center space-x-1">
+            <div className="w-4 h-4 bg-yellow-400 border border-gray-600 flex items-center justify-center">
+              <span style={{ fontSize: '8px' }}>💬</span>
+            </div>
+            <span>AOL Instant Messenger</span>
           </div>
+          <div className="xp-close-button">×</div>
         </div>
 
         {/* AIM Logo */}

@@ -71,32 +71,44 @@ export default function WindowsTaskbar() {
         </div>
       )}
 
-        <div className="fixed bottom-0 left-0 right-0 h-8 bg-gradient-to-r from-blue-600 to-blue-700 border-t-2 border-blue-400 flex items-center justify-between px-1 z-50">
-          {/* Start Button */}
+        <div className="fixed bottom-0 left-0 right-0 h-7 border-t flex items-center justify-between px-1 z-50" 
+             style={{ 
+               background: 'linear-gradient(to bottom, #245edb 0%, #1941a5 3%, #245edb 6%, #4584ff 50%, #245edb 94%, #1941a5 97%, #245edb 100%)',
+               borderTopColor: '#5d9cff'
+             }}>
+          {/* Authentic XP Start Button */}
           <div className="flex items-center">
             <button 
               onClick={() => setShowStartMenu(!showStartMenu)}
-              className="h-6 px-3 bg-gradient-to-r from-green-500 to-green-600 border border-green-700 rounded-sm flex items-center space-x-1 hover:from-green-400 hover:to-green-500 active:from-green-600 active:to-green-700"
+              className="h-6 px-3 text-white font-bold text-xs flex items-center space-x-1 border rounded-sm"
+              style={{
+                background: 'linear-gradient(to bottom, #44c767 0%, #2d8f47 3%, #44c767 6%, #5dd184 50%, #44c767 94%, #2d8f47 97%, #44c767 100%)',
+                borderColor: '#5dd184'
+              }}
             >
-              <div className="w-4 h-4 bg-gradient-to-br from-red-500 to-blue-600 rounded-sm flex items-center justify-center">
-                <span className="text-white text-xs font-bold">⊞</span>
+              <div className="w-3 h-3 rounded-sm flex items-center justify-center"
+                   style={{ background: 'linear-gradient(45deg, #ff4444 0%, #4444ff 100%)' }}>
+                <span className="text-white" style={{ fontSize: '8px' }}>⊞</span>
               </div>
-              <span className="text-white font-bold text-xs">start</span>
+              <span>start</span>
             </button>
           </div>
 
           {/* Taskbar Items */}
           <div className="flex-1 flex items-center space-x-1 mx-2">
-            <div className="h-6 px-2 bg-blue-800 border border-blue-900 rounded-sm flex items-center space-x-1">
-              <div className="w-4 h-4 bg-blue-500 rounded-sm flex items-center justify-center">
-                <span className="text-white text-xs">A</span>
+            <div className="h-5 px-2 border rounded-sm flex items-center space-x-1"
+                 style={{ background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
+              <div className="w-3 h-3 rounded-sm flex items-center justify-center"
+                   style={{ background: '#ffeb3b' }}>
+                <span className="text-blue-800 text-xs font-bold">A</span>
               </div>
               <span className="text-white text-xs">AOL Instant Messenger</span>
             </div>
           </div>
 
           {/* System Tray */}
-          <div className="flex items-center space-x-2 bg-blue-500 border border-blue-700 px-2 h-6 rounded-sm">
+          <div className="flex items-center space-x-1 px-1 h-5 border rounded-sm"
+               style={{ background: 'rgba(0,0,0,0.1)', borderColor: 'rgba(255,255,255,0.2)' }}>
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-green-400 rounded-sm" title="Network Connection"></div>
               <div className="w-3 h-3 bg-yellow-400 rounded-sm" title="Volume"></div>
