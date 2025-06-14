@@ -234,13 +234,24 @@ export default function ChatWindow({
           </div>
         </div>
         <div className="flex space-x-1">
-          <button className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors">_</button>
+          <button 
+            className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors flex items-center justify-center"
+            title="Minimize"
+          >
+            <span className="text-gray-600 text-xs leading-none">‾</span>
+          </button>
+          <button 
+            className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors flex items-center justify-center"
+            title="Maximize"
+          >
+            <span className="text-gray-600 text-xs leading-none">□</span>
+          </button>
           <button 
             onClick={onClose}
-            className="w-5 h-5 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs rounded-sm transition-colors"
+            className="w-5 h-5 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs rounded-sm transition-colors flex items-center justify-center"
             title="Close Chat"
           >
-            ×
+            <span className="leading-none">×</span>
           </button>
         </div>
       </div>
