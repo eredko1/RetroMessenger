@@ -7,6 +7,7 @@ import BuddyList from "@/components/BuddyList";
 import ChatWindow from "@/components/ChatWindow";
 import AwayMessageDialog from "@/components/AwayMessageDialog";
 import BuddyProfile from "@/components/BuddyProfile";
+import AddBuddyDialog from "@/components/AddBuddyDialog";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,6 +29,7 @@ export default function AIM() {
   const [openChats, setOpenChats] = useState<ChatWindowData[]>([]);
   const [showAwayDialog, setShowAwayDialog] = useState(false);
   const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
+  const [showAddBuddy, setShowAddBuddy] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const { toast } = useToast();
   const { playMessageSound, playBuddyOnlineSound } = useAIMSounds();
@@ -110,6 +112,7 @@ export default function AIM() {
     setOpenChats([]);
     setShowAwayDialog(false);
     setSelectedBuddy(null);
+    setShowAddBuddy(false);
   };
 
   const openChat = (buddy: any) => {
@@ -155,6 +158,7 @@ export default function AIM() {
         onStatusChange={(status, awayMessage) => 
           updateUserStatus.mutate({ status, awayMessage })
         }
+        onShowAddBuddy={() => setShowAddBuddy(true)}
       />
 
       {/* Chat Windows */}
@@ -180,6 +184,14 @@ export default function AIM() {
             updateUserStatus.mutate({ status: 'away', awayMessage: message });
             setShowAwayDialog(false);
           }}
+        />
+      )}
+
+      {/* Add Buddy Dialog */}
+      {showAddBuddy && (
+        <AddBuddyDialog
+          currentUserId={currentUser.id}
+          onClose={() => setShowAddBuddy(false)}
         />
       )}
 

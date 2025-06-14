@@ -8,6 +8,7 @@ interface BuddyListProps {
   onShowProfile: (buddy: any) => void;
   onLogout: () => void;
   onStatusChange: (status: string, awayMessage?: string) => void;
+  onShowAddBuddy: () => void;
 }
 
 export default function BuddyList({
@@ -17,7 +18,8 @@ export default function BuddyList({
   onShowAwayDialog,
   onShowProfile,
   onLogout,
-  onStatusChange
+  onStatusChange,
+  onShowAddBuddy
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
 
@@ -148,7 +150,16 @@ export default function BuddyList({
       {/* Status Bar */}
       <div className="bg-gray-200 px-2 py-1 border-t border-gray-400 flex justify-between items-center">
         <span className="text-xs">Online: {onlineBuddies.length} of {buddies.length} buddies</span>
-        <button className="win-button px-2 py-0 text-xs">Setup</button>
+        <div className="flex space-x-1">
+          <button 
+            onClick={onShowAddBuddy}
+            className="win-button px-2 py-0 text-xs"
+            title="Add Buddy"
+          >
+            Add
+          </button>
+          <button className="win-button px-2 py-0 text-xs">Setup</button>
+        </div>
       </div>
     </div>
   );

@@ -199,9 +199,25 @@
 
   body {
     @apply font-sans antialiased;
-    background: var(--win-gray);
+    background: linear-gradient(135deg, #5A9FD4 0%, #306998 25%, #5A9FD4 50%, #306998 75%, #5A9FD4 100%);
+    background-attachment: fixed;
     color: var(--foreground);
     overflow: hidden;
     font-family: Arial, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Windows XP desktop wallpaper effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, transparent 70%),
+      linear-gradient(135deg, #5A9FD4 0%, #306998 25%, #5A9FD4 50%, #306998 75%, #5A9FD4 100%);
+    z-index: -1;
   }
 }
