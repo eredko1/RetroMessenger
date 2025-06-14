@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import BuddyManagerDialog from "./BuddyManagerDialog";
 
 interface BuddyListProps {
   user: any;
@@ -27,8 +28,12 @@ export default function BuddyList({
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
   const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [size, setSize] = useState({ width: 280, height: 320 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [showBuddyManager, setShowBuddyManager] = useState(false);
 
   const onlineBuddies = buddies.filter(buddy => buddy.isOnline);
   const offlineBuddies = buddies.filter(buddy => !buddy.isOnline);
@@ -69,7 +74,20 @@ export default function BuddyList({
     }
   };
 
-  // Mouse events for dragging
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsResizing(true);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    });
+  };
+
+  // Mouse events for dragging and resizing
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -77,14 +95,23 @@ export default function BuddyList({
           x: Math.max(0, Math.min(window.innerWidth - 300, e.clientX - dragStart.x)),
           y: Math.max(0, Math.min(window.innerHeight - 500, e.clientY - dragStart.y))
         });
+      } else if (isResizing) {
+        const deltaX = e.clientX - resizeStart.x;
+        const deltaY = e.clientY - resizeStart.y;
+        
+        setSize({
+          width: Math.max(250, resizeStart.width + deltaX),
+          height: Math.max(280, resizeStart.height + deltaY)
+        });
       }
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      setIsResizing(false);
     };
 
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
@@ -97,12 +124,16 @@ export default function BuddyList({
 
   return (
     <div 
-      className="xp-window absolute w-72 h-[320px] md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col overflow-hidden select-none"
+      className="xp-window absolute overflow-hidden select-none md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col"
       style={{ 
         left: position.x, 
         top: position.y, 
+        width: Math.max(250, size.width),
+        height: Math.max(280, size.height),
         zIndex: 1000,
-        cursor: isDragging ? 'move' : 'default'
+        cursor: isDragging ? 'move' : 'default',
+        minWidth: '250px',
+        minHeight: '280px'
       }}
       onMouseDown={handleMouseDown}
     >
@@ -256,15 +287,37 @@ export default function BuddyList({
         <span className="text-xs">Online: {onlineBuddies.length} of {buddies.length} buddies</span>
         <div className="flex space-x-1">
           <button 
+            onClick={() => setShowBuddyManager(true)}
+            className="win-button px-2 py-0 text-xs"
+            title="Manage Buddies"
+          >
+            Manage
+          </button>
+          <button 
             onClick={onShowAddBuddy}
             className="win-button px-2 py-0 text-xs"
             title="Add Buddy"
           >
             Add
           </button>
-          <button className="win-button px-2 py-0 text-xs">Setup</button>
+          <button 
+            onClick={onShowAwayDialog}
+            className="win-button px-2 py-0 text-xs"
+            title="Set Away Message"
+          >
+            Away
+          </button>
         </div>
       </div>
+
+      {/* Resize Handle */}
+      <div
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-gray-300 border-l border-t border-gray-400"
+        onMouseDown={handleResizeMouseDown}
+        style={{
+          background: 'linear-gradient(135deg, transparent 0%, transparent 30%, #999 30%, #999 35%, transparent 35%, transparent 65%, #999 65%, #999 70%, transparent 70%)'
+        }}
+      />
     </div>
   );
 }
