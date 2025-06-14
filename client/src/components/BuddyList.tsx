@@ -97,7 +97,7 @@ export default function BuddyList({
 
   return (
     <div 
-      className="xp-window absolute w-72 h-[400px] md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col overflow-hidden select-none"
+      className="xp-window absolute w-72 h-[320px] md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col overflow-hidden select-none"
       style={{ 
         left: position.x, 
         top: position.y, 

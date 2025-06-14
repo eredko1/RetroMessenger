@@ -49,9 +49,15 @@ export default function ChatWindow({
   // Fetch conversation history with proper pagination
   const { data: messages = [], refetch } = useQuery({
     queryKey: ['/api/conversation', currentUser.id, buddyId],
-    queryFn: () => apiRequest(`/api/conversation?userId1=${currentUser.id}&userId2=${buddyId}&limit=100`),
+    queryFn: () => {
+      console.log('Fetching messages for:', currentUser.id, buddyId);
+      return apiRequest(`/api/conversation?userId1=${currentUser.id}&userId2=${buddyId}&limit=100`);
+    },
     refetchInterval: 2000,
-    select: (data) => Array.isArray(data) ? data : []
+    select: (data) => {
+      console.log('Received message data:', data);
+      return Array.isArray(data) ? data : [];
+    }
   });
 
   // Send message mutation
@@ -261,12 +267,12 @@ export default function ChatWindow({
             minHeight: '120px'
           }}
         >
-          {messages.length === 0 ? (
+          {!messages || messages.length === 0 ? (
             <div className="text-center text-gray-500 text-xs mt-4">
               No messages yet. Start a conversation!
             </div>
           ) : (
-            messages.map((msg, index) => (
+            messages.map((msg: any, index: number) => (
               <div key={index} className="mb-2">
                 <div className="text-xs text-gray-600 mb-1">
                   <span className="font-bold">

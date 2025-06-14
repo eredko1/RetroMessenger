@@ -128,6 +128,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Message routes
+  app.get("/api/conversation", async (req, res) => {
+    try {
+      const userId1 = parseInt(req.query.userId1 as string);
+      const userId2 = parseInt(req.query.userId2 as string);
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const messages = await storage.getConversation(userId1, userId2, limit);
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch conversation" });
+    }
+  });
+
   app.get("/api/conversation/:userId1/:userId2", async (req, res) => {
     try {
       const userId1 = parseInt(req.params.userId1);
