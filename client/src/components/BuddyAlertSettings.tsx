@@ -16,14 +16,14 @@ export default function BuddyAlertSettings({ buddy, currentUserId, onClose }: Bu
   const { playCustomBuddySound, playSystemNotificationSound } = useAIMSounds();
 
   // Fetch current buddy alert settings
-  const { data: alertSettings } = useQuery({
+  const { data: alertSettings } = useQuery<{ enableAlerts: boolean; customSoundAlert?: string }>({
     queryKey: [`/api/user/${currentUserId}/buddy/${buddy.id}/alerts`],
-    enabled: !!buddy.id,
+    enabled: !!buddy?.id,
   });
 
   useEffect(() => {
     if (alertSettings) {
-      setEnableAlerts(alertSettings.enableAlerts);
+      setEnableAlerts(alertSettings.enableAlerts ?? true);
       setSelectedSound(alertSettings.customSoundAlert || "");
       if (alertSettings.customSoundAlert?.startsWith("freq:")) {
         setCustomFrequency(parseInt(alertSettings.customSoundAlert.split(":")[1]) || 700);

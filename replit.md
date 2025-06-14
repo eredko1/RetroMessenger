@@ -131,6 +131,17 @@ Changelog:
   - Integrated invisible mode and direct message privacy controls
   - Message timestamps displayed in all chat windows
   - Database schema expanded to support all new social features
+- June 14, 2025. Complete Windows XP integration with advanced AIM features
+  - Implemented buddy-specific alert settings with custom notification sounds
+  - Added Windows XP system tray balloon notifications for messages and buddy status
+  - Created IM forwarding to email/SMS when users are away using SendGrid
+  - Enhanced sound system with custom frequency alerts for specific buddies
+  - Added multi-monitor window position management and persistence
+  - Integrated right-click context menus for buddy alert configuration
+  - Implemented Windows XP-style notification sounds and visual effects
+  - Added comprehensive buddy alert customization dialog
+  - Enhanced WebSocket system to support buddy-specific alert preferences
+  - All classic 2002 AIM functionality now fully implemented
 
 ## User Preferences
 

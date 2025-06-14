@@ -199,9 +199,13 @@ export default function BuddyList({
           {expandedGroups.has('Buddies') && onlineBuddies.map(buddy => (
             <div 
               key={`online-${buddy.id}`}
-              className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors"
+              className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
               onClick={() => onOpenChat(buddy)}
               onDoubleClick={() => onShowProfile(buddy)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                if (onShowBuddyAlerts) onShowBuddyAlerts(buddy);
+              }}
             >
               <div className="relative">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">

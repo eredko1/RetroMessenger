@@ -259,6 +259,7 @@ export default function AIM() {
             }
             onShowAddBuddy={() => setShowAddBuddy(true)}
             onEditProfile={() => setShowProfileEditor(true)}
+            onShowBuddyAlerts={(buddy) => setShowBuddyAlerts(buddy)}
           />
         </div>
 
