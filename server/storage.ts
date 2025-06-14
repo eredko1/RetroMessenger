@@ -284,7 +284,14 @@ export class DatabaseStorage implements IStorage {
     .where(and(eq(buddyLists.userId, userId), eq(buddyLists.buddyId, buddyId)))
     .limit(1);
     
-    return result || { enableAlerts: true };
+    if (result) {
+      return {
+        enableAlerts: result.enableAlerts,
+        customSoundAlert: result.customSoundAlert || undefined
+      };
+    }
+    
+    return { enableAlerts: true, customSoundAlert: undefined };
   }
 
   // Window position management for multi-monitor support

@@ -10,6 +10,7 @@ interface BuddyListProps {
   onStatusChange: (status: string, awayMessage?: string) => void;
   onShowAddBuddy: () => void;
   onEditProfile: () => void;
+  onShowBuddyAlerts?: (buddy: any) => void;
 }
 
 export default function BuddyList({
@@ -21,7 +22,8 @@ export default function BuddyList({
   onLogout,
   onStatusChange,
   onShowAddBuddy,
-  onEditProfile
+  onEditProfile,
+  onShowBuddyAlerts
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
   const [position, setPosition] = useState({ x: 20, y: 20 });

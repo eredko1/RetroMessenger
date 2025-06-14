@@ -142,7 +142,7 @@ export default function AIM() {
 
     socket.addEventListener('message', handleMessage);
     return () => socket.removeEventListener('message', handleMessage);
-  }, [socket, playMessageSound, playBuddyOnlineSound, refetchBuddies, toast]);
+  }, [socket, playMessageSound, playBuddyOnlineSound, playCustomBuddySound, refetchBuddies, toast]);
 
   // Auto-hide offline messages after 10 seconds
   useEffect(() => {
@@ -350,6 +350,15 @@ export default function AIM() {
         />
       )}
 
+      {/* Buddy Alert Settings */}
+      {showBuddyAlerts && currentUser && (
+        <BuddyAlertSettings
+          buddy={showBuddyAlerts}
+          currentUserId={currentUser.id}
+          onClose={() => setShowBuddyAlerts(null)}
+        />
+      )}
+
       {/* Offline Message Notifications */}
       <OfflineNotification
         messages={offlineMessages}
@@ -359,6 +368,17 @@ export default function AIM() {
           if (buddy) openChat(buddy);
         }}
       />
+
+      {/* System Tray Notifications */}
+      {systemNotifications.map((notification) => (
+        <SystemTrayNotification
+          key={notification.id}
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setSystemNotifications(prev => prev.filter(n => n.id !== notification.id))}
+        />
+      ))}
 
       {/* Windows XP Taskbar */}
       <WindowsTaskbar />
