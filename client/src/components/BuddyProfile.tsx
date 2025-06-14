@@ -46,7 +46,7 @@ export default function BuddyProfile({ buddy, onClose, onSendMessage }: BuddyPro
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1200]">
       <div className="win-window w-96 max-h-[80vh] overflow-hidden border-2 border-gray-400 rounded-lg shadow-2xl">
         {/* Title Bar */}
         <div className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500">

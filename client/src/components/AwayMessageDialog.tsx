@@ -25,7 +25,7 @@ export default function AwayMessageDialog({ onClose, onSetAway }: AwayMessageDia
   };
 
   return (
-    <div className="win-window absolute top-32 left-96 w-80 shadow-2xl z-50 border-2 border-gray-400 rounded-lg overflow-hidden">
+    <div className="win-window absolute top-32 left-96 w-80 shadow-2xl z-[1200] border-2 border-gray-400 rounded-lg overflow-hidden">
       {/* Title Bar */}
       <div className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500">
         <div className="flex items-center space-x-2">
