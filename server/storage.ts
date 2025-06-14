@@ -217,18 +217,6 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // Word filtering for appropriate content
-  private filterBadWords(content: string): string {
-    const badWords = ['damn', 'hell', 'crap', 'stupid', 'idiot', 'shut up', 'hate'];
-    let filtered = content;
-    badWords.forEach(word => {
-      const regex = new RegExp(`\\b${word}\\b`, 'gi');
-      filtered = filtered.replace(regex, '*'.repeat(word.length));
-    });
-    return filtered;
-  }
-
-  // Word filtering for appropriate content
   private filterBadWords(content: string): string {
     const badWords = ['damn', 'hell', 'crap', 'stupid', 'idiot', 'shut up', 'hate'];
     let filtered = content;

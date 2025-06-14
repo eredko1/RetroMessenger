@@ -90,9 +90,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/user/:id/profile", async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const { profileText, avatarUrl } = req.body;
+      const profileData = req.body;
       
-      await storage.updateUserProfile(userId, profileText, avatarUrl);
+      await storage.updateUserProfile(userId, profileData);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: "Failed to update profile" });
@@ -160,6 +160,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(message);
     } catch (error) {
       res.status(500).json({ message: "Failed to send message" });
+    }
+  });
+
+  // Message search route
+  app.get("/api/user/:id/messages/search", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { query, limit = 50 } = req.query;
+      
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+      
+      const messages = await storage.searchMessages(userId, query, parseInt(limit as string));
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to search messages" });
+    }
+  });
+
+  // Unread messages count
+  app.get("/api/user/:id/messages/unread", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const count = await storage.getUnreadMessagesCount(userId);
+      res.json({ count });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get unread count" });
+    }
+  });
+
+  // Blocking system routes
+  app.post("/api/user/:id/block", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { blockedUserId } = req.body;
+      
+      await storage.blockUser(userId, blockedUserId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to block user" });
+    }
+  });
+
+  app.delete("/api/user/:id/block/:blockedId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const blockedUserId = parseInt(req.params.blockedId);
+      
+      await storage.unblockUser(userId, blockedUserId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to unblock user" });
+    }
+  });
+
+  app.get("/api/user/:id/blocked", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const blockedUsers = await storage.getBlockedUsers(userId);
+      res.json(blockedUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get blocked users" });
+    }
+  });
+
+  // Warning/reporting system
+  app.post("/api/user/:id/report", async (req, res) => {
+    try {
+      const reporterId = parseInt(req.params.id);
+      const { reportedUserId, reason, description } = req.body;
+      
+      await storage.reportUser(reporterId, reportedUserId, reason, description);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to report user" });
     }
   });
 

@@ -8,6 +8,8 @@ import ChatWindow from "@/components/ChatWindow";
 import AwayMessageDialog from "@/components/AwayMessageDialog";
 import BuddyProfile from "@/components/BuddyProfile";
 import AddBuddyDialog from "@/components/AddBuddyDialog";
+import UserProfileEditor from "@/components/UserProfileEditor";
+import OfflineNotification from "@/components/OfflineNotification";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
 import LoginForm from "@/components/LoginForm";
@@ -35,7 +37,8 @@ export default function AIM() {
   const [showAwayDialog, setShowAwayDialog] = useState(false);
   const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
   const [showAddBuddy, setShowAddBuddy] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [offlineMessages, setOfflineMessages] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1000);
   const { toast } = useToast();
   const { playMessageSound, playBuddyOnlineSound } = useAIMSounds();
@@ -59,14 +62,15 @@ export default function AIM() {
       switch (data.type) {
         case 'new_message':
           playMessageSound();
-          // Add notification
-          setNotifications(prev => [...prev, {
-            id: Date.now(),
-            type: 'message',
-            from: data.message.fromUser.screenName,
-            content: data.message.content,
-            timestamp: new Date()
-          }]);
+          // Add offline notification for messages when user is away
+          if (currentUser?.status === 'away') {
+            setOfflineMessages(prev => [...prev, {
+              id: `offline-${Date.now()}`,
+              fromUser: data.message.fromUser.screenName,
+              content: data.message.content,
+              timestamp: new Date()
+            }]);
+          }
           
           // Update chat window if open
           queryClient.invalidateQueries({
@@ -101,14 +105,14 @@ export default function AIM() {
     return () => socket.removeEventListener('message', handleMessage);
   }, [socket, playMessageSound, playBuddyOnlineSound, refetchBuddies, toast]);
 
-  // Auto-hide notifications
+  // Auto-hide offline messages after 10 seconds
   useEffect(() => {
-    notifications.forEach(notification => {
+    offlineMessages.forEach(message => {
       setTimeout(() => {
-        setNotifications(prev => prev.filter(n => n.id !== notification.id));
-      }, 5000);
+        setOfflineMessages(prev => prev.filter(m => m.id !== message.id));
+      }, 10000);
     });
-  }, [notifications]);
+  }, [offlineMessages]);
 
   const handleLogin = (user: User) => {
     setCurrentUser(user);
