@@ -237,7 +237,7 @@ export default function AIM() {
   }
 
   return (
-    <div className="w-screen h-screen relative bg-win-gray font-system text-xs overflow-hidden md:flex md:flex-col">
+    <div className="xp-desktop w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col">
       {/* Desktop Icons - Hidden on mobile */}
       <div className="hidden lg:block">
         <DesktopIcons />

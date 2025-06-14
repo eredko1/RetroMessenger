@@ -97,7 +97,7 @@ export default function BuddyList({
 
   return (
     <div 
-      className="win-window absolute w-72 h-[400px] shadow-2xl md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col border-2 border-gray-400 rounded-lg overflow-hidden select-none"
+      className="xp-window absolute w-72 h-[400px] md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col overflow-hidden select-none"
       style={{ 
         left: position.x, 
         top: position.y, 
@@ -106,36 +106,18 @@ export default function BuddyList({
       }}
       onMouseDown={handleMouseDown}
     >
-      {/* Title Bar */}
+      {/* Windows XP Title Bar */}
       <div 
-        className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500 cursor-move"
+        className="xp-titlebar cursor-move"
       >
-        <div className="flex items-center space-x-2">
-          <div className="w-5 h-5 bg-yellow-400 rounded-sm flex items-center justify-center shadow-sm">
-            <span className="text-xs font-bold text-blue-800">AIM</span>
+        <div className="flex items-center space-x-1">
+          <div className="w-4 h-4 bg-yellow-400 border border-gray-600 flex items-center justify-center">
+            <span style={{ fontSize: '8px' }}>💬</span>
           </div>
-          <span className="text-white font-bold text-sm">AOL Instant Messenger</span>
+          <span>AOL Instant Messenger</span>
         </div>
-        <div className="flex space-x-1">
-          <button 
-            className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors flex items-center justify-center"
-            title="Minimize"
-          >
-            <span className="text-gray-600 text-xs leading-none">‾</span>
-          </button>
-          <button 
-            className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors flex items-center justify-center"
-            title="Maximize"
-          >
-            <span className="text-gray-600 text-xs leading-none">□</span>
-          </button>
-          <button 
-            onClick={onLogout}
-            className="w-5 h-5 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs rounded-sm transition-colors flex items-center justify-center"
-            title="Sign Off"
-          >
-            <span className="leading-none">×</span>
-          </button>
+        <div className="xp-close-button" onClick={onLogout} title="Sign Off">
+          ×
         </div>
       </div>
 
