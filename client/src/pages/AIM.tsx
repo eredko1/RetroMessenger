@@ -37,6 +37,8 @@ interface ChatWindowData {
 export default function AIM() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [openChats, setOpenChats] = useState<ChatWindowData[]>([]);
+  const [openGroupChats, setOpenGroupChats] = useState<any[]>([]);
+  const [selectedBuddies, setSelectedBuddies] = useState<number[]>([]);
   const [showAwayDialog, setShowAwayDialog] = useState(false);
   const [selectedBuddy, setSelectedBuddy] = useState<any>(null);
   const [showAddBuddy, setShowAddBuddy] = useState(false);
@@ -178,7 +180,7 @@ export default function AIM() {
           x: 300 + (openChats.length * 30), 
           y: 100 + (openChats.length * 30) 
         },
-        size: { width: 400, height: 320 },
+        size: { width: 420, height: 350 },
         zIndex: nextZIndex
       };
       setOpenChats(prev => [...prev, newChat]);
@@ -196,6 +198,35 @@ export default function AIM() {
 
   const closeChat = (chatId: string) => {
     setOpenChats(prev => prev.filter(chat => chat.id !== chatId));
+  };
+
+  const closeGroupChat = (chatId: string) => {
+    setOpenGroupChats(prev => prev.filter(chat => chat.id !== chatId));
+  };
+
+  const handleOpenGroupChat = (buddies: any[]) => {
+    if (selectedBuddies.length < 2) {
+      toast({
+        title: "Group Chat",
+        description: "Select at least 2 buddies for a group chat",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const participants = buddies.filter(buddy => selectedBuddies.includes(buddy.id));
+    const groupId = `group-${Date.now()}`;
+    const newGroupChat = {
+      id: groupId,
+      participants: participants,
+      position: { x: 150 + openGroupChats.length * 30, y: 150 + openGroupChats.length * 30 },
+      size: { width: 500, height: 400 },
+      zIndex: nextZIndex
+    };
+
+    setOpenGroupChats(prev => [...prev, newGroupChat]);
+    setNextZIndex(prev => prev + 1);
+    setSelectedBuddies([]);
   };
 
   const focusChat = (chatId: string) => {
