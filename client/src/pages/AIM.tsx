@@ -5,6 +5,7 @@ import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAIMSounds } from "@/hooks/useAIMSounds";
 import BuddyList from "@/components/BuddyList";
 import ChatWindow from "@/components/ChatWindow";
+import MobileChatWindow from "@/components/MobileChatWindow";
 import GroupChatWindow from "@/components/GroupChatWindow";
 import AwayMessageDialog from "@/components/AwayMessageDialog";
 import BuddyProfile from "@/components/BuddyProfile";
@@ -320,29 +321,22 @@ export default function AIM() {
       </div>
 
       {/* Mobile Chat Windows - Full screen overlay */}
-      {openChats.length > 0 && (
-        <div className="md:hidden fixed inset-0 z-40">
-          {openChats.map((chat, index) => (
-            <div key={chat.id} className={index === openChats.length - 1 ? 'block' : 'hidden'}>
-              <ChatWindow
-                chatId={chat.id}
-                currentUser={currentUser}
-                buddyId={chat.buddyId}
-                buddyName={chat.buddyName}
-                isOnline={chat.isOnline}
-                position={{ x: 0, y: 0 }}
-                size={{ width: window.innerWidth, height: window.innerHeight }}
-                zIndex={chat.zIndex}
-                onClose={() => closeChat(chat.id)}
-                onMove={moveChat}
-                onResize={resizeChat}
-                onFocus={focusChat}
-                socket={socket}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="md:hidden">
+        {openChats.map((chat, index) => (
+          index === openChats.length - 1 && (
+            <MobileChatWindow
+              key={chat.id}
+              chatId={chat.id}
+              currentUser={currentUser}
+              buddyId={chat.buddyId}
+              buddyName={chat.buddyName}
+              isOnline={chat.isOnline}
+              onClose={() => closeChat(chat.id)}
+              socket={socket}
+            />
+          )
+        ))}
+      </div>
 
       {/* Away Message Dialog */}
       {showAwayDialog && (

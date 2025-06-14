@@ -225,16 +225,16 @@ export default function ChatWindow({
   return (
     <div
       ref={windowRef}
-      className="fixed bg-white shadow-lg select-none md:static md:relative"
+      className="fixed bg-white shadow-lg select-none"
       style={{
-        left: window.innerWidth <= 768 ? 0 : position.x,
-        top: window.innerWidth <= 768 ? 0 : position.y,
-        width: window.innerWidth <= 768 ? '100vw' : Math.max(320, size.width),
-        height: window.innerWidth <= 768 ? '100vh' : Math.max(240, size.height),
+        left: position.x,
+        top: position.y,
+        width: Math.max(320, size.width),
+        height: Math.max(240, size.height),
         zIndex: zIndex,
         border: '2px outset hsl(0, 0%, 85%)',
-        minWidth: window.innerWidth <= 768 ? '100vw' : '320px',
-        minHeight: window.innerWidth <= 768 ? '100vh' : '240px'
+        minWidth: '320px',
+        minHeight: '240px'
       }}
       onMouseDown={(e) => {
         onFocus(chatId);
