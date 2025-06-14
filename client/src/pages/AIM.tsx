@@ -219,6 +219,7 @@ export default function AIM() {
               updateUserStatus.mutate({ status, awayMessage })
             }
             onShowAddBuddy={() => setShowAddBuddy(true)}
+            onEditProfile={() => setShowProfileEditor(true)}
           />
         </div>
 
@@ -302,23 +303,23 @@ export default function AIM() {
         />
       )}
 
-      {/* Notifications */}
-      {notifications.map(notification => (
-        <div
-          key={notification.id}
-          className="notification-popup absolute bottom-8 right-8 p-3 rounded shadow-lg max-w-xs z-50"
-          style={{ bottom: `${8 + (notifications.indexOf(notification) * 80)}px` }}
-        >
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-blue-500 rounded-full flex-shrink-0"></div>
-            <div className="text-xs">
-              <div className="font-bold">New Instant Message</div>
-              <div>From: {notification.from}</div>
-              <div className="text-gray-600 truncate">{notification.content}</div>
-            </div>
-          </div>
-        </div>
-      ))}
+      {/* User Profile Editor */}
+      {showProfileEditor && currentUser && (
+        <UserProfileEditor
+          user={currentUser}
+          onClose={() => setShowProfileEditor(false)}
+        />
+      )}
+
+      {/* Offline Message Notifications */}
+      <OfflineNotification
+        messages={offlineMessages}
+        onDismiss={(id) => setOfflineMessages(prev => prev.filter(m => m.id !== id))}
+        onOpenChat={(fromUser) => {
+          const buddy = buddies.find(b => b.screenName === fromUser);
+          if (buddy) openChat(buddy);
+        }}
+      />
 
       {/* Windows XP Taskbar */}
       <WindowsTaskbar />
