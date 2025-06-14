@@ -143,6 +143,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/messages", async (req, res) => {
     try {
       const messageData = insertMessageSchema.parse(req.body);
+      
+      // Forward message to email/SMS if user is away
+      const fromUser = await storage.getUser(messageData.fromUserId);
+      await storage.forwardMessageIfNeeded(messageData.toUserId, fromUser, messageData.content);
+      
       const message = await storage.saveMessage(messageData);
       
       // Send message via WebSocket if recipient is online
@@ -239,6 +244,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Buddy alert settings
+  app.get("/api/user/:id/buddy/:buddyId/alerts", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const buddyId = parseInt(req.params.buddyId);
+      
+      const settings = await storage.getBuddyAlertSettings(userId, buddyId);
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get buddy alert settings" });
+    }
+  });
+
+  app.put("/api/user/:id/buddy/:buddyId/alerts", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const buddyId = parseInt(req.params.buddyId);
+      const { enableAlerts, customSoundAlert } = req.body;
+      
+      await storage.setBuddyAlert(userId, buddyId, customSoundAlert, enableAlerts);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to save buddy alert settings" });
+    }
+  });
+
+  // Window position management for multi-monitor support
+  app.get("/api/user/:id/window-positions", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const positions = await storage.getWindowPositions(userId);
+      res.json(positions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get window positions" });
+    }
+  });
+
+  app.post("/api/user/:id/window-positions", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const positions = req.body;
+      
+      await storage.saveWindowPositions(userId, positions);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to save window positions" });
+    }
+  });
+
   // WebSocket connection handling
   wss.on('connection', (ws: WebSocketClient, req) => {
     console.log('New WebSocket connection');
@@ -256,8 +310,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               clients.set(user.id, ws);
               await storage.setUserOnline(user.id);
               
-              // Notify buddies that user is online
-              broadcastToUserBuddies(user.id, {
+              // Notify buddies that user is online with custom alert settings
+              await broadcastToUserBuddiesWithAlerts(user.id, {
                 type: 'user_online',
                 userId: user.id,
                 screenName: user.screenName
@@ -303,6 +357,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const buddyClient = clients.get(buddy.id);
       if (buddyClient && buddyClient.readyState === WebSocket.OPEN) {
         buddyClient.send(JSON.stringify(message));
+      }
+    }
+  }
+
+  async function broadcastToUserBuddiesWithAlerts(userId: number, message: any) {
+    const buddies = await storage.getBuddyList(userId);
+    
+    for (const buddy of buddies) {
+      const buddyClient = clients.get(buddy.id);
+      if (buddyClient && buddyClient.readyState === WebSocket.OPEN) {
+        // Get buddy alert settings for this specific user
+        const alertSettings = await storage.getBuddyAlertSettings(buddy.id, userId);
+        
+        // Enhanced message with alert settings
+        const enhancedMessage = {
+          ...message,
+          alertSettings: {
+            enableAlerts: alertSettings.enableAlerts,
+            customSoundAlert: alertSettings.customSoundAlert || null
+          }
+        };
+        
+        buddyClient.send(JSON.stringify(enhancedMessage));
       }
     }
   }
