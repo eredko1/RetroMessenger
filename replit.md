@@ -119,6 +119,18 @@ Changelog:
   - Improved chat window design with better message styling
   - Enhanced mobile responsiveness for phone usage
   - Fixed conversation system to work properly between users
+- June 14, 2025. Comprehensive offline messaging and social features
+  - Implemented complete offline messaging system with popup notifications
+  - Added rich user profiles with quotes, interests, location, occupation, hobbies
+  - Created user profile editor with comprehensive editing capabilities
+  - Implemented blocking and reporting system for privacy controls
+  - Added message search functionality for finding past conversations
+  - Implemented word filtering system for appropriate content
+  - Enhanced buddy profile viewer with detailed information display
+  - Added offline message notifications when users return online
+  - Integrated invisible mode and direct message privacy controls
+  - Message timestamps displayed in all chat windows
+  - Database schema expanded to support all new social features
 
 ## User Preferences
 

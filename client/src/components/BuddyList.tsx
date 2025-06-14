@@ -152,13 +152,22 @@ export default function BuddyList({
               <div className="text-xs text-gray-600">{user.status === 'away' ? 'Away' : 'Available'}</div>
             </div>
           </div>
-          <button 
-            onClick={onShowAddBuddy}
-            className="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full hover:from-green-600 hover:to-green-700 transition-all shadow-sm font-medium flex items-center space-x-1"
-          >
-            <span className="text-sm">👥</span>
-            <span>Add Buddy</span>
-          </button>
+          <div className="flex space-x-2">
+            <button 
+              onClick={onEditProfile}
+              className="text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-full hover:from-blue-600 hover:to-blue-700 transition-all shadow-sm font-medium flex items-center space-x-1"
+            >
+              <span className="text-sm">✏️</span>
+              <span>Edit Profile</span>
+            </button>
+            <button 
+              onClick={onShowAddBuddy}
+              className="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full hover:from-green-600 hover:to-green-700 transition-all shadow-sm font-medium flex items-center space-x-1"
+            >
+              <span className="text-sm">👥</span>
+              <span>Add Buddy</span>
+            </button>
+          </div>
         </div>
         <div className="mt-3">
           <select 
