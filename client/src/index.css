@@ -236,3 +236,78 @@
     z-index: -1;
   }
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  body {
+    overflow: auto !important;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
+  }
+  
+  body::before {
+    display: none;
+  }
+  
+  .win-window {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 1000;
+    display: flex !important;
+    flex-direction: column !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .chat-history {
+    flex: 1 !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  
+  .desktop-background {
+    display: none !important;
+  }
+  
+  .windows-taskbar {
+    display: none !important;
+  }
+  
+  .desktop-icons {
+    display: none !important;
+  }
+  
+  .win-titlebar {
+    height: 40px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+  }
+  
+  .input-container {
+    padding: 16px !important;
+  }
+  
+  .input-container input {
+    font-size: 16px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+  }
+  
+  .input-container button {
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+  }
+  
+  .message-content {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  
+  .message-sender {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+}
