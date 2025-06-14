@@ -53,7 +53,7 @@ export default function AddBuddyDialog({ currentUserId, onClose }: AddBuddyDialo
   };
 
   return (
-    <div className="win-window absolute top-48 left-80 w-72 shadow-lg z-20">
+    <div className="win-window absolute top-48 left-80 w-72 shadow-lg z-[1200]">
       {/* Title Bar */}
       <div className="win-titlebar px-2 py-1 flex justify-between items-center">
         <span className="text-white font-bold text-xs">Add Buddy</span>

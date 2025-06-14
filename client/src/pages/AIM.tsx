@@ -181,7 +181,7 @@ export default function AIM() {
           y: 100 + (openChats.length * 30) 
         },
         size: { width: 420, height: 350 },
-        zIndex: nextZIndex
+        zIndex: nextZIndex + 100
       };
       setOpenChats(prev => [...prev, newChat]);
       setNextZIndex(prev => prev + 1);
@@ -189,7 +189,7 @@ export default function AIM() {
       // If chat already exists, bring it to front
       setOpenChats(prev => prev.map(chat => 
         chat.id === chatId 
-          ? { ...chat, zIndex: nextZIndex }
+          ? { ...chat, zIndex: nextZIndex + 100 }
           : chat
       ));
       setNextZIndex(prev => prev + 1);
@@ -232,7 +232,7 @@ export default function AIM() {
   const focusChat = (chatId: string) => {
     setOpenChats(prev => prev.map(chat => 
       chat.id === chatId 
-        ? { ...chat, zIndex: nextZIndex }
+        ? { ...chat, zIndex: nextZIndex + 100 }
         : chat
     ));
     setNextZIndex(prev => prev + 1);

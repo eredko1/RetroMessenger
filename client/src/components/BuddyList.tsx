@@ -101,7 +101,7 @@ export default function BuddyList({
       style={{ 
         left: position.x, 
         top: position.y, 
-        zIndex: 1001,
+        zIndex: 1000,
         cursor: isDragging ? 'move' : 'default'
       }}
       onMouseDown={handleMouseDown}
