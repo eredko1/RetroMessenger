@@ -9,8 +9,13 @@ interface ChatWindowProps {
   buddyName: string;
   isOnline: boolean;
   position: { x: number; y: number };
+  size: { width: number; height: number };
   onClose: () => void;
+  onMove: (chatId: string, position: { x: number; y: number }) => void;
+  onResize: (chatId: string, size: { width: number; height: number }) => void;
   socket: WebSocket | null;
+  zIndex: number;
+  onFocus: (chatId: string) => void;
 }
 
 export default function ChatWindow({
@@ -20,14 +25,24 @@ export default function ChatWindow({
   buddyName,
   isOnline,
   position,
+  size,
   onClose,
-  socket
+  onMove,
+  onResize,
+  socket,
+  zIndex,
+  onFocus
 }: ChatWindowProps) {
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [buddyTyping, setBuddyTyping] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const windowRef = useRef<HTMLDivElement>(null);
 
   // Fetch conversation history
   const { data: messages = [] } = useQuery<any[]>({
@@ -35,7 +50,7 @@ export default function ChatWindow({
     refetchInterval: 1000, // Poll for new messages
   });
 
-  // Send message mutation
+  // Send message mutation - works for both online and offline users
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
       await apiRequest('POST', '/api/messages', {
@@ -51,6 +66,60 @@ export default function ChatWindow({
       setMessage("");
     }
   });
+
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget || (e.target as HTMLElement).classList.contains('win-titlebar')) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - position.x,
+        y: e.clientY - position.y
+      });
+      onFocus(chatId);
+      e.preventDefault();
+    }
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      onMove(chatId, { x: newX, y: newY });
+    } else if (isResizing) {
+      const newWidth = Math.max(300, resizeStart.width + (e.clientX - resizeStart.x));
+      const newHeight = Math.max(200, resizeStart.height + (e.clientY - resizeStart.y));
+      onResize(chatId, { width: newWidth, height: newHeight });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    setIsResizing(true);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height
+    });
+    onFocus(chatId);
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  useEffect(() => {
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, isResizing, dragStart, resizeStart]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -133,14 +202,23 @@ export default function ChatWindow({
 
   return (
     <div 
-      className="win-window absolute w-96 h-80 shadow-2xl md:w-full md:h-full md:inset-0 md:relative border-2 border-gray-400 rounded-lg overflow-hidden"
+      ref={windowRef}
+      className="win-window absolute shadow-2xl md:w-full md:h-full md:inset-0 md:relative border-2 border-gray-400 rounded-lg overflow-hidden select-none"
       style={{ 
         left: position.x, 
         top: position.y,
+        width: size.width,
+        height: size.height,
+        zIndex: zIndex,
+        cursor: isDragging ? 'move' : 'default'
       }}
+      onClick={() => onFocus(chatId)}
     >
       {/* Title Bar */}
-      <div className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500">
+      <div 
+        className="win-titlebar px-3 py-2 flex justify-between items-center bg-gradient-to-r from-blue-600 to-blue-500 cursor-move"
+        onMouseDown={handleMouseDown}
+      >
         <div className="flex items-center space-x-3">
           <div className="relative">
             <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
@@ -148,7 +226,12 @@ export default function ChatWindow({
             </div>
             <span className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${isOnline ? 'bg-green-400' : 'bg-gray-400'} shadow-sm`}></span>
           </div>
-          <span className="text-white font-bold text-sm">Chat with {buddyName}</span>
+          <div className="flex flex-col">
+            <span className="text-white font-bold text-sm">Chat with {buddyName}</span>
+            {!isOnline && (
+              <span className="text-blue-200 text-xs">Offline - messages will be delivered when they return</span>
+            )}
+          </div>
         </div>
         <div className="flex space-x-1">
           <button className="w-5 h-5 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-xs rounded-sm transition-colors">_</button>
