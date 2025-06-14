@@ -1,4 +1,6 @@
 import { users, buddyLists, messages, type User, type InsertUser, type BuddyList, type InsertBuddyList, type Message, type InsertMessage, type UserWithStatus } from "@shared/schema";
+import { db } from "./db";
+import { eq, or, and } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -24,167 +26,106 @@ export interface IStorage {
   getOnlineUsers(): Promise<number[]>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private buddyLists: Map<number, BuddyList[]>;
-  private messages: Map<string, Message[]>;
-  private onlineUsers: Set<number>;
-  private currentId: number;
-  private messageId: number;
-  private buddyListId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.buddyLists = new Map();
-    this.messages = new Map();
-    this.onlineUsers = new Set();
-    this.currentId = 1;
-    this.messageId = 1;
-    this.buddyListId = 1;
-    
-    // Add some sample users for testing
-    this.seedSampleUsers();
-  }
-
-  private seedSampleUsers() {
-    const sampleUsers = [
-      { screenName: "CoolDude2002", password: "password123" },
-      { screenName: "SkaterGirl", password: "password123" },
-      { screenName: "MusicLover", password: "password123" },
-      { screenName: "GameMaster", password: "password123" },
-      { screenName: "ChatQueen", password: "password123" }
-    ];
-
-    sampleUsers.forEach(userData => {
-      const id = this.currentId++;
-      const user: User = {
-        ...userData,
-        id,
-        status: "offline",
-        awayMessage: null,
-        profileText: `Hey! This is ${userData.screenName}. Add me to your buddy list!`,
-        avatarUrl: null,
-        createdAt: new Date(),
-      };
-      this.users.set(id, user);
-    });
-  }
+export class DatabaseStorage implements IStorage {
+  private onlineUsers: Set<number> = new Set();
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByScreenName(screenName: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.screenName === screenName,
-    );
+    const [user] = await db.select().from(users).where(eq(users.screenName, screenName));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = {
-      ...insertUser,
-      id,
-      status: "online",
-      awayMessage: null,
-      profileText: null,
-      avatarUrl: null,
-      createdAt: new Date(),
-    };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async updateUserStatus(id: number, status: string, awayMessage?: string): Promise<void> {
-    const user = this.users.get(id);
-    if (user) {
-      user.status = status;
-      user.awayMessage = awayMessage || null;
-      this.users.set(id, user);
-    }
+    await db
+      .update(users)
+      .set({ status, awayMessage })
+      .where(eq(users.id, id));
   }
 
   async updateUserProfile(id: number, profileText: string, avatarUrl?: string): Promise<void> {
-    const user = this.users.get(id);
-    if (user) {
-      user.profileText = profileText;
-      if (avatarUrl) user.avatarUrl = avatarUrl;
-      this.users.set(id, user);
-    }
+    await db
+      .update(users)
+      .set({ profileText, avatarUrl })
+      .where(eq(users.id, id));
   }
 
   async getBuddyList(userId: number): Promise<UserWithStatus[]> {
-    const buddies = this.buddyLists.get(userId) || [];
-    const buddyUsers: UserWithStatus[] = [];
-    
-    for (const buddy of buddies) {
-      const user = this.users.get(buddy.buddyId);
-      if (user) {
-        buddyUsers.push({
-          ...user,
-          isOnline: this.onlineUsers.has(user.id),
-        });
-      }
-    }
-    
-    return buddyUsers;
+    const buddyListResult = await db
+      .select({
+        id: users.id,
+        screenName: users.screenName,
+        password: users.password,
+        status: users.status,
+        awayMessage: users.awayMessage,
+        profileText: users.profileText,
+        avatarUrl: users.avatarUrl,
+        createdAt: users.createdAt,
+      })
+      .from(buddyLists)
+      .innerJoin(users, eq(buddyLists.buddyId, users.id))
+      .where(eq(buddyLists.userId, userId));
+
+    return buddyListResult.map(user => ({
+      ...user,
+      isOnline: this.onlineUsers.has(user.id),
+    }));
   }
 
   async addBuddy(userId: number, buddyId: number, groupName: string = "Buddies"): Promise<BuddyList> {
-    const buddy: BuddyList = {
-      id: this.buddyListId++,
-      userId,
-      buddyId,
-      groupName,
-      createdAt: new Date(),
-    };
-    
-    const userBuddies = this.buddyLists.get(userId) || [];
-    userBuddies.push(buddy);
-    this.buddyLists.set(userId, userBuddies);
-    
+    const [buddy] = await db
+      .insert(buddyLists)
+      .values({ userId, buddyId, groupName })
+      .returning();
     return buddy;
   }
 
   async removeBuddy(userId: number, buddyId: number): Promise<void> {
-    const userBuddies = this.buddyLists.get(userId) || [];
-    const filtered = userBuddies.filter(b => b.buddyId !== buddyId);
-    this.buddyLists.set(userId, filtered);
+    await db
+      .delete(buddyLists)
+      .where(and(eq(buddyLists.userId, userId), eq(buddyLists.buddyId, buddyId)));
   }
 
   async saveMessage(message: InsertMessage): Promise<Message> {
-    const savedMessage: Message = {
-      ...message,
-      id: this.messageId++,
-      timestamp: new Date(),
-      isRead: false,
-    };
-    
-    const conversationKey = [message.fromUserId, message.toUserId].sort().join('-');
-    const conversation = this.messages.get(conversationKey) || [];
-    conversation.push(savedMessage);
-    this.messages.set(conversationKey, conversation);
-    
+    const [savedMessage] = await db
+      .insert(messages)
+      .values(message)
+      .returning();
     return savedMessage;
   }
 
   async getConversation(userId1: number, userId2: number, limit: number = 50): Promise<Message[]> {
-    const conversationKey = [userId1, userId2].sort().join('-');
-    const conversation = this.messages.get(conversationKey) || [];
-    return conversation.slice(-limit);
+    const result = await db
+      .select()
+      .from(messages)
+      .where(
+        or(
+          and(eq(messages.fromUserId, userId1), eq(messages.toUserId, userId2)),
+          and(eq(messages.fromUserId, userId2), eq(messages.toUserId, userId1))
+        )
+      )
+      .orderBy(messages.timestamp)
+      .limit(limit);
+    
+    return result;
   }
 
   async markMessagesAsRead(userId: number, fromUserId: number): Promise<void> {
-    const conversationKey = [userId, fromUserId].sort().join('-');
-    const conversation = this.messages.get(conversationKey) || [];
-    
-    conversation.forEach(message => {
-      if (message.toUserId === userId && message.fromUserId === fromUserId) {
-        message.isRead = true;
-      }
-    });
-    
-    this.messages.set(conversationKey, conversation);
+    await db
+      .update(messages)
+      .set({ isRead: true })
+      .where(and(eq(messages.toUserId, userId), eq(messages.fromUserId, fromUserId)));
   }
 
   async setUserOnline(userId: number): Promise<void> {
@@ -200,4 +141,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
