@@ -14,6 +14,7 @@ import UserProfileEditor from "@/components/UserProfileEditor";
 import OfflineNotification from "@/components/OfflineNotification";
 import SystemTrayNotification from "@/components/SystemTrayNotification";
 import BuddyAlertSettings from "@/components/BuddyAlertSettings";
+import BuddyManagerDialog from "@/components/BuddyManagerDialog";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
 import LoginForm from "@/components/LoginForm";
@@ -45,6 +46,7 @@ export default function AIM() {
   const [showAddBuddy, setShowAddBuddy] = useState(false);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [showBuddyAlerts, setShowBuddyAlerts] = useState<any>(null);
+  const [showBuddyManager, setShowBuddyManager] = useState(false);
   const [offlineMessages, setOfflineMessages] = useState<any[]>([]);
   const [systemNotifications, setSystemNotifications] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1000);
@@ -293,6 +295,7 @@ export default function AIM() {
             onShowAddBuddy={() => setShowAddBuddy(true)}
             onEditProfile={() => setShowProfileEditor(true)}
             onShowBuddyAlerts={(buddy) => setShowBuddyAlerts(buddy)}
+            onShowBuddyManager={() => setShowBuddyManager(true)}
           />
         </div>
 
@@ -407,6 +410,30 @@ export default function AIM() {
           buddy={showBuddyAlerts}
           currentUserId={currentUser.id}
           onClose={() => setShowBuddyAlerts(null)}
+        />
+      )}
+
+      {/* Buddy Manager Dialog */}
+      {showBuddyManager && currentUser && (
+        <BuddyManagerDialog
+          buddies={buddies}
+          onClose={() => setShowBuddyManager(false)}
+          onRemoveBuddy={(buddyId) => {
+            // Remove buddy from list
+            refetchBuddies();
+            toast({
+              title: "Buddy Removed",
+              description: "Buddy has been removed from your list",
+            });
+          }}
+          onMoveBuddy={(buddyId, newGroup) => {
+            // Move buddy to new group
+            refetchBuddies();
+            toast({
+              title: "Buddy Moved",
+              description: `Buddy moved to ${newGroup} group`,
+            });
+          }}
         />
       )}
 

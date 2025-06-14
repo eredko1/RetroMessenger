@@ -12,6 +12,7 @@ interface BuddyListProps {
   onShowAddBuddy: () => void;
   onEditProfile: () => void;
   onShowBuddyAlerts?: (buddy: any) => void;
+  onShowBuddyManager?: () => void;
 }
 
 export default function BuddyList({
@@ -24,7 +25,8 @@ export default function BuddyList({
   onStatusChange,
   onShowAddBuddy,
   onEditProfile,
-  onShowBuddyAlerts
+  onShowBuddyAlerts,
+  onShowBuddyManager
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
   const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -287,7 +289,7 @@ export default function BuddyList({
         <span className="text-xs">Online: {onlineBuddies.length} of {buddies.length} buddies</span>
         <div className="flex space-x-1">
           <button 
-            onClick={() => setShowBuddyManager(true)}
+            onClick={onShowBuddyManager}
             className="win-button px-2 py-0 text-xs"
             title="Manage Buddies"
           >
