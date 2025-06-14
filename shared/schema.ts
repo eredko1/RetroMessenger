@@ -6,6 +6,8 @@ export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   screenName: text("screen_name").notNull().unique(),
   password: text("password").notNull(),
+  email: text("email"),
+  mobileNumber: text("mobile_number"),
   status: text("status").notNull().default("online"), // online, away, offline, invisible
   awayMessage: text("away_message"),
   profileText: text("profile_text"),
@@ -17,6 +19,11 @@ export const users = pgTable("users", {
   avatarUrl: text("avatar_url"),
   isInvisible: boolean("is_invisible").notNull().default(false),
   allowDirectIMs: boolean("allow_direct_ims").notNull().default(true),
+  enableEmailForwarding: boolean("enable_email_forwarding").notNull().default(false),
+  enableSMSForwarding: boolean("enable_sms_forwarding").notNull().default(false),
+  soundNotifications: boolean("sound_notifications").notNull().default(true),
+  systemTrayNotifications: boolean("system_tray_notifications").notNull().default(true),
+  windowPositions: text("window_positions"), // JSON string for multi-monitor support
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -25,6 +32,8 @@ export const buddyLists = pgTable("buddy_lists", {
   userId: integer("user_id").notNull().references(() => users.id),
   buddyId: integer("buddy_id").notNull().references(() => users.id),
   groupName: text("group_name").notNull().default("Buddies"),
+  customSoundAlert: text("custom_sound_alert"), // Custom sound for this buddy
+  enableAlerts: boolean("enable_alerts").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

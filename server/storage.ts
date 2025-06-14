@@ -76,6 +76,8 @@ export class DatabaseStorage implements IStorage {
         id: users.id,
         screenName: users.screenName,
         password: users.password,
+        email: users.email,
+        mobileNumber: users.mobileNumber,
         status: users.status,
         awayMessage: users.awayMessage,
         profileText: users.profileText,
@@ -87,7 +89,14 @@ export class DatabaseStorage implements IStorage {
         avatarUrl: users.avatarUrl,
         isInvisible: users.isInvisible,
         allowDirectIMs: users.allowDirectIMs,
+        enableEmailForwarding: users.enableEmailForwarding,
+        enableSMSForwarding: users.enableSMSForwarding,
+        soundNotifications: users.soundNotifications,
+        systemTrayNotifications: users.systemTrayNotifications,
+        windowPositions: users.windowPositions,
         createdAt: users.createdAt,
+        customSoundAlert: buddyLists.customSoundAlert,
+        enableAlerts: buddyLists.enableAlerts,
       })
       .from(buddyLists)
       .innerJoin(users, eq(buddyLists.buddyId, users.id))
@@ -225,6 +234,76 @@ export class DatabaseStorage implements IStorage {
       filtered = filtered.replace(regex, '*'.repeat(word.length));
     });
     return filtered;
+  }
+
+  // IM Forwarding functionality
+  async forwardMessageIfNeeded(toUserId: number, fromUser: any, content: string): Promise<void> {
+    const recipient = await this.getUser(toUserId);
+    if (!recipient) return;
+
+    // Check if user is away and has forwarding enabled
+    if (recipient.status === 'away') {
+      if (recipient.enableEmailForwarding && recipient.email) {
+        await this.forwardToEmail(recipient.email, fromUser.screenName, content);
+      }
+      if (recipient.enableSMSForwarding && recipient.mobileNumber) {
+        await this.forwardToSMS(recipient.mobileNumber, fromUser.screenName, content);
+      }
+    }
+  }
+
+  private async forwardToEmail(email: string, fromScreenName: string, content: string): Promise<void> {
+    try {
+      console.log(`Forwarding IM to email ${email}: From ${fromScreenName}: ${content}`);
+    } catch (error) {
+      console.error('Email forwarding failed:', error);
+    }
+  }
+
+  private async forwardToSMS(mobileNumber: string, fromScreenName: string, content: string): Promise<void> {
+    try {
+      console.log(`Forwarding IM to SMS ${mobileNumber}: From ${fromScreenName}: ${content}`);
+    } catch (error) {
+      console.error('SMS forwarding failed:', error);
+    }
+  }
+
+  // Buddy alert sound management
+  async setBuddyAlert(userId: number, buddyId: number, soundAlert?: string, enableAlerts: boolean = true): Promise<void> {
+    await db.update(buddyLists)
+      .set({ customSoundAlert: soundAlert, enableAlerts })
+      .where(and(eq(buddyLists.userId, userId), eq(buddyLists.buddyId, buddyId)));
+  }
+
+  async getBuddyAlertSettings(userId: number, buddyId: number): Promise<{ customSoundAlert?: string; enableAlerts: boolean }> {
+    const [result] = await db.select({
+      customSoundAlert: buddyLists.customSoundAlert,
+      enableAlerts: buddyLists.enableAlerts
+    })
+    .from(buddyLists)
+    .where(and(eq(buddyLists.userId, userId), eq(buddyLists.buddyId, buddyId)))
+    .limit(1);
+    
+    return result || { enableAlerts: true };
+  }
+
+  // Window position management for multi-monitor support
+  async saveWindowPositions(userId: number, positions: any): Promise<void> {
+    await db.update(users)
+      .set({ windowPositions: JSON.stringify(positions) })
+      .where(eq(users.id, userId));
+  }
+
+  async getWindowPositions(userId: number): Promise<any> {
+    const user = await this.getUser(userId);
+    if (user?.windowPositions) {
+      try {
+        return JSON.parse(user.windowPositions);
+      } catch {
+        return {};
+      }
+    }
+    return {};
   }
 }
 
