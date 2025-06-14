@@ -26,7 +26,7 @@ export default function BuddyProfile({ buddy, onClose, onSendMessage }: BuddyPro
 
   const reportUserMutation = useMutation({
     mutationFn: async (data: { reason: string; description: string }) => {
-      await apiRequest('POST', `/api/user/${buddy.id}/report`, {
+      return await apiRequest(`/api/user/${buddy.id}/report`, {
         reportedUserId: buddy.id,
         reason: data.reason,
         description: data.description
