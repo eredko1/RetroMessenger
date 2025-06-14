@@ -51,6 +51,7 @@ export default function ChatWindow({
     queryKey: ['/api/conversation', currentUser.id, buddyId],
     queryFn: () => apiRequest(`/api/conversation?userId1=${currentUser.id}&userId2=${buddyId}&limit=100`),
     refetchInterval: 2000,
+    select: (data) => Array.isArray(data) ? data : []
   });
 
   // Send message mutation

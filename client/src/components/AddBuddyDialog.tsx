@@ -15,7 +15,7 @@ export default function AddBuddyDialog({ currentUserId, onClose }: AddBuddyDialo
 
   const addBuddyMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('POST', `/api/user/${currentUserId}/buddies`, {
+      return await apiRequest(`/api/user/${currentUserId}/buddies`, {
         buddyScreenName: screenName.trim(),
         groupName: groupName.trim()
       });

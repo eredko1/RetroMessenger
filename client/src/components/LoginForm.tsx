@@ -15,8 +15,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
 
   const loginMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/login', { screenName, password });
-      return response.json();
+      return await apiRequest('/api/login', { screenName, password });
     },
     onSuccess: (data) => {
       onLogin(data.user);
@@ -32,8 +31,7 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
 
   const registerMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/register', { screenName, password });
-      return response.json();
+      return await apiRequest('/api/register', { screenName, password });
     },
     onSuccess: (data) => {
       onLogin(data.user);

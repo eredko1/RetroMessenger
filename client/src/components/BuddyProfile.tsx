@@ -16,7 +16,7 @@ export default function BuddyProfile({ buddy, onClose, onSendMessage }: BuddyPro
 
   const blockUserMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('POST', `/api/user/${buddy.id}/block`, { blockedUserId: buddy.id });
+      return await apiRequest(`/api/user/${buddy.id}/block`, { blockedUserId: buddy.id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/user/${buddy.id}/buddies`] });
