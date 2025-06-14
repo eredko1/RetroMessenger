@@ -8,6 +8,8 @@ import ChatWindow from "@/components/ChatWindow";
 import AwayMessageDialog from "@/components/AwayMessageDialog";
 import BuddyProfile from "@/components/BuddyProfile";
 import AddBuddyDialog from "@/components/AddBuddyDialog";
+import WindowsTaskbar from "@/components/WindowsTaskbar";
+import DesktopIcons from "@/components/DesktopIcons";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
 
@@ -37,8 +39,8 @@ export default function AIM() {
   const { socket, isConnected } = useWebSocket(currentUser);
 
   // Fetch buddy list
-  const { data: buddies = [], refetch: refetchBuddies } = useQuery({
-    queryKey: ['/api/user/' + currentUser?.id + '/buddies'],
+  const { data: buddies = [], refetch: refetchBuddies } = useQuery<any[]>({
+    queryKey: ['/api/user', currentUser?.id, 'buddies'],
     enabled: !!currentUser,
   });
 
@@ -224,6 +226,9 @@ export default function AIM() {
           </div>
         </div>
       ))}
+
+      {/* Windows XP Taskbar */}
+      <WindowsTaskbar />
     </div>
   );
 }

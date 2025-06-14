@@ -41,6 +41,33 @@ export class MemStorage implements IStorage {
     this.currentId = 1;
     this.messageId = 1;
     this.buddyListId = 1;
+    
+    // Add some sample users for testing
+    this.seedSampleUsers();
+  }
+
+  private seedSampleUsers() {
+    const sampleUsers = [
+      { screenName: "CoolDude2002", password: "password123" },
+      { screenName: "SkaterGirl", password: "password123" },
+      { screenName: "MusicLover", password: "password123" },
+      { screenName: "GameMaster", password: "password123" },
+      { screenName: "ChatQueen", password: "password123" }
+    ];
+
+    sampleUsers.forEach(userData => {
+      const id = this.currentId++;
+      const user: User = {
+        ...userData,
+        id,
+        status: "offline",
+        awayMessage: null,
+        profileText: `Hey! This is ${userData.screenName}. Add me to your buddy list!`,
+        avatarUrl: null,
+        createdAt: new Date(),
+      };
+      this.users.set(id, user);
+    });
   }
 
   async getUser(id: number): Promise<User | undefined> {

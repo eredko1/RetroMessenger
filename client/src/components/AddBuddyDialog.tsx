@@ -22,7 +22,7 @@ export default function AddBuddyDialog({ currentUserId, onClose }: AddBuddyDialo
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['/api/user/' + currentUserId + '/buddies']
+        queryKey: ['/api/user', currentUserId, 'buddies']
       });
       toast({
         title: "Buddy Added",
