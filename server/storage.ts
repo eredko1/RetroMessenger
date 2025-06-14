@@ -63,10 +63,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async updateUserProfile(id: number, profileText: string, avatarUrl?: string): Promise<void> {
+  async updateUserProfile(id: number, profileData: any): Promise<void> {
     await db
       .update(users)
-      .set({ profileText, avatarUrl })
+      .set(profileData)
       .where(eq(users.id, id));
   }
 
@@ -79,7 +79,14 @@ export class DatabaseStorage implements IStorage {
         status: users.status,
         awayMessage: users.awayMessage,
         profileText: users.profileText,
+        profileQuote: users.profileQuote,
+        interests: users.interests,
+        location: users.location,
+        occupation: users.occupation,
+        hobbies: users.hobbies,
         avatarUrl: users.avatarUrl,
+        isInvisible: users.isInvisible,
+        allowDirectIMs: users.allowDirectIMs,
         createdAt: users.createdAt,
       })
       .from(buddyLists)
@@ -107,9 +114,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveMessage(message: InsertMessage): Promise<Message> {
+    const filteredMessage = {
+      ...message,
+      content: this.filterBadWords(message.content)
+    };
+    
     const [savedMessage] = await db
       .insert(messages)
-      .values(message)
+      .values(filteredMessage)
       .returning();
     return savedMessage;
   }
@@ -147,6 +159,84 @@ export class DatabaseStorage implements IStorage {
 
   async getOnlineUsers(): Promise<number[]> {
     return Array.from(this.onlineUsers);
+  }
+
+  // Message search and filtering
+  async searchMessages(userId: number, query: string, limit: number = 50): Promise<Message[]> {
+    const searchResults = await db
+      .select()
+      .from(messages)
+      .where(and(
+        or(eq(messages.fromUserId, userId), eq(messages.toUserId, userId)),
+        sql`${messages.content} ILIKE ${`%${query}%`}`
+      ))
+      .orderBy(desc(messages.timestamp))
+      .limit(limit);
+    return searchResults;
+  }
+
+  async getUnreadMessagesCount(userId: number): Promise<number> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(messages)
+      .where(and(eq(messages.toUserId, userId), eq(messages.isRead, false)));
+    return result?.count || 0;
+  }
+
+  // Privacy and blocking system
+  async blockUser(userId: number, blockedUserId: number): Promise<void> {
+    await db.insert(blockedUsers).values({ userId, blockedUserId });
+  }
+
+  async unblockUser(userId: number, blockedUserId: number): Promise<void> {
+    await db.delete(blockedUsers)
+      .where(and(eq(blockedUsers.userId, userId), eq(blockedUsers.blockedUserId, blockedUserId)));
+  }
+
+  async getBlockedUsers(userId: number): Promise<number[]> {
+    const blocked = await db.select({ blockedUserId: blockedUsers.blockedUserId })
+      .from(blockedUsers)
+      .where(eq(blockedUsers.userId, userId));
+    return blocked.map(b => b.blockedUserId);
+  }
+
+  async isUserBlocked(userId: number, blockedUserId: number): Promise<boolean> {
+    const [result] = await db.select()
+      .from(blockedUsers)
+      .where(and(eq(blockedUsers.userId, userId), eq(blockedUsers.blockedUserId, blockedUserId)))
+      .limit(1);
+    return !!result;
+  }
+
+  async reportUser(reporterId: number, reportedUserId: number, reason: string, description?: string): Promise<void> {
+    await db.insert(userWarnings).values({
+      reporterId,
+      reportedUserId,
+      reason,
+      description
+    });
+  }
+
+  // Word filtering for appropriate content
+  private filterBadWords(content: string): string {
+    const badWords = ['damn', 'hell', 'crap', 'stupid', 'idiot', 'shut up', 'hate'];
+    let filtered = content;
+    badWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      filtered = filtered.replace(regex, '*'.repeat(word.length));
+    });
+    return filtered;
+  }
+
+  // Word filtering for appropriate content
+  private filterBadWords(content: string): string {
+    const badWords = ['damn', 'hell', 'crap', 'stupid', 'idiot', 'shut up', 'hate'];
+    let filtered = content;
+    badWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      filtered = filtered.replace(regex, '*'.repeat(word.length));
+    });
+    return filtered;
   }
 }
 
