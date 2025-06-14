@@ -149,6 +149,9 @@ export default function AIM() {
 
   return (
     <div className="w-screen h-screen relative bg-win-gray font-system text-xs overflow-hidden">
+      {/* Desktop Icons */}
+      <DesktopIcons />
+      
       {/* Buddy List */}
       <BuddyList
         user={currentUser}

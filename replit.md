@@ -105,7 +105,17 @@ This is a full-stack web application that recreates the classic AOL Instant Mess
 
 Changelog:
 - June 14, 2025. Initial setup
+- June 14, 2025. Added buddy management functionality and Windows XP styling
+  - Created AddBuddyDialog component for adding friends
+  - Implemented Windows XP desktop background with gradient
+  - Added Windows taskbar with start button and system tray
+  - Added desktop icons (My Computer, Recycle Bin, etc.)
+  - Seeded sample users for testing buddy system
+  - Users can now add buddies by screen name
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Requested features:
+- Buddy management system for adding friends
+- Windows XP desktop appearance and styling
