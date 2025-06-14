@@ -321,22 +321,46 @@ export default function AIM() {
       </div>
 
       {/* Mobile Chat Windows - Full screen overlay */}
-      <div className="md:hidden">
-        {openChats.map((chat, index) => (
-          index === openChats.length - 1 && (
-            <MobileChatWindow
-              key={chat.id}
-              chatId={chat.id}
-              currentUser={currentUser}
-              buddyId={chat.buddyId}
-              buddyName={chat.buddyName}
-              isOnline={chat.isOnline}
-              onClose={() => closeChat(chat.id)}
-              socket={socket}
-            />
-          )
-        ))}
-      </div>
+      {openChats.length > 0 && (
+        <div className="md:hidden">
+          {openChats.slice(-1).map((chat) => (
+            <div key={chat.id} className="fixed inset-0 bg-white z-50 flex flex-col">
+              {/* Mobile Title Bar */}
+              <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full" style={{ background: chat.isOnline ? '#00ff00' : '#808080' }}></div>
+                  <span className="font-bold">Chat with {chat.buddyName}</span>
+                </div>
+                <button 
+                  onClick={() => closeChat(chat.id)}
+                  className="w-8 h-8 bg-red-500 hover:bg-red-600 text-white text-xl rounded flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Mobile Chat Content */}
+              <div className="flex-1 flex flex-col">
+                <ChatWindow
+                  chatId={chat.id}
+                  currentUser={currentUser}
+                  buddyId={chat.buddyId}
+                  buddyName={chat.buddyName}
+                  isOnline={chat.isOnline}
+                  position={{ x: 0, y: 0 }}
+                  size={{ width: window.innerWidth, height: window.innerHeight - 60 }}
+                  zIndex={50}
+                  onClose={() => closeChat(chat.id)}
+                  onMove={moveChat}
+                  onResize={resizeChat}
+                  onFocus={focusChat}
+                  socket={socket}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Away Message Dialog */}
       {showAwayDialog && (

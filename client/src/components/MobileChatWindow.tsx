@@ -31,13 +31,13 @@ export default function MobileChatWindow({
   // Fetch conversation history
   const { data: messages = [], refetch } = useQuery({
     queryKey: ['/api/conversation', currentUser.id, buddyId],
-    queryFn: () => apiRequest(`/api/conversation?userId1=${currentUser.id}&userId2=${buddyId}&limit=50`)
+    queryFn: () => apiRequest('GET', `/api/conversation?userId1=${currentUser.id}&userId2=${buddyId}&limit=50`)
   });
 
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: any) => {
-      return await apiRequest('/api/messages', messageData);
+      return await apiRequest('POST', '/api/messages', messageData);
     },
     onSuccess: () => {
       refetch();

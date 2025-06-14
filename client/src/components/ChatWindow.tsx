@@ -316,22 +316,23 @@ export default function ChatWindow({
               onChange={(e) => handleTyping(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder="Type your message here..."
-              className="flex-1 px-3 py-2 text-sm border md:px-2 md:py-1 md:text-xs"
+              className="flex-1 px-3 py-3 text-base border rounded-md md:px-2 md:py-1 md:text-xs md:rounded-none"
               style={{ 
                 background: 'white',
-                borderColor: 'var(--xp-border-dark)',
-                borderTopColor: 'var(--xp-border-light)',
-                borderLeftColor: 'var(--xp-border-light)',
-                minHeight: window.innerWidth <= 768 ? '44px' : 'auto'
+                borderColor: '#ccc',
+                minHeight: '48px',
+                fontSize: window.innerWidth <= 768 ? '16px' : '12px'
               }}
               disabled={sendMessageMutation.isPending}
             />
             <button
               onClick={handleSendMessage}
               disabled={!message.trim() || sendMessageMutation.isPending}
-              className="xp-button px-3 py-2 text-sm md:px-3 md:py-1 md:text-xs"
+              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md disabled:opacity-50 md:xp-button md:px-3 md:py-1 md:text-xs md:rounded-none"
               style={{
-                minHeight: window.innerWidth <= 768 ? '44px' : 'auto'
+                minHeight: '48px',
+                minWidth: '80px',
+                fontSize: window.innerWidth <= 768 ? '16px' : '12px'
               }}
             >
               Send
