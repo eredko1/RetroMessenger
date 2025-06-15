@@ -211,8 +211,8 @@ export default function AIM() {
     setOpenGroupChats(prev => prev.filter(chat => chat.id !== chatId));
   };
 
-  const handleOpenGroupChat = (buddies: any[]) => {
-    if (selectedBuddies.length < 2) {
+  const handleOpenGroupChat = (selectedBuddyIds: number[]) => {
+    if (selectedBuddyIds.length < 2) {
       toast({
         title: "Group Chat",
         description: "Select at least 2 buddies for a group chat",
@@ -221,19 +221,24 @@ export default function AIM() {
       return;
     }
 
-    const participants = buddies.filter(buddy => selectedBuddies.includes(buddy.id));
+    const participants = buddies?.filter(buddy => selectedBuddyIds.includes(buddy.id)) || [];
     const groupId = `group-${Date.now()}`;
     const newGroupChat = {
       id: groupId,
-      participants: participants,
+      participants: participants.map(p => ({ 
+        id: p.id, 
+        screenName: p.screenName, 
+        isOnline: p.isOnline 
+      })),
       position: { x: 150 + openGroupChats.length * 30, y: 150 + openGroupChats.length * 30 },
       size: { width: 500, height: 400 },
-      zIndex: nextZIndex
+      zIndex: nextZIndex,
+      isMinimized: false
     };
 
     setOpenGroupChats(prev => [...prev, newGroupChat]);
     setNextZIndex(prev => prev + 1);
-    setSelectedBuddies([]);
+    setShowGroupChatSelector(false);
   };
 
   const focusChat = (chatId: string) => {

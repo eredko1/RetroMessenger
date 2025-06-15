@@ -163,13 +163,15 @@ export default function WindowsTaskbar({
             {/* Show Desktop Button */}
             <button 
               onClick={onShowDesktop}
-              className="w-3 h-5 border border-gray-300 hover:bg-gray-200 transition-colors"
+              className="w-4 h-5 border border-gray-300 hover:bg-gray-200 transition-colors flex items-center justify-center"
               style={{ 
                 background: 'linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%)',
                 borderColor: '#999'
               }}
               title="Show Desktop"
-            />
+            >
+              <div className="w-2 h-2 border border-gray-600" style={{ borderColor: '#666' }}></div>
+            </button>
             
             {/* System Tray Icons */}
             <div className="flex items-center space-x-1 px-2 h-5 border rounded-sm"
