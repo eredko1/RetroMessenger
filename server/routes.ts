@@ -123,6 +123,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user profile route
+  app.put("/api/user/:id/profile", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const profileData = req.body;
+      
+      await storage.updateUserProfile(userId, profileData);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Profile update error:', error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Update user status route
   app.put("/api/user/:id/status", async (req, res) => {
     try {

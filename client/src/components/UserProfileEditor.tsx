@@ -21,7 +21,7 @@ export default function UserProfileEditor({ user, onClose }: UserProfileEditorPr
 
   const updateProfileMutation = useMutation({
     mutationFn: async (profileData: any) => {
-      return await apiRequest(`/api/user/${user.id}/profile`, profileData);
+      return await apiRequest(`/api/user/${user.id}/profile`, 'PUT', profileData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/user/${user.id}/buddies`] });
