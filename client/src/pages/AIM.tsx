@@ -15,6 +15,7 @@ import OfflineNotification from "@/components/OfflineNotification";
 import SystemTrayNotification from "@/components/SystemTrayNotification";
 import BuddyAlertSettings from "@/components/BuddyAlertSettings";
 import BuddyManagerDialog from "@/components/BuddyManagerDialog";
+import GroupChatSelector from "@/components/GroupChatSelector";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
 import LoginForm from "@/components/LoginForm";
@@ -47,6 +48,7 @@ export default function AIM() {
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [showBuddyAlerts, setShowBuddyAlerts] = useState<any>(null);
   const [showBuddyManager, setShowBuddyManager] = useState(false);
+  const [showGroupChatSelector, setShowGroupChatSelector] = useState(false);
   const [offlineMessages, setOfflineMessages] = useState<any[]>([]);
   const [systemNotifications, setSystemNotifications] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1000);
@@ -432,6 +434,31 @@ export default function AIM() {
             toast({
               title: "Buddy Moved",
               description: `Buddy moved to ${newGroup} group`,
+            });
+          }}
+        />
+      )}
+
+      {/* Group Chat Selector */}
+      {showGroupChatSelector && (
+        <GroupChatSelector
+          buddies={buddies}
+          onClose={() => setShowGroupChatSelector(false)}
+          onCreateGroup={(selectedBuddies) => {
+            const participants = buddies.filter(buddy => selectedBuddies.includes(buddy.id));
+            const groupId = `group-${Date.now()}`;
+            const newGroupChat = {
+              id: groupId,
+              participants: participants,
+              position: { x: 150 + openGroupChats.length * 30, y: 150 + openGroupChats.length * 30 },
+              size: { width: 500, height: 400 },
+              zIndex: nextZIndex
+            };
+            setOpenGroupChats(prev => [...prev, newGroupChat]);
+            setNextZIndex(prev => prev + 1);
+            toast({
+              title: "Group Chat Created",
+              description: `Group chat with ${participants.length} participants`,
             });
           }}
         />
