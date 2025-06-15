@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatTime } from "@/lib/aimUtils";
+import { Minus, X, Users, Image, Upload } from "lucide-react";
+import RichTextEditor from "./RichTextEditor";
 
 interface GroupChatWindowProps {
   chatId: string;
@@ -30,11 +33,13 @@ export default function GroupChatWindow({
   onFocus
 }: GroupChatWindowProps) {
   const [message, setMessage] = useState("");
+  const [messageFormatting, setMessageFormatting] = useState<any>({});
   const [messages, setMessages] = useState<any[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
