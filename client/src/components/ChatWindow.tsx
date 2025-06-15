@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { formatTime } from "@/lib/aimUtils";
+import { compressImage, formatFileSize, renderFormattedText } from "@/lib/imageUtils";
 import RichTextInput from "./RichTextInput";
 import RichTextEditor from "./RichTextEditor";
 
@@ -385,9 +387,12 @@ export default function ChatWindow({
                   }}
                 >
                   {/* Render formatted text content */}
-                  <div className="whitespace-pre-wrap">
-                    {msg.content}
-                  </div>
+                  <div 
+                    className="whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ 
+                      __html: msg.formatting ? renderFormattedText(msg.content, msg.formatting) : msg.content.replace(/\n/g, '<br/>') 
+                    }}
+                  />
                   
                   {/* Render image if present */}
                   {msg.imageUrl && (

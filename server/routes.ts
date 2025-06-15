@@ -123,6 +123,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user status route
+  app.put("/api/user/:id/status", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { status, awayMessage } = req.body;
+      
+      await storage.updateUserStatus(userId, status, awayMessage);
+      
+      // Broadcast status change to all buddies
+      await broadcastToUserBuddies(userId, {
+        type: 'status_change',
+        userId,
+        status,
+        awayMessage
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update status" });
+    }
+  });
+
   // Buddy list routes
   app.get("/api/user/:id/buddies", async (req, res) => {
     try {
