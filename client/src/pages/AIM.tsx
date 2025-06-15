@@ -362,22 +362,25 @@ export default function AIM() {
         <div className="hidden md:block flex-1 relative">
           {/* Chat Windows */}
           {openChats.map((chat) => (
-            <ChatWindow
-              key={chat.id}
-              chatId={chat.id}
-              currentUser={currentUser}
-              buddyId={chat.buddyId}
-              buddyName={chat.buddyName}
-              isOnline={chat.isOnline}
-              position={chat.position}
-              size={chat.size}
-              zIndex={chat.zIndex}
-              onClose={() => closeChat(chat.id)}
-              onMove={moveChat}
-              onResize={resizeChat}
-              onFocus={focusChat}
-              socket={socket}
-            />
+            !minimizedWindows.has(chat.id) && (
+              <ChatWindow
+                key={chat.id}
+                chatId={chat.id}
+                currentUser={currentUser}
+                buddyId={chat.buddyId}
+                buddyName={chat.buddyName}
+                isOnline={chat.isOnline}
+                position={chat.position}
+                size={chat.size}
+                zIndex={chat.zIndex}
+                onClose={() => closeChat(chat.id)}
+                onMove={moveChat}
+                onResize={resizeChat}
+                onFocus={focusChat}
+                onMinimize={handleWindowMinimize}
+                socket={socket}
+              />
+            )
           ))}
         </div>
       </div>

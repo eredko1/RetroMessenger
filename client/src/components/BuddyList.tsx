@@ -14,6 +14,7 @@ interface BuddyListProps {
   onShowBuddyAlerts?: (buddy: any) => void;
   onShowBuddyManager?: () => void;
   onShowGroupChat?: () => void;
+  onMinimize?: () => void;
 }
 
 export default function BuddyList({
@@ -28,7 +29,8 @@ export default function BuddyList({
   onEditProfile,
   onShowBuddyAlerts,
   onShowBuddyManager,
-  onShowGroupChat
+  onShowGroupChat,
+  onMinimize
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
   const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -151,8 +153,24 @@ export default function BuddyList({
           </div>
           <span>AOL Instant Messenger</span>
         </div>
-        <div className="xp-close-button" onClick={onLogout} title="Sign Off">
-          ×
+        <div className="flex space-x-1">
+          {onMinimize && (
+            <button 
+              className="xp-minimize-button w-4 h-4 text-xs flex items-center justify-center hover:bg-gray-300 transition-colors"
+              onClick={onMinimize}
+              title="Minimize"
+              style={{
+                background: 'linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%)',
+                border: '1px solid #999',
+                color: '#333'
+              }}
+            >
+              _
+            </button>
+          )}
+          <div className="xp-close-button" onClick={onLogout} title="Sign Off">
+            ×
+          </div>
         </div>
       </div>
 
