@@ -221,7 +221,7 @@ export default function BuddyList({
           
           {expandedGroups.has('Buddies') && onlineBuddies.map((buddy, index) => (
             <div 
-              key={`online-${buddy.id}-${index}`}
+              key={`buddy-online-${buddy.id}`}
               className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
               onClick={() => onOpenChat(buddy)}
               onContextMenu={(e) => {
@@ -260,7 +260,7 @@ export default function BuddyList({
             
             {expandedGroups.has('Offline') && offlineBuddies.map((buddy, index) => (
               <div 
-                key={`offline-${buddy.id}-${index}`}
+                key={`buddy-offline-${buddy.id}`}
                 className="buddy-item px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors opacity-60"
                 onClick={() => onOpenChat(buddy)}
                 onContextMenu={(e) => {
