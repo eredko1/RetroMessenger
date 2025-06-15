@@ -13,6 +13,7 @@ interface BuddyListProps {
   onEditProfile: () => void;
   onShowBuddyAlerts?: (buddy: any) => void;
   onShowBuddyManager?: () => void;
+  onShowGroupChat?: () => void;
 }
 
 export default function BuddyList({
@@ -26,7 +27,8 @@ export default function BuddyList({
   onShowAddBuddy,
   onEditProfile,
   onShowBuddyAlerts,
-  onShowBuddyManager
+  onShowBuddyManager,
+  onShowGroupChat
 }: BuddyListProps) {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Buddies']));
   const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -217,9 +219,9 @@ export default function BuddyList({
             <span className="text-gray-700">Online Buddies ({onlineBuddies.length})</span>
           </div>
           
-          {expandedGroups.has('Buddies') && onlineBuddies.map(buddy => (
+          {expandedGroups.has('Buddies') && onlineBuddies.map((buddy, index) => (
             <div 
-              key={`online-${buddy.id}`}
+              key={`online-${buddy.id}-${index}`}
               className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
               onClick={() => onOpenChat(buddy)}
               onContextMenu={(e) => {
@@ -256,9 +258,9 @@ export default function BuddyList({
               <span className="text-gray-700">Offline ({offlineBuddies.length})</span>
             </div>
             
-            {expandedGroups.has('Offline') && offlineBuddies.map(buddy => (
+            {expandedGroups.has('Offline') && offlineBuddies.map((buddy, index) => (
               <div 
-                key={`offline-${buddy.id}`}
+                key={`offline-${buddy.id}-${index}`}
                 className="buddy-item px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors opacity-60"
                 onClick={() => onOpenChat(buddy)}
                 onContextMenu={(e) => {
@@ -285,31 +287,46 @@ export default function BuddyList({
       </div>
 
       {/* Status Bar */}
-      <div className="bg-gray-200 px-2 py-1 border-t border-gray-400 flex justify-between items-center">
-        <span className="text-xs">Online: {onlineBuddies.length} of {buddies.length} buddies</span>
-        <div className="flex space-x-1">
-          <button 
-            onClick={onShowBuddyManager}
-            className="win-button px-2 py-0 text-xs"
-            title="Manage Buddies"
-          >
-            Manage
-          </button>
-          <button 
-            onClick={onShowAddBuddy}
-            className="win-button px-2 py-0 text-xs"
-            title="Add Buddy"
-          >
-            Add
-          </button>
-          <button 
-            onClick={onShowAwayDialog}
-            className="win-button px-2 py-0 text-xs"
-            title="Set Away Message"
-          >
-            Away
-          </button>
+      <div className="bg-gray-200 px-2 py-2 border-t border-gray-400 space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="text-xs">Online: {onlineBuddies.length} of {buddies.length} buddies</span>
+          <div className="flex space-x-1">
+            <button 
+              onClick={onShowBuddyManager}
+              className="win-button px-2 py-0 text-xs"
+              title="Manage Buddies"
+            >
+              Manage
+            </button>
+            <button 
+              onClick={onShowAddBuddy}
+              className="win-button px-2 py-0 text-xs"
+              title="Add Buddy"
+            >
+              Add
+            </button>
+            <button 
+              onClick={onShowAwayDialog}
+              className="win-button px-2 py-0 text-xs"
+              title="Set Away Message"
+            >
+              Away
+            </button>
+          </div>
         </div>
+        
+        {/* Group Chat Button */}
+        <button 
+          onClick={onShowGroupChat}
+          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2 px-3 rounded shadow-md transition-all duration-200 transform hover:scale-105 text-sm"
+          disabled={onlineBuddies.length < 2}
+          title={onlineBuddies.length < 2 ? "Need at least 2 online buddies for group chat" : "Start a group chat with multiple buddies"}
+        >
+          <div className="flex items-center justify-center space-x-2">
+            <span className="text-lg">👥</span>
+            <span>Start Group Chat</span>
+          </div>
+        </button>
       </div>
 
       {/* Resize Handle */}

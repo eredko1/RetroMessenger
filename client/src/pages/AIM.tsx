@@ -298,6 +298,7 @@ export default function AIM() {
             onEditProfile={() => setShowProfileEditor(true)}
             onShowBuddyAlerts={(buddy) => setShowBuddyAlerts(buddy)}
             onShowBuddyManager={() => setShowBuddyManager(true)}
+            onShowGroupChat={() => setShowGroupChatSelector(true)}
           />
         </div>
 

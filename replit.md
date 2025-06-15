@@ -142,6 +142,13 @@ Changelog:
   - Added comprehensive buddy alert customization dialog
   - Enhanced WebSocket system to support buddy-specific alert preferences
   - All classic 2002 AIM functionality now fully implemented
+- June 15, 2025. Enhanced group messaging system with improved UI
+  - Added prominent "Start Group Chat" button to buddy list for easy access
+  - Fixed React key warnings by adding unique index-based keys for buddy lists
+  - Enhanced group chat interface with rich text editor supporting formatting
+  - Improved mobile touch support for dragging chat windows on mobile devices
+  - Updated buddy list layout with better spacing and visual hierarchy
+  - Group chat button is intelligently disabled when fewer than 2 buddies are online
 
 ## User Preferences
 
