@@ -149,6 +149,15 @@ Changelog:
   - Improved mobile touch support for dragging chat windows on mobile devices
   - Updated buddy list layout with better spacing and visual hierarchy
   - Group chat button is intelligently disabled when fewer than 2 buddies are online
+- June 15, 2025. Comprehensive message formatting and image compression system
+  - Implemented automatic image compression for all uploaded images (JPEG, PNG, GIF, WebP, BMP)
+  - Added full support for rich text formatting visible to both sender and receiver
+  - Enhanced message rendering with HTML formatting support (bold, italic, underline, colors)
+  - Compressed images maintain quality while reducing file size significantly
+  - Added clickable image preview with full-screen viewer functionality
+  - GIF support with smart compression to preserve animation quality
+  - URL auto-linking and proper line break handling in all chat windows
+  - Consistent formatting display across desktop, mobile, and group chat interfaces
 
 ## User Preferences
 
