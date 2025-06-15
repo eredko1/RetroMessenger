@@ -17,6 +17,7 @@ interface GroupChatWindowProps {
   socket: WebSocket | null;
   zIndex: number;
   onFocus: (chatId: string) => void;
+  onMinimize?: (chatId: string) => void;
 }
 
 export default function GroupChatWindow({
@@ -30,7 +31,8 @@ export default function GroupChatWindow({
   onResize,
   socket,
   zIndex,
-  onFocus
+  onFocus,
+  onMinimize
 }: GroupChatWindowProps) {
   const [message, setMessage] = useState("");
   const [messageFormatting, setMessageFormatting] = useState<any>({});
@@ -291,6 +293,20 @@ export default function GroupChatWindow({
           <span>Group Chat ({onlineCount}/{participants.length} online)</span>
         </div>
         <div className="flex space-x-1">
+          {onMinimize && (
+            <button 
+              className="xp-minimize-button w-4 h-4 text-xs flex items-center justify-center hover:bg-gray-300 transition-colors"
+              onClick={() => onMinimize(chatId)}
+              title="Minimize"
+              style={{
+                background: 'linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%)',
+                border: '1px solid #999',
+                color: '#333'
+              }}
+            >
+              _
+            </button>
+          )}
           <button className="xp-close-button" onClick={onClose}>×</button>
         </div>
       </div>

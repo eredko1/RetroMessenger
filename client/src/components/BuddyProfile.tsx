@@ -87,6 +87,16 @@ export default function BuddyProfile({ buddy, onClose, onSendMessage }: BuddyPro
             </div>
           </div>
 
+          {/* Away Message */}
+          {buddy.status === 'away' && buddy.awayMessage && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+              <h4 className="font-bold text-sm text-yellow-800 mb-1">Away Message</h4>
+              <div className="text-sm text-yellow-700 italic">
+                {buddy.awayMessage}
+              </div>
+            </div>
+          )}
+
           {/* Profile Quote */}
           {buddy.profileQuote && (
             <div className="mb-4">

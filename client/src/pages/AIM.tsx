@@ -388,6 +388,40 @@ export default function AIM() {
               />
             )
           ))}
+
+          {/* Group Chat Windows */}
+          {openGroupChats.map((groupChat) => (
+            !minimizedWindows.has(groupChat.id) && (
+              <GroupChatWindow
+                key={groupChat.id}
+                chatId={groupChat.id}
+                currentUser={currentUser}
+                participants={groupChat.participants}
+                position={groupChat.position}
+                size={groupChat.size}
+                zIndex={groupChat.zIndex}
+                onClose={() => closeGroupChat(groupChat.id)}
+                onMove={(chatId, position) => {
+                  setOpenGroupChats(prev => prev.map(chat => 
+                    chat.id === chatId ? { ...chat, position } : chat
+                  ));
+                }}
+                onResize={(chatId, size) => {
+                  setOpenGroupChats(prev => prev.map(chat => 
+                    chat.id === chatId ? { ...chat, size } : chat
+                  ));
+                }}
+                onFocus={(chatId) => {
+                  setOpenGroupChats(prev => prev.map(chat => 
+                    chat.id === chatId ? { ...chat, zIndex: nextZIndex + 100 } : chat
+                  ));
+                  setNextZIndex(prev => prev + 1);
+                }}
+                onMinimize={handleWindowMinimize}
+                socket={socket}
+              />
+            )
+          ))}
         </div>
       </div>
 
