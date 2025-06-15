@@ -372,7 +372,20 @@ export default function GroupChatWindow({
                 >
                   {/* Render formatted text content */}
                   <div className="whitespace-pre-wrap">
-                    {msg.content}
+                    {msg.formatting ? (
+                      <span 
+                        style={{
+                          fontWeight: msg.formatting.bold ? 'bold' : 'normal',
+                          fontStyle: msg.formatting.italic ? 'italic' : 'normal',
+                          textDecoration: msg.formatting.underline ? 'underline' : 'none',
+                          color: msg.formatting.color || 'inherit'
+                        }}
+                      >
+                        {msg.content}
+                      </span>
+                    ) : (
+                      msg.content
+                    )}
                   </div>
                   
                   {/* Render image if present */}
