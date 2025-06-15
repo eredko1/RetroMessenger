@@ -43,6 +43,7 @@ export const messages = pgTable("messages", {
   toUserId: integer("to_user_id").notNull().references(() => users.id),
   content: text("content").notNull(),
   formatting: text("formatting"), // JSON string for rich text formatting
+  imageUrl: text("image_url"), // Base64 data URL for images
   timestamp: timestamp("timestamp").defaultNow(),
   isRead: boolean("is_read").notNull().default(false),
 });

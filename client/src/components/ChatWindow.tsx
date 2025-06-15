@@ -179,9 +179,13 @@ export default function ChatWindow({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging, isResizing, dragStart, resizeStart]);
@@ -205,6 +209,7 @@ export default function ChatWindow({
       fromUserId: currentUser.id,
       toUserId: buddyId,
       content: message.trim(),
+      formatting: messageFormatting,
       timestamp: new Date().toISOString()
     };
 
@@ -219,6 +224,23 @@ export default function ChatWindow({
       }));
       setIsTyping(false);
     }
+  };
+
+  const handleImageUpload = (file: File) => {
+    // Create a data URL for the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageData = e.target?.result as string;
+      const messageData = {
+        fromUserId: currentUser.id,
+        toUserId: buddyId,
+        content: `[Image] ${file.name}`,
+        imageUrl: imageData,
+        timestamp: new Date().toISOString()
+      };
+      sendMessageMutation.mutate(messageData);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleTyping = (content: string) => {
@@ -278,7 +300,11 @@ export default function ChatWindow({
       }}
       onMouseDown={(e) => {
         onFocus(chatId);
-        if (window.innerWidth > 768) handleMouseDown(e);
+        handleMouseDown(e);
+      }}
+      onTouchStart={(e) => {
+        onFocus(chatId);
+        handleTouchStart(e);
       }}
     >
       {/* Windows XP Title Bar */}
@@ -347,37 +373,20 @@ export default function ChatWindow({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input Area */}
+        {/* Rich Text Message Input Area */}
         <div className="p-2 bg-gray-100 border-t">
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => handleTyping(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Type your message here..."
-              className="flex-1 px-3 py-3 text-base border rounded-md md:px-2 md:py-1 md:text-xs md:rounded-none"
-              style={{ 
-                background: 'white',
-                borderColor: '#ccc',
-                minHeight: '48px',
-                fontSize: window.innerWidth <= 768 ? '16px' : '12px'
-              }}
-              disabled={sendMessageMutation.isPending}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!message.trim() || sendMessageMutation.isPending}
-              className="px-6 py-3 bg-blue-500 text-white font-bold rounded-md disabled:opacity-50 md:xp-button md:px-3 md:py-1 md:text-xs md:rounded-none"
-              style={{
-                minHeight: '48px',
-                minWidth: '80px',
-                fontSize: window.innerWidth <= 768 ? '16px' : '12px'
-              }}
-            >
-              Send
-            </button>
-          </div>
+          <RichTextEditor
+            value={message}
+            onChange={(content, formatting) => {
+              setMessage(content);
+              setMessageFormatting(formatting || {});
+              handleTyping(content);
+            }}
+            onSend={handleSendMessage}
+            onImageUpload={handleImageUpload}
+            placeholder="Type your message here... Use formatting tools and send images!"
+            disabled={sendMessageMutation.isPending}
+          />
         </div>
       </div>
 
