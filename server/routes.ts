@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(message);
     } catch (error) {
       console.error('Message send error:', error);
-      res.status(500).json({ message: "Failed to send message", error: error.message });
+      res.status(500).json({ message: "Failed to send message", error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 

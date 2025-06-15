@@ -162,8 +162,13 @@ export default function WindowsTaskbar({
           <div className="flex items-center space-x-2">
             {/* Show Desktop Button */}
             <button 
-              onClick={onShowDesktop}
-              className="w-4 h-5 border border-gray-300 hover:bg-gray-200 transition-colors flex items-center justify-center"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Show Desktop clicked');
+                onShowDesktop();
+              }}
+              className="w-4 h-5 border border-gray-300 hover:bg-gray-200 transition-colors flex items-center justify-center cursor-pointer"
               style={{ 
                 background: 'linear-gradient(to bottom, #f0f0f0 0%, #e0e0e0 50%, #d0d0d0 100%)',
                 borderColor: '#999'
