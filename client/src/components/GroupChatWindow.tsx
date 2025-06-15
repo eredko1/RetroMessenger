@@ -44,6 +44,16 @@ export default function GroupChatWindow({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
 
+  // Check if mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Send group message mutation
   const sendGroupMessageMutation = useMutation({
     mutationFn: async (messageData: any) => {
@@ -56,6 +66,7 @@ export default function GroupChatWindow({
             fromUserId: currentUser.id,
             toUserId: participant.id,
             content: `[Group] ${messageData.content}`,
+            formatting: messageData.formatting,
             timestamp: messageData.timestamp
           })
         })
@@ -68,11 +79,13 @@ export default function GroupChatWindow({
         fromUserId: currentUser.id,
         fromUserName: currentUser.screenName,
         content: message,
+        formatting: messageFormatting,
         timestamp: new Date().toISOString(),
         isGroup: true
       };
       setMessages(prev => [...prev, newMessage]);
       setMessage("");
+      setMessageFormatting({});
       scrollToBottom();
     }
   });
@@ -116,7 +129,7 @@ export default function GroupChatWindow({
     return () => socket.removeEventListener('message', handleMessage);
   }, [socket, participants]);
 
-  // Mouse event handlers for dragging
+  // Mouse and touch event handlers for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).closest('.xp-titlebar')) return;
     
@@ -124,6 +137,17 @@ export default function GroupChatWindow({
     setDragStart({
       x: e.clientX - position.x,
       y: e.clientY - position.y
+    });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.target !== e.currentTarget && !(e.target as HTMLElement).closest('.xp-titlebar')) return;
+    
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
     });
   };
 
@@ -142,7 +166,22 @@ export default function GroupChatWindow({
     }
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging) {
+      const touch = e.touches[0];
+      onMove(chatId, {
+        x: touch.clientX - dragStart.x,
+        y: touch.clientY - dragStart.y
+      });
+    }
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
     setIsResizing(false);
   };
@@ -151,9 +190,13 @@ export default function GroupChatWindow({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging, isResizing, dragStart, resizeStart]);
@@ -175,10 +218,26 @@ export default function GroupChatWindow({
     
     const messageData = {
       content: message.trim(),
+      formatting: messageFormatting,
       timestamp: new Date().toISOString()
     };
 
     sendGroupMessageMutation.mutate(messageData);
+  };
+
+  const handleImageUpload = (file: File) => {
+    // Create a data URL for the image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageData = e.target?.result as string;
+      sendGroupMessageMutation.mutate({
+        content: `[Image] ${file.name}`,
+        imageUrl: imageData,
+        formatting: {},
+        timestamp: new Date().toISOString()
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   const formatTime = (date: string) => {
@@ -209,6 +268,10 @@ export default function GroupChatWindow({
       onMouseDown={(e) => {
         onFocus(chatId);
         handleMouseDown(e);
+      }}
+      onTouchStart={(e) => {
+        onFocus(chatId);
+        handleTouchStart(e);
       }}
     >
       {/* Windows XP Title Bar */}
