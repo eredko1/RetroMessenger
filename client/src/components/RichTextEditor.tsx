@@ -57,11 +57,19 @@ export default function RichTextEditor({
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type.startsWith('image/') && onImageUpload) {
-      onImageUpload(file);
+      try {
+        console.log('Uploading image:', file.name, file.size);
+        await onImageUpload(file);
+      } catch (error) {
+        console.error('Image upload failed:', error);
+        alert('Failed to upload image. Please try again.');
+      }
     }
+    // Reset input to allow same file again
+    e.target.value = '';
   };
 
   const getTextStyle = (): React.CSSProperties => {

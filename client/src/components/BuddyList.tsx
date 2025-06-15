@@ -361,8 +361,15 @@ export default function BuddyList({
         
         {/* Group Chat Button */}
         <button 
-          onClick={onShowGroupChat}
-          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2 px-3 rounded shadow-md transition-all duration-200 transform hover:scale-105 text-sm"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Group chat button clicked, online buddies:', onlineBuddies.length);
+            if (onShowGroupChat && onlineBuddies.length >= 2) {
+              onShowGroupChat();
+            }
+          }}
+          className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2 px-3 rounded shadow-md transition-all duration-200 transform hover:scale-105 text-sm cursor-pointer"
           disabled={onlineBuddies.length < 2}
           title={onlineBuddies.length < 2 ? "Need at least 2 online buddies for group chat" : "Start a group chat with multiple buddies"}
         >

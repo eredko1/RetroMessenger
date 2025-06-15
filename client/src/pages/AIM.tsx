@@ -325,8 +325,20 @@ export default function AIM() {
       if (!currentUser) return;
       return await apiRequest(`/api/user/${currentUser.id}/status`, 'PUT', { status, awayMessage });
     },
-    onSuccess: () => {
+    onSuccess: (_, { status, awayMessage }) => {
+      setCurrentUser(prev => prev ? { ...prev, status, awayMessage } : prev);
       refetchBuddies();
+      toast({
+        title: "Status Updated",
+        description: `Status changed to ${status}${awayMessage ? ` with message: "${awayMessage}"` : ''}`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive"
+      });
     }
   });
 
