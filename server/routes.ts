@@ -227,8 +227,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const message = await storage.saveMessage(messageData);
       
       // Send message via WebSocket if recipient is online
+      console.log('Looking for recipient client:', messageData.toUserId, 'Available clients:', Array.from(clients.keys()));
       const recipientClient = clients.get(messageData.toUserId);
       if (recipientClient && recipientClient.readyState === WebSocket.OPEN) {
+        console.log('Sending message to recipient:', messageData.toUserId);
         recipientClient.send(JSON.stringify({
           type: 'new_message',
           message: {
@@ -236,11 +238,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fromUser: await storage.getUser(message.fromUserId)
           }
         }));
+      } else {
+        console.log('Recipient not online or client not found:', messageData.toUserId);
       }
       
       // Also send to sender if they have another window open
       const senderClient = clients.get(messageData.fromUserId);
       if (senderClient && senderClient.readyState === WebSocket.OPEN) {
+        console.log('Sending message confirmation to sender:', messageData.fromUserId);
         senderClient.send(JSON.stringify({
           type: 'new_message',
           message: {
@@ -392,12 +397,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
         switch (message.type) {
           case 'authenticate':
+            console.log('Authenticating user:', message.userId);
             const user = await storage.getUser(message.userId);
             if (user) {
               ws.userId = user.id;
               ws.screenName = user.screenName;
               clients.set(user.id, ws);
               await storage.setUserOnline(user.id);
+              console.log('User authenticated and added to clients:', user.id, 'Total clients:', clients.size);
               
               // Notify buddies that user is online with custom alert settings
               await broadcastToUserBuddiesWithAlerts(user.id, {

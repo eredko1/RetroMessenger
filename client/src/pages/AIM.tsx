@@ -212,16 +212,20 @@ export default function AIM() {
   };
 
   const handleOpenGroupChat = (selectedBuddyIds: number[]) => {
-    if (selectedBuddyIds.length < 2) {
+    console.log('handleOpenGroupChat called with:', selectedBuddyIds);
+    
+    if (selectedBuddyIds.length < 1) {
       toast({
         title: "Group Chat",
-        description: "Select at least 2 buddies for a group chat",
+        description: "Select at least 1 buddy for a group chat",
         variant: "destructive"
       });
       return;
     }
 
     const participants = buddies?.filter(buddy => selectedBuddyIds.includes(buddy.id)) || [];
+    console.log('Group participants:', participants);
+    
     const groupId = `group-${Date.now()}`;
     const newGroupChat = {
       id: groupId,
@@ -236,9 +240,15 @@ export default function AIM() {
       isMinimized: false
     };
 
+    console.log('Creating group chat:', newGroupChat);
     setOpenGroupChats(prev => [...prev, newGroupChat]);
     setNextZIndex(prev => prev + 1);
     setShowGroupChatSelector(false);
+    
+    toast({
+      title: "Group Chat Created",
+      description: `Started group chat with ${participants.length} participant(s)`,
+    });
   };
 
   const focusChat = (chatId: string) => {
