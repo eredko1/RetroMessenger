@@ -52,6 +52,8 @@ export default function AIM() {
   const [offlineMessages, setOfflineMessages] = useState<any[]>([]);
   const [systemNotifications, setSystemNotifications] = useState<any[]>([]);
   const [nextZIndex, setNextZIndex] = useState(1000);
+  const [minimizedWindows, setMinimizedWindows] = useState<Set<string>>(new Set());
+  const [allWindowsMinimized, setAllWindowsMinimized] = useState(false);
   const { toast } = useToast();
   const { playMessageSound, playBuddyOnlineSound, playCustomBuddySound, playSystemNotificationSound } = useAIMSounds();
 
@@ -241,6 +243,60 @@ export default function AIM() {
         : chat
     ));
     setNextZIndex(prev => prev + 1);
+  };
+
+  // Window Management Functions
+  const handleWindowMinimize = (windowId: string) => {
+    setMinimizedWindows(prev => new Set(Array.from(prev).concat(windowId)));
+  };
+
+  const handleWindowRestore = (windowId: string) => {
+    setMinimizedWindows(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(windowId);
+      return newSet;
+    });
+    setAllWindowsMinimized(false);
+    focusChat(windowId);
+  };
+
+  const handleShowDesktop = () => {
+    const allWindows = [
+      ...openChats.map(chat => chat.id),
+      ...openGroupChats.map(chat => chat.id),
+      'buddy-list'
+    ];
+    
+    if (allWindowsMinimized) {
+      setMinimizedWindows(new Set());
+      setAllWindowsMinimized(false);
+    } else {
+      setMinimizedWindows(new Set(allWindows));
+      setAllWindowsMinimized(true);
+    }
+  };
+
+  const getTaskbarWindows = () => {
+    return [
+      {
+        id: 'buddy-list',
+        title: 'Buddy List',
+        type: 'buddy-list' as const,
+        isMinimized: minimizedWindows.has('buddy-list')
+      },
+      ...openChats.map(chat => ({
+        id: chat.id,
+        title: `Chat: ${chat.buddyName}`,
+        type: 'chat' as const,
+        isMinimized: minimizedWindows.has(chat.id)
+      })),
+      ...openGroupChats.map(chat => ({
+        id: chat.id,
+        title: `Group: ${chat.participants?.map((p: any) => p.screenName).join(', ')}`,
+        type: 'group' as const,
+        isMinimized: minimizedWindows.has(chat.id)
+      }))
+    ];
   };
 
   const moveChat = (chatId: string, position: { x: number; y: number }) => {
@@ -487,7 +543,12 @@ export default function AIM() {
       ))}
 
       {/* Windows XP Taskbar */}
-      <WindowsTaskbar />
+      <WindowsTaskbar 
+        openWindows={getTaskbarWindows()}
+        onWindowRestore={handleWindowRestore}
+        onWindowMinimize={handleWindowMinimize}
+        onShowDesktop={handleShowDesktop}
+      />
     </div>
   );
 }
