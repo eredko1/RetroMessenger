@@ -369,14 +369,9 @@ export default function ChatWindow({
                   }}
                 >
                   {/* Render formatted text content */}
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: (() => {
-                        const { renderFormattedText } = require('@/lib/imageUtils');
-                        return renderFormattedText(msg.content, msg.formatting);
-                      })()
-                    }}
-                  />
+                  <div className="whitespace-pre-wrap">
+                    {msg.content}
+                  </div>
                   
                   {/* Render image if present */}
                   {msg.imageUrl && (
