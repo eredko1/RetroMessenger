@@ -61,16 +61,13 @@ export default function GroupChatWindow({
     mutationFn: async (messageData: any) => {
       // Send message to each participant
       const promises = participants.map(participant => 
-        apiRequest('/api/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fromUserId: currentUser.id,
-            toUserId: participant.id,
-            content: `[Group] ${messageData.content}`,
-            formatting: messageData.formatting,
-            timestamp: messageData.timestamp
-          })
+        apiRequest('/api/messages', 'POST', {
+          fromUserId: currentUser.id,
+          toUserId: participant.id,
+          content: `[Group] ${messageData.content}`,
+          formatting: messageData.formatting,
+          imageUrl: messageData.imageUrl,
+          timestamp: messageData.timestamp
         })
       );
       return Promise.all(promises);
@@ -110,18 +107,24 @@ export default function GroupChatWindow({
     const handleMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       
-      if (data.type === 'message' && data.content?.startsWith('[Group]')) {
-        const participant = participants.find(p => p.id === data.fromUserId);
-        if (participant) {
+      if (data.type === 'new_message' && data.message.content?.startsWith('[Group]')) {
+        const participant = participants.find(p => p.id === data.message.fromUserId);
+        if (participant && data.message.fromUserId !== currentUser.id) {
           const newMessage = {
-            id: Date.now() + Math.random(),
-            fromUserId: data.fromUserId,
+            id: data.message.id,
+            fromUserId: data.message.fromUserId,
             fromUserName: participant.screenName,
-            content: data.content.replace('[Group] ', ''),
-            timestamp: data.timestamp,
+            content: data.message.content.replace('[Group] ', ''),
+            formatting: data.message.formatting,
+            imageUrl: data.message.imageUrl,
+            timestamp: data.message.timestamp,
             isGroup: true
           };
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => {
+            const exists = prev.some(msg => msg.id === newMessage.id);
+            if (exists) return prev;
+            return [...prev, newMessage];
+          });
           scrollToBottom();
         }
       }
@@ -129,7 +132,7 @@ export default function GroupChatWindow({
 
     socket.addEventListener('message', handleMessage);
     return () => socket.removeEventListener('message', handleMessage);
-  }, [socket, participants]);
+  }, [socket, participants, currentUser.id]);
 
   // Mouse and touch event handlers for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -368,14 +371,9 @@ export default function GroupChatWindow({
                   }}
                 >
                   {/* Render formatted text content */}
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: (() => {
-                        const { renderFormattedText } = require('@/lib/imageUtils');
-                        return renderFormattedText(msg.content, msg.formatting);
-                      })()
-                    }}
-                  />
+                  <div className="whitespace-pre-wrap">
+                    {msg.content}
+                  </div>
                   
                   {/* Render image if present */}
                   {msg.imageUrl && (

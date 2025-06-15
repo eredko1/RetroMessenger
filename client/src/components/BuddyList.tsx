@@ -70,7 +70,7 @@ export default function BuddyList({
 
   // Drag handlers for buddy list
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.win-titlebar')) {
+    if ((e.target as HTMLElement).closest('.xp-titlebar')) {
       setIsDragging(true);
       setDragStart({
         x: e.clientX - position.x,
@@ -79,6 +79,31 @@ export default function BuddyList({
       e.preventDefault();
     }
   };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Add global event listeners for dragging
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
 
   const handleResizeMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -146,6 +171,7 @@ export default function BuddyList({
       {/* Windows XP Title Bar */}
       <div 
         className="xp-titlebar cursor-move"
+        onMouseDown={handleMouseDown}
       >
         <div className="flex items-center space-x-1">
           <div className="w-4 h-4 bg-yellow-400 border border-gray-600 flex items-center justify-center">
