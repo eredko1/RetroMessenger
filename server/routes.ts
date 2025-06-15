@@ -99,6 +99,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/user/:id/profile", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({
+        profileText: user.profileText || "",
+        profileQuote: user.profileQuote || "",
+        interests: user.interests || "",
+        location: user.location || "",
+        occupation: user.occupation || "",
+        hobbies: user.hobbies || "",
+        avatarUrl: user.avatarUrl || "",
+        allowDirectIMs: user.allowDirectIMs !== false
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch profile" });
+    }
+  });
+
   // Buddy list routes
   app.get("/api/user/:id/buddies", async (req, res) => {
     try {

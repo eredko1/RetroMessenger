@@ -354,30 +354,17 @@ export default function GroupChatWindow({
 
         {/* Message Input Area */}
         <div className="p-2 bg-gray-100 border-t">
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Type your group message here..."
-              className="flex-1 px-2 py-1 text-xs border"
-              style={{ 
-                background: 'white',
-                borderColor: 'var(--xp-border-dark)',
-                borderTopColor: 'var(--xp-border-light)',
-                borderLeftColor: 'var(--xp-border-light)'
-              }}
-              disabled={sendGroupMessageMutation.isPending}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!message.trim() || sendGroupMessageMutation.isPending}
-              className="xp-button px-3 py-1 text-xs"
-            >
-              Send to All
-            </button>
-          </div>
+          <RichTextEditor
+            value={message}
+            onChange={(content, formatting) => {
+              setMessage(content);
+              setMessageFormatting(formatting || {});
+            }}
+            onSend={handleSendMessage}
+            onImageUpload={handleImageUpload}
+            placeholder="Type your group message here... Use formatting tools and send images!"
+            disabled={sendGroupMessageMutation.isPending}
+          />
           <div className="text-xs text-gray-600 mt-1">
             Message will be sent to all {participants.length} participants (including offline users)
           </div>

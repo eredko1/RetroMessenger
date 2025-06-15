@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import RichTextInput from "./RichTextInput";
+import RichTextEditor from "./RichTextEditor";
 
 interface ChatWindowProps {
   chatId: string;
@@ -35,12 +36,14 @@ export default function ChatWindow({
   onFocus
 }: ChatWindowProps) {
   const [message, setMessage] = useState("");
+  const [messageFormatting, setMessageFormatting] = useState<any>({});
   const [isTyping, setIsTyping] = useState(false);
   const [buddyTyping, setBuddyTyping] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -60,6 +63,16 @@ export default function ChatWindow({
     }
   });
 
+  // Check if mobile on mount
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: any) => {
@@ -67,6 +80,7 @@ export default function ChatWindow({
     },
     onSuccess: () => {
       setMessage("");
+      setMessageFormatting({});
       queryClient.invalidateQueries({ queryKey: ['/api/conversation', currentUser.id, buddyId] });
       scrollToBottom();
     }
@@ -104,7 +118,7 @@ export default function ChatWindow({
     return () => socket.removeEventListener('message', handleMessage);
   }, [socket, buddyId, currentUser.id]);
 
-  // Mouse event handlers for dragging
+  // Mouse and touch event handlers for dragging
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.target !== e.currentTarget && !(e.target as HTMLElement).closest('.xp-titlebar')) return;
     
@@ -112,6 +126,17 @@ export default function ChatWindow({
     setDragStart({
       x: e.clientX - position.x,
       y: e.clientY - position.y
+    });
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.target !== e.currentTarget && !(e.target as HTMLElement).closest('.xp-titlebar')) return;
+    
+    const touch = e.touches[0];
+    setIsDragging(true);
+    setDragStart({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y
     });
   };
 
@@ -130,7 +155,22 @@ export default function ChatWindow({
     }
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    if (isDragging) {
+      const touch = e.touches[0];
+      onMove(chatId, {
+        x: touch.clientX - dragStart.x,
+        y: touch.clientY - dragStart.y
+      });
+    }
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
     setIsResizing(false);
   };
