@@ -201,6 +201,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/messages", async (req, res) => {
     try {
+      console.log('Received message data:', req.body);
+      
       const messageData = insertMessageSchema.parse(req.body);
       
       // Forward message to email/SMS if user is away
@@ -221,9 +223,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
       }
       
+      // Also send to sender if they have another window open
+      const senderClient = clients.get(messageData.fromUserId);
+      if (senderClient && senderClient.readyState === WebSocket.OPEN) {
+        senderClient.send(JSON.stringify({
+          type: 'new_message',
+          message: {
+            ...message,
+            fromUser: await storage.getUser(message.fromUserId)
+          }
+        }));
+      }
+      
       res.json(message);
     } catch (error) {
-      res.status(500).json({ message: "Failed to send message" });
+      console.error('Message send error:', error);
+      res.status(500).json({ message: "Failed to send message", error: error.message });
     }
   });
 

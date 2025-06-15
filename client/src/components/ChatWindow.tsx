@@ -80,7 +80,7 @@ export default function ChatWindow({
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (messageData: any) => {
-      return await apiRequest('/api/messages', messageData);
+      return await apiRequest('/api/messages', 'POST', messageData);
     },
     onSuccess: () => {
       setMessage("");
@@ -108,9 +108,13 @@ export default function ChatWindow({
     const handleMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       
-      if (data.type === 'message' && (data.fromUserId === buddyId || data.toUserId === buddyId)) {
-        queryClient.invalidateQueries({ queryKey: ['/api/conversation', currentUser.id, buddyId] });
-        scrollToBottom();
+      if (data.type === 'new_message') {
+        // Check if this message is for this chat
+        if ((data.message.fromUserId === buddyId && data.message.toUserId === currentUser.id) ||
+            (data.message.fromUserId === currentUser.id && data.message.toUserId === buddyId)) {
+          queryClient.invalidateQueries({ queryKey: ['/api/conversation', currentUser.id, buddyId] });
+          scrollToBottom();
+        }
       }
       
       if (data.type === 'typing' && data.fromUserId === buddyId) {
@@ -120,7 +124,7 @@ export default function ChatWindow({
 
     socket.addEventListener('message', handleMessage);
     return () => socket.removeEventListener('message', handleMessage);
-  }, [socket, buddyId, currentUser.id]);
+  }, [socket, buddyId, currentUser.id, queryClient]);
 
   // Mouse and touch event handlers for dragging
   const handleMouseDown = (e: React.MouseEvent) => {

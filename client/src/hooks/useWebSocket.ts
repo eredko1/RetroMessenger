@@ -64,6 +64,8 @@ export function useWebSocket(user: any) {
       }
       if (socket) {
         socket.close();
+        setSocket(null);
+        setIsConnected(false);
       }
     };
   }, [user]);
