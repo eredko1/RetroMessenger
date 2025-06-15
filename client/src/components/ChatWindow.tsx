@@ -226,21 +226,31 @@ export default function ChatWindow({
     }
   };
 
-  const handleImageUpload = (file: File) => {
-    // Create a data URL for the image
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageData = e.target?.result as string;
+  const handleImageUpload = async (file: File) => {
+    try {
+      const { compressImage, isSupportedImageType, formatFileSize } = await import('@/lib/imageUtils');
+      
+      if (!isSupportedImageType(file)) {
+        alert('Unsupported image format. Please use JPEG, PNG, GIF, WebP, or BMP.');
+        return;
+      }
+
+      const compressedImage = await compressImage(file);
+      
       const messageData = {
         fromUserId: currentUser.id,
         toUserId: buddyId,
-        content: `[Image] ${file.name}`,
-        imageUrl: imageData,
+        content: `[Image: ${file.name} - ${formatFileSize(compressedImage.compressedSize)}]`,
+        formatting: null,
+        imageUrl: compressedImage.dataUrl,
         timestamp: new Date().toISOString()
       };
+
       sendMessageMutation.mutate(messageData);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      alert('Failed to upload image. Please try again.');
+    }
   };
 
   const handleTyping = (content: string) => {
@@ -358,7 +368,41 @@ export default function ChatWindow({
                     marginRight: msg.fromUserId === currentUser.id ? '0' : '20px'
                   }}
                 >
-                  {msg.content}
+                  {/* Render formatted text content */}
+                  <div 
+                    dangerouslySetInnerHTML={{ 
+                      __html: (() => {
+                        const { renderFormattedText } = require('@/lib/imageUtils');
+                        return renderFormattedText(msg.content, msg.formatting);
+                      })()
+                    }}
+                  />
+                  
+                  {/* Render image if present */}
+                  {msg.imageUrl && (
+                    <div className="mt-2">
+                      <img 
+                        src={msg.imageUrl} 
+                        alt="Shared image"
+                        className="max-w-full h-auto rounded border shadow-sm cursor-pointer"
+                        style={{ maxWidth: '200px', maxHeight: '150px' }}
+                        onClick={() => {
+                          // Open image in new window for full view
+                          const newWindow = window.open('', '_blank');
+                          if (newWindow) {
+                            newWindow.document.write(`
+                              <html>
+                                <head><title>Image Viewer</title></head>
+                                <body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh; background:#000;">
+                                  <img src="${msg.imageUrl}" style="max-width:100%; max-height:100vh; object-fit:contain;" />
+                                </body>
+                              </html>
+                            `);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ))
