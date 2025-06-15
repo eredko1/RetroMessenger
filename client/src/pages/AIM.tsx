@@ -323,7 +323,7 @@ export default function AIM() {
   const updateUserStatus = useMutation({
     mutationFn: async ({ status, awayMessage }: { status: string; awayMessage?: string }) => {
       if (!currentUser) return;
-      await apiRequest('PUT', `/api/user/${currentUser.id}/status`, { status, awayMessage });
+      return await apiRequest(`/api/user/${currentUser.id}/status`, 'PUT', { status, awayMessage });
     },
     onSuccess: () => {
       refetchBuddies();
@@ -510,23 +510,7 @@ export default function AIM() {
         <GroupChatSelector
           buddies={buddies}
           onClose={() => setShowGroupChatSelector(false)}
-          onCreateGroup={(selectedBuddies) => {
-            const participants = buddies.filter(buddy => selectedBuddies.includes(buddy.id));
-            const groupId = `group-${Date.now()}`;
-            const newGroupChat = {
-              id: groupId,
-              participants: participants,
-              position: { x: 150 + openGroupChats.length * 30, y: 150 + openGroupChats.length * 30 },
-              size: { width: 500, height: 400 },
-              zIndex: nextZIndex
-            };
-            setOpenGroupChats(prev => [...prev, newGroupChat]);
-            setNextZIndex(prev => prev + 1);
-            toast({
-              title: "Group Chat Created",
-              description: `Group chat with ${participants.length} participants`,
-            });
-          }}
+          onCreateGroup={handleOpenGroupChat}
         />
       )}
 
