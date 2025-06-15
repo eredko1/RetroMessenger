@@ -158,6 +158,15 @@ Changelog:
   - GIF support with smart compression to preserve animation quality
   - URL auto-linking and proper line break handling in all chat windows
   - Consistent formatting display across desktop, mobile, and group chat interfaces
+- June 15, 2025. Complete window management system with minimize/restore and show desktop
+  - Added minimize/restore functionality to all windows (buddy list, chat windows, group chats)
+  - Implemented Windows XP-style minimize buttons with authentic visual design
+  - Created comprehensive taskbar integration showing all open windows with status indicators
+  - Added show desktop functionality to minimize/restore all windows at once
+  - Enhanced taskbar with dynamic window tracking and click-to-restore functionality
+  - Improved visual design with prettier gradients, shadows, and streamlined layouts
+  - All windows now support proper minimize state management with seamless restoration
+  - Taskbar displays window icons, truncated titles, and visual feedback for minimized state
 
 ## User Preferences
 

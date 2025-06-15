@@ -355,6 +355,7 @@ export default function AIM() {
             onShowBuddyAlerts={(buddy) => setShowBuddyAlerts(buddy)}
             onShowBuddyManager={() => setShowBuddyManager(true)}
             onShowGroupChat={() => setShowGroupChatSelector(true)}
+            onMinimize={() => handleWindowMinimize('buddy-list')}
           />
         </div>
 
