@@ -851,7 +851,7 @@ export default function AIM() {
         onShowDesktop={handleShowDesktop}
         onOpenApplication={openApplication}
         onLogout={handleLogout}
-        user={user}
+        user={currentUser}
       />
     </div>
   );

@@ -43,10 +43,10 @@
   --status-offline: #8c8c8c;
 }
 
-/* Windows XP Desktop Background - Classic Bliss */
+/* Windows XP Desktop Background - Authentic Bliss */
 .xp-desktop {
-  background: url('https://i.imgur.com/Iq8SlCd.jpg') center center / cover no-repeat, 
-              linear-gradient(to bottom, #5cb3cc 0%, #4a90e2 50%, #2e7d32 100%);
+  background: linear-gradient(135deg, #87CEEB 0%, #4169E1 25%, #1E90FF 50%, #0078D4 75%, #005A9B 100%);
+  background-attachment: fixed;
   min-height: 100vh;
   font-family: Tahoma, sans-serif;
   position: relative;
