@@ -134,6 +134,9 @@ export default function InternetExplorer({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMove={onMove}
+      onResize={onResize}
+      onFocus={onFocus}
       className="bg-gray-100"
     >
       <div className="flex flex-col h-full">
