@@ -1,22 +1,115 @@
-export default function DesktopIcons() {
+import { useState } from "react";
+
+interface DesktopIconsProps {
+  onOpenApplication?: (appName: string) => void;
+}
+
+export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+
   const icons = [
-    { name: "My Computer", icon: "🖥️", x: 20, y: 20 },
-    { name: "Recycle Bin", icon: "🗑️", x: 20, y: 100 },
-    { name: "My Documents", icon: "📁", x: 20, y: 180 },
-    { name: "Internet Explorer", icon: "🌐", x: 20, y: 260 }
+    { 
+      name: "My Computer", 
+      icon: "💻", 
+      x: 20, 
+      y: 20,
+      app: "explorer"
+    },
+    { 
+      name: "Recycle Bin", 
+      icon: "🗑️", 
+      x: 20, 
+      y: 100,
+      app: "recycle"
+    },
+    { 
+      name: "My Documents", 
+      icon: "📁", 
+      x: 20, 
+      y: 180,
+      app: "documents"
+    },
+    { 
+      name: "Internet Explorer", 
+      icon: "🌐", 
+      x: 20, 
+      y: 260,
+      app: "browser"
+    },
+    { 
+      name: "Windows Media Player", 
+      icon: "🎵", 
+      x: 20, 
+      y: 340,
+      app: "mediaplayer"
+    },
+    { 
+      name: "Notepad", 
+      icon: "📝", 
+      x: 20, 
+      y: 420,
+      app: "notepad"
+    },
+    { 
+      name: "Paint", 
+      icon: "🎨", 
+      x: 20, 
+      y: 500,
+      app: "paint"
+    },
+    { 
+      name: "Calculator", 
+      icon: "🔢", 
+      x: 120, 
+      y: 20,
+      app: "calculator"
+    },
+    { 
+      name: "Solitaire", 
+      icon: "🃏", 
+      x: 120, 
+      y: 100,
+      app: "solitaire"
+    },
+    { 
+      name: "Minesweeper", 
+      icon: "💣", 
+      x: 120, 
+      y: 180,
+      app: "minesweeper"
+    }
   ];
+
+  const handleIconClick = (icon: any) => {
+    setSelectedIcon(icon.name);
+    if (onOpenApplication) {
+      onOpenApplication(icon.app);
+    }
+  };
+
+  const handleIconDoubleClick = (icon: any) => {
+    if (onOpenApplication) {
+      onOpenApplication(icon.app);
+    }
+  };
 
   return (
     <>
       {icons.map((icon) => (
         <div
           key={icon.name}
-          className="absolute cursor-pointer select-none group"
+          className={`absolute cursor-pointer select-none group ${
+            selectedIcon === icon.name ? 'bg-blue-500 bg-opacity-30' : ''
+          }`}
           style={{ left: icon.x, top: icon.y }}
+          onClick={() => handleIconClick(icon)}
+          onDoubleClick={() => handleIconDoubleClick(icon)}
         >
-          <div className="flex flex-col items-center p-2 rounded hover:bg-blue-200 hover:bg-opacity-50">
-            <div className="text-2xl mb-1">{icon.icon}</div>
-            <div className="text-white text-xs text-center font-bold drop-shadow-lg group-hover:bg-blue-600 group-hover:text-white px-1 rounded">
+          <div className="flex flex-col items-center p-2 w-20 h-20 hover:bg-blue-200 hover:bg-opacity-50 rounded">
+            <div className="text-2xl mb-1 filter drop-shadow-sm">{icon.icon}</div>
+            <div className={`text-white text-xs text-center font-medium drop-shadow-lg px-1 rounded max-w-full break-words leading-tight ${
+              selectedIcon === icon.name ? 'bg-blue-600' : 'group-hover:bg-blue-600'
+            }`}>
               {icon.name}
             </div>
           </div>

@@ -18,6 +18,10 @@ import BuddyManagerDialog from "@/components/BuddyManagerDialog";
 import GroupChatSelector from "@/components/GroupChatSelector";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
+import WindowsExplorer from "@/components/WindowsExplorer";
+import WindowsCalculator from "@/components/WindowsCalculator";
+import WindowsNotepad from "@/components/WindowsNotepad";
+import WindowsPaint from "@/components/WindowsPaint";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
 
