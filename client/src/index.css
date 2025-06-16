@@ -45,7 +45,7 @@
 
 /* Windows XP Desktop Background */
 .xp-desktop {
-  background: url('https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg') center center / cover no-repeat;
+  background: linear-gradient(to bottom, #5cb3cc 0%, #4a90e2 50%, #2e7d32 100%);
   min-height: 100vh;
   font-family: Tahoma, sans-serif;
 }

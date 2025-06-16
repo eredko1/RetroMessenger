@@ -86,6 +86,14 @@ export default function AIM() {
   });
 
   // Listen for WebSocket messages
+  // Auto-open test application on startup
+  useEffect(() => {
+    if (currentUser && Object.keys(openApplications).length === 0) {
+      console.log('Auto-opening test application');
+      openApplication('test');
+    }
+  }, [currentUser]);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -325,7 +333,8 @@ export default function AIM() {
       browser: 'Internet Explorer',
       mediaplayer: 'Windows Media Player',
       solitaire: 'Solitaire',
-      minesweeper: 'Minesweeper'
+      minesweeper: 'Minesweeper',
+      test: 'Test Application'
     };
 
     const appSizes: { [key: string]: { width: number; height: number } } = {
@@ -338,7 +347,8 @@ export default function AIM() {
       browser: { width: 900, height: 700 },
       mediaplayer: { width: 400, height: 300 },
       solitaire: { width: 600, height: 500 },
-      minesweeper: { width: 300, height: 350 }
+      minesweeper: { width: 300, height: 350 },
+      test: { width: 400, height: 300 }
     };
 
     const newApp = {
@@ -490,7 +500,10 @@ export default function AIM() {
             onEditProfile={() => setShowProfileEditor(true)}
             onShowBuddyAlerts={(buddy) => setShowBuddyAlerts(buddy)}
             onShowBuddyManager={() => setShowBuddyManager(true)}
-            onShowGroupChat={() => setShowGroupChatSelector(true)}
+            onShowGroupChat={() => {
+              console.log('Setting showGroupChatSelector to true');
+              setShowGroupChatSelector(true);
+            }}
             onMinimize={() => handleWindowMinimize('buddy-list')}
           />
         </div>
@@ -672,11 +685,13 @@ export default function AIM() {
 
       {/* Group Chat Selector */}
       {showGroupChatSelector && (
-        <GroupChatSelector
-          buddies={buddies}
-          onClose={() => setShowGroupChatSelector(false)}
-          onCreateGroup={handleOpenGroupChat}
-        />
+        <div className="absolute inset-0 z-50">
+          <GroupChatSelector
+            buddies={buddies}
+            onClose={() => setShowGroupChatSelector(false)}
+            onCreateGroup={handleOpenGroupChat}
+          />
+        </div>
       )}
 
       {/* Offline Message Notifications */}

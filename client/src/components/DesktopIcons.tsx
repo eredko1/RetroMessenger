@@ -89,7 +89,9 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
 
   const handleIconClick = (icon: any) => {
     setSelectedIcon(icon.name);
+    console.log('Desktop icon clicked:', icon.name, icon.app);
     if (onOpenApplication) {
+      console.log('Calling onOpenApplication with:', icon.app);
       onOpenApplication(icon.app);
     }
   };
