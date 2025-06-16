@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import WindowsStartMenu from "./WindowsStartMenu";
 
 interface TaskbarProps {
   openWindows: Array<{
@@ -10,6 +11,9 @@ interface TaskbarProps {
   onWindowRestore: (windowId: string) => void;
   onWindowMinimize: (windowId: string) => void;
   onShowDesktop: () => void;
+  onOpenApplication: (appType: string) => void;
+  onLogout: () => void;
+  user: any;
 }
 
 export default function WindowsTaskbar({ 

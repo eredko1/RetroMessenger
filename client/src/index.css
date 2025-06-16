@@ -43,11 +43,13 @@
   --status-offline: #8c8c8c;
 }
 
-/* Windows XP Desktop Background */
+/* Windows XP Desktop Background - Classic Bliss */
 .xp-desktop {
-  background: linear-gradient(to bottom, #5cb3cc 0%, #4a90e2 50%, #2e7d32 100%);
+  background: url('https://i.imgur.com/Iq8SlCd.jpg') center center / cover no-repeat, 
+              linear-gradient(to bottom, #5cb3cc 0%, #4a90e2 50%, #2e7d32 100%);
   min-height: 100vh;
   font-family: Tahoma, sans-serif;
+  position: relative;
 }
 
 /* Windows XP Button Styles */

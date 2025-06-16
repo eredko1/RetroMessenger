@@ -86,13 +86,62 @@ export default function AIM() {
   });
 
   // Listen for WebSocket messages
-  // Auto-open test application on startup
-  useEffect(() => {
-    if (currentUser && Object.keys(openApplications).length === 0) {
-      console.log('Auto-opening test application');
-      openApplication('test');
+  // Load user's saved window positions on startup
+  const loadUserWindowPositions = async () => {
+    if (!currentUser?.id) return;
+    try {
+      const response = await apiRequest(`/api/user/${currentUser.id}/window-positions`);
+      if (response.positions) {
+        // Restore buddy list position if saved
+        if (response.positions.buddyList) {
+          // This would be handled by BuddyList component
+        }
+        // Restore application positions if saved
+        if (response.positions.applications) {
+          Object.entries(response.positions.applications).forEach(([appId, position]: any) => {
+            // Restore saved applications
+            const appType = appId.split('-')[0];
+            openApplication(appType);
+          });
+        }
+      }
+    } catch (error) {
+      console.log('No saved window positions found');
     }
-  }, [currentUser]);
+  };
+
+  const saveUserWindowPositions = async () => {
+    if (!currentUser?.id) return;
+    try {
+      const positions = {
+        applications: Object.fromEntries(
+          Object.entries(openApplications).map(([id, app]) => [
+            id, 
+            { position: app.position, size: app.size }
+          ])
+        )
+      };
+      await apiRequest(`/api/user/${currentUser.id}/window-positions`, 'PUT', { positions });
+    } catch (error) {
+      console.error('Failed to save window positions:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadUserWindowPositions();
+    }
+  }, [currentUser?.id]);
+
+  // Auto-save positions when they change
+  useEffect(() => {
+    const saveTimer = setTimeout(() => {
+      if (Object.keys(openApplications).length > 0) {
+        saveUserWindowPositions();
+      }
+    }, 1000);
+    return () => clearTimeout(saveTimer);
+  }, [openApplications]);
 
   useEffect(() => {
     if (!socket) return;
@@ -320,7 +369,7 @@ export default function AIM() {
   };
 
   // Windows XP Application Management
-  const openApplication = (appType: string) => {
+  const openApplication = (appType: string, savedPosition?: any) => {
     console.log('Opening application:', appType);
     const appId = `${appType}-${Date.now()}`;
     const appTitles: { [key: string]: string } = {
@@ -333,8 +382,7 @@ export default function AIM() {
       browser: 'Internet Explorer',
       mediaplayer: 'Windows Media Player',
       solitaire: 'Solitaire',
-      minesweeper: 'Minesweeper',
-      test: 'Test Application'
+      minesweeper: 'Minesweeper'
     };
 
     const appSizes: { [key: string]: { width: number; height: number } } = {
@@ -347,20 +395,19 @@ export default function AIM() {
       browser: { width: 900, height: 700 },
       mediaplayer: { width: 400, height: 300 },
       solitaire: { width: 600, height: 500 },
-      minesweeper: { width: 300, height: 350 },
-      test: { width: 400, height: 300 }
+      minesweeper: { width: 300, height: 350 }
     };
 
     const newApp = {
       id: appId,
       type: appType,
       title: appTitles[appType] || appType,
-      position: { 
+      position: savedPosition?.position || { 
         x: 100 + Object.keys(openApplications).length * 30, 
         y: 100 + Object.keys(openApplications).length * 30 
       },
-      size: appSizes[appType] || { width: 600, height: 400 },
-      zIndex: nextZIndex,
+      size: savedPosition?.size || appSizes[appType] || { width: 600, height: 400 },
+      zIndex: nextZIndex + 1000,
       isMinimized: false
     };
 
