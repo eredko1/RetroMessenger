@@ -22,6 +22,7 @@ import WindowsExplorer from "@/components/WindowsExplorer";
 import WindowsCalculator from "@/components/WindowsCalculator";
 import WindowsNotepad from "@/components/WindowsNotepad";
 import WindowsPaint from "@/components/WindowsPaint";
+import TestApp from "@/components/TestApp";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
 
@@ -312,6 +313,7 @@ export default function AIM() {
 
   // Windows XP Application Management
   const openApplication = (appType: string) => {
+    console.log('Opening application:', appType);
     const appId = `${appType}-${Date.now()}`;
     const appTitles: { [key: string]: string } = {
       explorer: 'My Computer',
@@ -352,8 +354,18 @@ export default function AIM() {
       isMinimized: false
     };
 
-    setOpenApplications(prev => ({ ...prev, [appId]: newApp }));
+    console.log('Creating new app:', newApp);
+    setOpenApplications(prev => {
+      const newApps = { ...prev, [appId]: newApp };
+      console.log('Updated applications:', newApps);
+      return newApps;
+    });
     setNextZIndex(prev => prev + 1);
+    
+    toast({
+      title: "Application Opened",
+      description: `${appTitles[appType] || appType} is now running`,
+    });
   };
 
   const closeApplication = (appId: string) => {
@@ -456,16 +468,14 @@ export default function AIM() {
   return (
     <div className="xp-desktop w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col">
       {/* Desktop Icons - Always visible on desktop */}
-      <div className="hidden md:block absolute inset-0 pointer-events-none z-0">
-        <div className="pointer-events-auto">
-          <DesktopIcons onOpenApplication={openApplication} />
-        </div>
+      <div className="absolute inset-0 z-0">
+        <DesktopIcons onOpenApplication={openApplication} />
       </div>
       
       {/* Mobile/Desktop Layout */}
       <div className="h-full w-full md:flex md:flex-row">
         {/* Buddy List */}
-        <div className="w-full md:w-80 h-full md:h-auto">
+        <div className="relative z-10">
           <BuddyList
             user={currentUser}
             buddies={buddies}
@@ -740,7 +750,16 @@ export default function AIM() {
               />
             );
           default:
-            return null;
+            return (
+              <TestApp
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+              />
+            );
         }
       })}
 

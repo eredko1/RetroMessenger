@@ -77,6 +77,13 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
       x: 120, 
       y: 180,
       app: "minesweeper"
+    },
+    { 
+      name: "Test App", 
+      icon: "🔧", 
+      x: 120, 
+      y: 260,
+      app: "test"
     }
   ];
 

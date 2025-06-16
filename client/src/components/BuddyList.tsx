@@ -160,7 +160,7 @@ export default function BuddyList({
 
   return (
     <div 
-      className="xp-window absolute overflow-hidden select-none md:relative md:w-full md:h-full md:top-0 md:left-0 md:max-w-sm md:flex md:flex-col"
+      className="xp-window absolute overflow-hidden select-none"
       style={{ 
         left: position.x, 
         top: position.y, 
@@ -169,9 +169,10 @@ export default function BuddyList({
         zIndex: 1000,
         cursor: isDragging ? 'move' : 'default',
         minWidth: '250px',
-        minHeight: '280px'
+        minHeight: '280px',
+        border: '2px outset #c0c0c0',
+        backgroundColor: '#f0f0f0'
       }}
-      onMouseDown={handleMouseDown}
     >
       {/* Windows XP Title Bar */}
       <div 
