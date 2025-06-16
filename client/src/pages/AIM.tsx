@@ -539,7 +539,20 @@ export default function AIM() {
     >
       {/* Desktop Icons - Always visible on desktop */}
       <div className="absolute inset-0 z-0">
-        <DesktopIcons onOpenApplication={openApplication} />
+        <DesktopIcons 
+          onOpenApplication={openApplication}
+          onOpenBuddyList={() => {
+            console.log('Opening Buddy List from desktop icon');
+            // Restore buddy list if minimized
+            if (minimizedWindows.has('buddy-list')) {
+              setMinimizedWindows(prev => {
+                const newSet = new Set(prev);
+                newSet.delete('buddy-list');
+                return newSet;
+              });
+            }
+          }}
+        />
         
         {/* Show Desktop Button for mobile */}
         <div className="md:hidden fixed top-4 right-4 z-50">
@@ -800,6 +813,25 @@ export default function AIM() {
                 position={app.position}
                 size={app.size}
                 zIndex={app.zIndex}
+                onMove={(position) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], position }
+                  }));
+                }}
+                onResize={(size) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], size }
+                  }));
+                }}
+                onFocus={() => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], zIndex: nextZIndex + 1000 }
+                  }));
+                  setNextZIndex(prev => prev + 1);
+                }}
               />
             );
           case 'calculator':
@@ -810,6 +842,19 @@ export default function AIM() {
                 onMinimize={() => minimizeApplication(app.id)}
                 position={app.position}
                 zIndex={app.zIndex}
+                onMove={(position) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], position }
+                  }));
+                }}
+                onFocus={() => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], zIndex: nextZIndex + 1000 }
+                  }));
+                  setNextZIndex(prev => prev + 1);
+                }}
               />
             );
           case 'notepad':

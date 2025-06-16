@@ -80,14 +80,25 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       y: 180,
       app: "minesweeper"
     },
+    { 
+      name: "AOL Instant Messenger", 
+      icon: "💬", 
+      x: 120, 
+      y: 260,
+      app: "aim-buddy-list"
+    },
 
   ];
 
   const handleIconClick = (icon: any) => {
     setSelectedIcon(icon.name);
     console.log('Desktop icon clicked:', icon.name, icon.app);
-    // Single click opens application immediately for touch devices
-    if (onOpenApplication) {
+    
+    // Handle AIM Buddy List separately
+    if (icon.app === 'aim-buddy-list' && onOpenBuddyList) {
+      console.log('Opening Buddy List from desktop');
+      onOpenBuddyList();
+    } else if (onOpenApplication && icon.app) {
       console.log('Calling onOpenApplication with:', icon.app);
       onOpenApplication(icon.app);
     }
