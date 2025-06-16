@@ -6,6 +6,7 @@ interface DesktopIconsProps {
 
 export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [lastTap, setLastTap] = useState<number>(0);
 
   const icons = [
     { 
@@ -84,16 +85,32 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
   const handleIconClick = (icon: any) => {
     setSelectedIcon(icon.name);
     console.log('Desktop icon clicked:', icon.name, icon.app);
+  };
+
+  const handleIconDoubleClick = (icon: any) => {
+    console.log('Desktop icon double-clicked:', icon.name, icon.app);
     if (onOpenApplication) {
       console.log('Calling onOpenApplication with:', icon.app);
       onOpenApplication(icon.app);
     }
   };
 
-  const handleIconDoubleClick = (icon: any) => {
-    if (onOpenApplication) {
-      onOpenApplication(icon.app);
+  const handleTouchStart = (icon: any) => {
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      console.log('Desktop icon double-tapped:', icon.name, icon.app);
+      if (onOpenApplication) {
+        onOpenApplication(icon.app);
+      }
+    } else {
+      // Single tap
+      setSelectedIcon(icon.name);
+      console.log('Desktop icon tapped:', icon.name, icon.app);
     }
+    setLastTap(now);
   };
 
   return (
@@ -107,6 +124,7 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
           style={{ left: icon.x, top: icon.y }}
           onClick={() => handleIconClick(icon)}
           onDoubleClick={() => handleIconDoubleClick(icon)}
+          onTouchStart={() => handleTouchStart(icon)}
         >
           <div className="flex flex-col items-center p-2 w-20 h-20 hover:bg-blue-200 hover:bg-opacity-50 rounded">
             <div className="text-2xl mb-1 filter drop-shadow-sm">{icon.icon}</div>

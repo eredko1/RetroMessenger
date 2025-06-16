@@ -523,10 +523,27 @@ export default function AIM() {
   }
 
   return (
-    <div className="xp-desktop w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col">
+    <div 
+      className="w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col"
+      style={{
+        background: 'linear-gradient(135deg, #87CEEB 0%, #4169E1 25%, #1E90FF 50%, #0078D4 75%, #005A9B 100%)',
+        backgroundAttachment: 'fixed',
+        fontFamily: 'Tahoma, sans-serif'
+      }}
+    >
       {/* Desktop Icons - Always visible on desktop */}
       <div className="absolute inset-0 z-0">
         <DesktopIcons onOpenApplication={openApplication} />
+        
+        {/* Show Desktop Button for mobile */}
+        <div className="md:hidden fixed top-4 right-4 z-50">
+          <button
+            onClick={() => setAllWindowsMinimized(!allWindowsMinimized)}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-2 rounded shadow-lg border border-blue-500"
+          >
+            {allWindowsMinimized ? 'Show Windows' : 'Show Desktop'}
+          </button>
+        </div>
       </div>
       
       {/* Mobile/Desktop Layout */}
@@ -811,23 +828,39 @@ export default function AIM() {
                 zIndex={app.zIndex}
               />
             );
-          case 'test':
           case 'browser':
           case 'mediaplayer':
           case 'solitaire':
           case 'minesweeper':
           case 'recycle':
-          default:
             return (
-              <TestApp
+              <div
                 key={app.id}
-                onClose={() => closeApplication(app.id)}
-                onMinimize={() => minimizeApplication(app.id)}
-                position={app.position}
-                size={app.size}
-                zIndex={app.zIndex}
-              />
+                className="absolute bg-gray-100 border-2 border-gray-400 shadow-lg flex items-center justify-center"
+                style={{
+                  left: app.position.x,
+                  top: app.position.y,
+                  width: app.size.width,
+                  height: app.size.height,
+                  zIndex: app.zIndex,
+                  borderStyle: 'outset'
+                }}
+              >
+                <div className="text-center">
+                  <div className="text-4xl mb-4">🚧</div>
+                  <div className="text-sm font-bold">{app.title}</div>
+                  <div className="text-xs mt-2">Coming Soon</div>
+                  <button
+                    onClick={() => closeApplication(app.id)}
+                    className="mt-4 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             );
+          default:
+            return null;
         }
       })}
 
