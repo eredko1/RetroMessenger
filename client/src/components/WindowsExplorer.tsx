@@ -65,13 +65,13 @@ export default function WindowsExplorer({
 
   const handleItemClick = (item: FileSystemItem) => {
     setSelectedItem(item.name);
-  };
-
-  const handleItemDoubleClick = (item: FileSystemItem) => {
+    // Single click navigation for touch device compatibility
     if (item.type === 'folder' || item.type === 'drive') {
       navigateTo(item.path);
     }
   };
+
+  // Removed double-click for touch device compatibility
 
   const getFileTypeIcon = (item: FileSystemItem) => {
     if (item.type === 'drive') return <HardDrive className="w-4 h-4" />;
@@ -194,7 +194,6 @@ export default function WindowsExplorer({
                   selectedItem === item.name ? 'bg-blue-200' : ''
                 }`}
                 onClick={() => handleItemClick(item)}
-                onDoubleClick={() => handleItemDoubleClick(item)}
               >
                 <div className="flex flex-col items-center text-center">
                   <div className="mb-2 text-2xl">{item.icon}</div>

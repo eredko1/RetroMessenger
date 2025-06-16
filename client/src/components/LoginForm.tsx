@@ -64,7 +64,16 @@ export default function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="xp-desktop w-screen h-screen flex items-center justify-center">
+    <div 
+      className="w-screen h-screen flex items-center justify-center"
+      style={{
+        backgroundImage: 'url("https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      }}
+    >
       <div className="xp-window w-80 p-4">
         {/* Windows XP Title Bar */}
         <div className="xp-titlebar -mx-4 -mt-4 mb-4">

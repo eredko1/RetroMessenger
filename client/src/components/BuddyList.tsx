@@ -274,17 +274,7 @@ export default function BuddyList({
               key={`buddy-online-${buddy.id}`}
               className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
               onClick={() => onOpenChat(buddy)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onShowProfile(buddy);
-              }}
-              onDoubleClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onShowProfile(buddy);
-              }}
-              title="Click to chat, right-click for profile"
+              title={`Click to chat with ${buddy.screenName}`}
             >
               <div className="relative">
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
