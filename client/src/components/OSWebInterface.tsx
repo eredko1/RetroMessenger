@@ -89,6 +89,41 @@ export default function OSWebInterface({ user, socket, onLogout }: OSWebInterfac
     }));
   };
 
+  const openChatWindow = (buddy: any) => {
+    const chatId = `chat-${buddy.id}`;
+    if (chatWindows[chatId]) {
+      focusWindow(chatId);
+      return;
+    }
+
+    const newChat = {
+      id: chatId,
+      type: 'chat',
+      title: `Chat with ${buddy.screenName}`,
+      buddy: buddy,
+      position: { x: 150 + Object.keys(chatWindows).length * 30, y: 150 + Object.keys(chatWindows).length * 30 },
+      size: { width: 400, height: 500 },
+      zIndex: highestZIndex + 1,
+      isMinimized: false,
+      isMaximized: false
+    };
+
+    setChatWindows(prev => ({ ...prev, [chatId]: newChat }));
+    setActiveWindowId(chatId);
+    setHighestZIndex(prev => prev + 1);
+  };
+
+  const closeChatWindow = (chatId: string) => {
+    setChatWindows(prev => {
+      const newChats = { ...prev };
+      delete newChats[chatId];
+      return newChats;
+    });
+    if (activeWindowId === chatId) {
+      setActiveWindowId(null);
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       {/* CSS Variables and Styles */}
@@ -267,7 +302,7 @@ export default function OSWebInterface({ user, socket, onLogout }: OSWebInterfac
           <span className="text-xs text-[var(--text-primary)]">Chat</span>
         </div>
 
-        {/* Windows */}
+        {/* Regular Windows */}
         {Object.values(openWindows).map((window: any) => (
           <OSWebWindow
             key={window.id}
@@ -279,6 +314,25 @@ export default function OSWebInterface({ user, socket, onLogout }: OSWebInterfac
             onMaximize={() => toggleMaximize(window.id)}
             user={user}
             socket={socket}
+            onOpenChat={openChatWindow}
+            onCloseChatWindow={closeChatWindow}
+          />
+        ))}
+
+        {/* Chat Windows */}
+        {Object.values(chatWindows).map((chatWindow: any) => (
+          <OSWebWindow
+            key={chatWindow.id}
+            window={chatWindow}
+            isActive={activeWindowId === chatWindow.id}
+            onClose={() => closeChatWindow(chatWindow.id)}
+            onFocus={() => focusWindow(chatWindow.id)}
+            onMinimize={() => toggleMinimize(chatWindow.id)}
+            onMaximize={() => toggleMaximize(chatWindow.id)}
+            user={user}
+            socket={socket}
+            onOpenChat={openChatWindow}
+            onCloseChatWindow={closeChatWindow}
           />
         ))}
       </main>
@@ -390,6 +444,8 @@ interface OSWebWindowProps {
   onMaximize: () => void;
   user: any;
   socket: WebSocket | null;
+  onOpenChat: (buddy: any) => void;
+  onCloseChatWindow: (chatId: string) => void;
 }
 
 function OSWebWindow({ 
@@ -400,7 +456,9 @@ function OSWebWindow({
   onMinimize, 
   onMaximize,
   user,
-  socket 
+  socket,
+  onOpenChat,
+  onCloseChatWindow
 }: OSWebWindowProps) {
   const [position, setPosition] = useState(window.position);
   const [size, setSize] = useState(window.size);
@@ -443,9 +501,16 @@ function OSWebWindow({
   const renderWindowContent = () => {
     switch (window.type) {
       case 'buddy-list':
-        return <OSWebBuddyList user={user} socket={socket} />;
+        return <OSWebBuddyList user={user} socket={socket} onOpenChat={onOpenChat} />;
       case 'chat':
-        return <OSWebChat user={user} socket={socket} />;
+        return window.buddy ? (
+          <OSWebChatWindow 
+            user={user} 
+            buddy={window.buddy} 
+            socket={socket} 
+            onClose={() => onCloseChatWindow(window.id)}
+          />
+        ) : <div className="p-4 text-[var(--text-primary)]">Chat loading...</div>;
       case 'settings':
         return <OSWebSettings />;
       case 'app-launcher':

@@ -25,7 +25,7 @@ export default function OSWebChatWindow({ user, buddy, socket, onClose }: OSWebC
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
 
-  const { data: messages = [] } = useQuery({
+  const { data: messages = [] } = useQuery<Message[]>({
     queryKey: [`/api/user/${user?.id}/conversations/${buddy?.id}`],
     enabled: !!user?.id && !!buddy?.id,
     refetchInterval: 2000,
