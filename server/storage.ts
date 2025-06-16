@@ -345,6 +345,144 @@ export class DatabaseStorage implements IStorage {
     }
     return {};
   }
+  // Application instance management
+  async saveApplicationInstance(instance: InsertApplicationInstance): Promise<ApplicationInstance> {
+    const [saved] = await db
+      .insert(applicationInstances)
+      .values(instance)
+      .onConflictDoUpdate({
+        target: applicationInstances.id,
+        set: {
+          position: instance.position,
+          size: instance.size,
+          zIndex: instance.zIndex,
+          isMinimized: instance.isMinimized,
+          state: instance.state,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return saved;
+  }
+
+  async updateApplicationInstance(id: string, updates: Partial<InsertApplicationInstance>): Promise<void> {
+    await db
+      .update(applicationInstances)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(applicationInstances.id, id));
+  }
+
+  async getUserApplicationInstances(userId: number): Promise<ApplicationInstance[]> {
+    return await db
+      .select()
+      .from(applicationInstances)
+      .where(eq(applicationInstances.userId, userId))
+      .orderBy(applicationInstances.createdAt);
+  }
+
+  async deleteApplicationInstance(id: string): Promise<void> {
+    await db.delete(applicationInstances).where(eq(applicationInstances.id, id));
+  }
+
+  // File system operations
+  async createFileSystemEntry(entry: InsertFilesystemEntry): Promise<FilesystemEntry> {
+    const [created] = await db
+      .insert(filesystemEntries)
+      .values(entry)
+      .returning();
+    return created;
+  }
+
+  async getFileSystemEntry(userId: number, path: string): Promise<FilesystemEntry | undefined> {
+    const [entry] = await db
+      .select()
+      .from(filesystemEntries)
+      .where(and(eq(filesystemEntries.userId, userId), eq(filesystemEntries.path, path)));
+    return entry;
+  }
+
+  async getDirectoryContents(userId: number, path: string): Promise<FilesystemEntry[]> {
+    return await db
+      .select()
+      .from(filesystemEntries)
+      .where(and(eq(filesystemEntries.userId, userId), eq(filesystemEntries.parentPath, path)))
+      .orderBy(filesystemEntries.type, filesystemEntries.name);
+  }
+
+  async updateFileSystemEntry(id: number, updates: Partial<InsertFilesystemEntry>): Promise<void> {
+    await db
+      .update(filesystemEntries)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(filesystemEntries.id, id));
+  }
+
+  async deleteFileSystemEntry(id: number): Promise<void> {
+    await db.delete(filesystemEntries).where(eq(filesystemEntries.id, id));
+  }
+
+  // Desktop settings
+  async getDesktopSettings(userId: number): Promise<DesktopSettings | undefined> {
+    const [settings] = await db
+      .select()
+      .from(desktopSettings)
+      .where(eq(desktopSettings.userId, userId));
+    return settings;
+  }
+
+  async saveDesktopSettings(settings: InsertDesktopSettings): Promise<DesktopSettings> {
+    const [saved] = await db
+      .insert(desktopSettings)
+      .values(settings)
+      .onConflictDoUpdate({
+        target: desktopSettings.userId,
+        set: {
+          wallpaper: settings.wallpaper,
+          iconPositions: settings.iconPositions,
+          theme: settings.theme,
+          taskbarPosition: settings.taskbarPosition,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return saved;
+  }
+
+  async updateDesktopSettings(userId: number, updates: Partial<InsertDesktopSettings>): Promise<void> {
+    await db
+      .update(desktopSettings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(desktopSettings.userId, userId));
+  }
+
+  // Browser data
+  async saveBrowserData(data: InsertBrowserData): Promise<BrowserData> {
+    const [saved] = await db
+      .insert(browserData)
+      .values(data)
+      .returning();
+    return saved;
+  }
+
+  async getBrowserHistory(userId: number, limit: number = 50): Promise<BrowserData[]> {
+    return await db
+      .select()
+      .from(browserData)
+      .where(and(eq(browserData.userId, userId), eq(browserData.type, "history")))
+      .orderBy(desc(browserData.lastVisited))
+      .limit(limit);
+  }
+
+  async getBrowserBookmarks(userId: number): Promise<BrowserData[]> {
+    return await db
+      .select()
+      .from(browserData)
+      .where(and(eq(browserData.userId, userId), eq(browserData.type, "bookmark")))
+      .orderBy(browserData.title);
+  }
+
+  async deleteBrowserData(id: number): Promise<void> {
+    await db.delete(browserData).where(eq(browserData.id, id));
+  }
 }
 
 export const storage = new DatabaseStorage();

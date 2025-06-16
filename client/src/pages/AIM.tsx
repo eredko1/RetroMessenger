@@ -526,7 +526,10 @@ export default function AIM() {
     <div 
       className="w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col"
       style={{
-        background: 'linear-gradient(135deg, #87CEEB 0%, #4169E1 25%, #1E90FF 50%, #0078D4 75%, #005A9B 100%)',
+        backgroundImage: 'url("https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
         fontFamily: 'Tahoma, sans-serif'
       }}
