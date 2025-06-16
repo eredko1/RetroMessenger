@@ -18,6 +18,7 @@ import BuddyManagerDialog from "@/components/BuddyManagerDialog";
 import GroupChatSelector from "@/components/GroupChatSelector";
 import WindowsTaskbar from "@/components/WindowsTaskbar";
 import DesktopIcons from "@/components/DesktopIcons";
+import Screensaver from "@/components/Screensaver";
 import WindowsExplorer from "@/components/WindowsExplorer";
 import WindowsCalculator from "@/components/WindowsCalculator";
 import WindowsNotepad from "@/components/WindowsNotepad";
@@ -60,6 +61,9 @@ export default function AIM() {
   const [nextZIndex, setNextZIndex] = useState(1000);
   const [minimizedWindows, setMinimizedWindows] = useState<Set<string>>(new Set());
   const [allWindowsMinimized, setAllWindowsMinimized] = useState(false);
+  const [isScreensaverActive, setIsScreensaverActive] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
+  const [desktopWallpaper, setDesktopWallpaper] = useState('bliss');
   
   // Windows XP Applications State
   const [openApplications, setOpenApplications] = useState<{
