@@ -87,6 +87,41 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       y: 260,
       app: "aim-buddy-list"
     },
+    { 
+      name: "Google Drive", 
+      icon: "📁", 
+      x: 220, 
+      y: 20,
+      app: "google-drive"
+    },
+    { 
+      name: "Telegram", 
+      icon: "✈️", 
+      x: 220, 
+      y: 100,
+      app: "telegram"
+    },
+    { 
+      name: "Replit", 
+      icon: "🔧", 
+      x: 220, 
+      y: 180,
+      app: "replit"
+    },
+    { 
+      name: "OpenAI", 
+      icon: "🤖", 
+      x: 220, 
+      y: 260,
+      app: "openai"
+    },
+    { 
+      name: "Gemini", 
+      icon: "💎", 
+      x: 120, 
+      y: 340,
+      app: "gemini"
+    },
 
   ];
 

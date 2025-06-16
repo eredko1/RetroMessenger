@@ -10,6 +10,7 @@ interface InternetExplorerProps {
   size: { width: number; height: number };
   zIndex: number;
   instanceId?: string;
+  appType?: string;
   onMove?: (position: { x: number; y: number }) => void;
   onResize?: (size: { width: number; height: number }) => void;
   onFocus?: () => void;
@@ -22,17 +23,42 @@ export default function InternetExplorer({
   size, 
   zIndex, 
   instanceId,
+  appType = 'internet-explorer',
   onMove,
   onResize,
   onFocus
 }: InternetExplorerProps) {
-  const [currentUrl, setCurrentUrl] = useState('https://www.google.com');
-  const [urlInput, setUrlInput] = useState('https://www.google.com');
+  // URL mappings for different app types
+  const getInitialUrl = (type: string) => {
+    const urlMap: { [key: string]: string } = {
+      'internet-explorer': 'https://www.google.com',
+      'google-drive': 'https://drive.google.com',
+      'telegram': 'https://web.telegram.org',
+      'replit': 'https://replit.com',
+      'openai': 'https://chat.openai.com',
+      'gemini': 'https://gemini.google.com'
+    };
+    return urlMap[type] || 'https://www.google.com';
+  };
+
+  const initialUrl = getInitialUrl(appType);
+  const [currentUrl, setCurrentUrl] = useState(initialUrl);
+  const [urlInput, setUrlInput] = useState(initialUrl);
   const [isLoading, setIsLoading] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
-  const [history, setHistory] = useState<string[]>(['https://www.google.com']);
+  const [history, setHistory] = useState<string[]>([initialUrl]);
   const [historyIndex, setHistoryIndex] = useState(0);
+  const [bookmarks, setBookmarks] = useState<Array<{title: string, url: string}>>([
+    { title: 'Google', url: 'https://www.google.com' },
+    { title: 'Replit', url: 'https://replit.com' },
+    { title: 'OpenAI', url: 'https://chat.openai.com' },
+    { title: 'Gemini', url: 'https://gemini.google.com' },
+    { title: 'GitHub', url: 'https://github.com' },
+    { title: 'Stack Overflow', url: 'https://stackoverflow.com' }
+  ]);
+  const [showBookmarks, setShowBookmarks] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // Browser history persistence
@@ -143,12 +169,53 @@ export default function InternetExplorer({
         {/* Menu Bar */}
         <div className="bg-gray-200 border-b border-gray-300 px-2 py-1">
           <div className="flex items-center text-xs space-x-4">
-            <span className="font-bold">File</span>
-            <span className="font-bold">Edit</span>
-            <span className="font-bold">View</span>
-            <span className="font-bold">Favorites</span>
-            <span className="font-bold">Tools</span>
-            <span className="font-bold">Help</span>
+            <div className="relative group">
+              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">File</span>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-40">
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">New Window</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Save Page As...</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Print</div>
+                <hr className="my-1" />
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={onClose}>Exit</div>
+              </div>
+            </div>
+            <div className="relative group">
+              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Edit</span>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Copy</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Paste</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Find</div>
+              </div>
+            </div>
+            <div className="relative group">
+              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">View</span>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Source</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Full Screen</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Zoom</div>
+              </div>
+            </div>
+            <div className="relative group">
+              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1" onClick={() => setShowBookmarks(!showBookmarks)}>Favorites</span>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-48">
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => setBookmarks([...bookmarks, {title: currentUrl, url: currentUrl}])}>Add to Favorites</div>
+                <hr className="my-1" />
+                {bookmarks.map((bookmark, idx) => (
+                  <div key={idx} className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => handleNavigate(bookmark.url)}>
+                    {bookmark.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="relative group">
+              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Tools</span>
+              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => setShowHistory(!showHistory)}>History</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Downloads</div>
+                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Internet Options</div>
+              </div>
+            </div>
+            <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Help</span>
           </div>
         </div>
 

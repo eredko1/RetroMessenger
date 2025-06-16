@@ -384,7 +384,12 @@ export default function AIM() {
       browser: 'Internet Explorer',
       mediaplayer: 'Windows Media Player',
       solitaire: 'Solitaire',
-      minesweeper: 'Minesweeper'
+      minesweeper: 'Minesweeper',
+      'google-drive': 'Google Drive',
+      telegram: 'Telegram',
+      replit: 'Replit',
+      openai: 'OpenAI',
+      gemini: 'Gemini'
     };
 
     const appSizes: { [key: string]: { width: number; height: number } } = {
@@ -398,7 +403,12 @@ export default function AIM() {
       'internet-explorer': { width: 900, height: 700 },
       mediaplayer: { width: 400, height: 300 },
       solitaire: { width: 600, height: 500 },
-      minesweeper: { width: 300, height: 350 }
+      minesweeper: { width: 300, height: 350 },
+      'google-drive': { width: 900, height: 700 },
+      telegram: { width: 900, height: 700 },
+      replit: { width: 900, height: 700 },
+      openai: { width: 900, height: 700 },
+      gemini: { width: 900, height: 700 }
     };
 
     const newApp = {
@@ -918,6 +928,11 @@ export default function AIM() {
               />
             );
           case 'internet-explorer':
+          case 'google-drive':
+          case 'telegram':
+          case 'replit':
+          case 'openai':
+          case 'gemini':
             return (
               <InternetExplorer
                 key={app.id}
@@ -927,6 +942,7 @@ export default function AIM() {
                 size={app.size}
                 zIndex={app.zIndex}
                 instanceId={app.id}
+                appType={app.type}
                 onMove={(position) => {
                   setOpenApplications(prev => ({
                     ...prev,
