@@ -58,19 +58,26 @@ export default function WindowsStartMenu({
           <span className="text-white">{user?.screenName || 'User'}</span>
         </div>
 
-        {/* Applications */}
-        <div className="p-2">
+        {/* Applications - Scrollable */}
+        <div className="p-2 max-h-96 overflow-y-auto">
           {applications.map((app) => (
             <div
               key={app.name}
-              className="flex items-center space-x-3 px-3 py-2 hover:bg-blue-100 cursor-pointer rounded"
+              className="flex items-center space-x-3 px-3 py-2 hover:bg-blue-100 cursor-pointer rounded transition-colors"
               onClick={() => {
+                console.log('Start menu opening app:', app.app);
                 onOpenApplication(app.app);
                 onClose();
               }}
             >
-              <div className="text-blue-600">{app.icon}</div>
-              <span className="text-sm font-medium">{app.name}</span>
+              <div className="w-6 h-6 flex items-center justify-center">
+                {typeof app.icon === 'string' ? (
+                  <span className="text-lg">{app.icon}</span>
+                ) : (
+                  <div className="text-blue-600">{app.icon}</div>
+                )}
+              </div>
+              <span className="text-sm font-medium text-gray-800">{app.name}</span>
             </div>
           ))}
         </div>
