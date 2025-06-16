@@ -6,13 +6,17 @@ interface WindowsCalculatorProps {
   onMinimize?: () => void;
   position: { x: number; y: number };
   zIndex: number;
+  onMove?: (position: { x: number; y: number }) => void;
+  onFocus?: () => void;
 }
 
 export default function WindowsCalculator({ 
   onClose, 
   onMinimize, 
   position, 
-  zIndex 
+  zIndex,
+  onMove,
+  onFocus
 }: WindowsCalculatorProps) {
   const [display, setDisplay] = useState("0");
   const [memory, setMemory] = useState(0);
@@ -107,6 +111,8 @@ export default function WindowsCalculator({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMove={onMove}
+      onFocus={onFocus}
       resizable={false}
       className="text-xs"
     >

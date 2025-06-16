@@ -8,6 +8,9 @@ interface WindowsExplorerProps {
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
+  onMove?: (position: { x: number; y: number }) => void;
+  onResize?: (size: { width: number; height: number }) => void;
+  onFocus?: () => void;
 }
 
 interface FileSystemItem {
@@ -24,7 +27,10 @@ export default function WindowsExplorer({
   onMinimize, 
   position, 
   size, 
-  zIndex 
+  zIndex,
+  onMove,
+  onResize,
+  onFocus
 }: WindowsExplorerProps) {
   const [currentPath, setCurrentPath] = useState("C:");
   const [history, setHistory] = useState(["C:"]);
@@ -113,6 +119,9 @@ export default function WindowsExplorer({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMove={onMove}
+      onResize={onResize}
+      onFocus={onFocus}
       className="text-xs"
     >
       {/* Menu Bar */}
