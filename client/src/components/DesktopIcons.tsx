@@ -2,9 +2,10 @@ import { useState } from "react";
 
 interface DesktopIconsProps {
   onOpenApplication?: (appName: string) => void;
+  onOpenBuddyList?: () => void;
 }
 
-export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
+export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: DesktopIconsProps) {
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [lastTap, setLastTap] = useState<number>(0);
 
@@ -103,8 +104,13 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
           style={{ left: icon.x, top: icon.y }}
           onClick={() => handleIconClick(icon)}
         >
-          <div className="flex flex-col items-center p-2 w-20 h-20 hover:bg-blue-200 hover:bg-opacity-50 rounded">
-            <div className="text-2xl mb-1 filter drop-shadow-sm">{icon.icon}</div>
+          <div className="flex flex-col items-center p-2 w-20 h-20 hover:bg-blue-200 hover:bg-opacity-30 rounded transition-colors">
+            <div 
+              className="w-12 h-12 mb-1 flex items-center justify-center bg-gradient-to-b from-gray-100 to-gray-300 rounded shadow-sm border border-gray-400"
+              style={{ borderStyle: 'outset' }}
+            >
+              <span className="text-2xl filter drop-shadow-sm">{icon.icon}</span>
+            </div>
             <div className={`text-white text-xs text-center font-medium drop-shadow-lg px-1 rounded max-w-full break-words leading-tight ${
               selectedIcon === icon.name ? 'bg-blue-600' : 'group-hover:bg-blue-600'
             }`}>
