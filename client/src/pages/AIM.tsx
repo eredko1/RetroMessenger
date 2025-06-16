@@ -58,6 +58,20 @@ export default function AIM() {
   const [nextZIndex, setNextZIndex] = useState(1000);
   const [minimizedWindows, setMinimizedWindows] = useState<Set<string>>(new Set());
   const [allWindowsMinimized, setAllWindowsMinimized] = useState(false);
+  
+  // Windows XP Applications State
+  const [openApplications, setOpenApplications] = useState<{
+    [key: string]: {
+      id: string;
+      type: string;
+      title: string;
+      position: { x: number; y: number };
+      size: { width: number; height: number };
+      zIndex: number;
+      isMinimized: boolean;
+    }
+  }>({});
+  
   const { toast } = useToast();
   const { playMessageSound, playBuddyOnlineSound, playCustomBuddySound, playSystemNotificationSound } = useAIMSounds();
 
@@ -283,6 +297,7 @@ export default function AIM() {
     const allWindows = [
       ...openChats.map(chat => chat.id),
       ...openGroupChats.map(chat => chat.id),
+      ...Object.keys(openApplications),
       'buddy-list'
     ];
     
@@ -293,6 +308,78 @@ export default function AIM() {
       setMinimizedWindows(new Set(allWindows));
       setAllWindowsMinimized(true);
     }
+  };
+
+  // Windows XP Application Management
+  const openApplication = (appType: string) => {
+    const appId = `${appType}-${Date.now()}`;
+    const appTitles: { [key: string]: string } = {
+      explorer: 'My Computer',
+      calculator: 'Calculator',
+      notepad: 'Notepad',
+      paint: 'Paint',
+      documents: 'My Documents',
+      recycle: 'Recycle Bin',
+      browser: 'Internet Explorer',
+      mediaplayer: 'Windows Media Player',
+      solitaire: 'Solitaire',
+      minesweeper: 'Minesweeper'
+    };
+
+    const appSizes: { [key: string]: { width: number; height: number } } = {
+      explorer: { width: 700, height: 500 },
+      calculator: { width: 280, height: 320 },
+      notepad: { width: 600, height: 400 },
+      paint: { width: 800, height: 600 },
+      documents: { width: 700, height: 500 },
+      recycle: { width: 500, height: 400 },
+      browser: { width: 900, height: 700 },
+      mediaplayer: { width: 400, height: 300 },
+      solitaire: { width: 600, height: 500 },
+      minesweeper: { width: 300, height: 350 }
+    };
+
+    const newApp = {
+      id: appId,
+      type: appType,
+      title: appTitles[appType] || appType,
+      position: { 
+        x: 100 + Object.keys(openApplications).length * 30, 
+        y: 100 + Object.keys(openApplications).length * 30 
+      },
+      size: appSizes[appType] || { width: 600, height: 400 },
+      zIndex: nextZIndex,
+      isMinimized: false
+    };
+
+    setOpenApplications(prev => ({ ...prev, [appId]: newApp }));
+    setNextZIndex(prev => prev + 1);
+  };
+
+  const closeApplication = (appId: string) => {
+    setOpenApplications(prev => {
+      const newApps = { ...prev };
+      delete newApps[appId];
+      return newApps;
+    });
+    setMinimizedWindows(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(appId);
+      return newSet;
+    });
+  };
+
+  const minimizeApplication = (appId: string) => {
+    setMinimizedWindows(prev => new Set(Array.from(prev).concat(appId)));
+  };
+
+  const restoreApplication = (appId: string) => {
+    setMinimizedWindows(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(appId);
+      return newSet;
+    });
+    setAllWindowsMinimized(false);
   };
 
   const getTaskbarWindows = () => {
@@ -314,6 +401,12 @@ export default function AIM() {
         title: `Group: ${chat.participants?.map((p: any) => p.screenName).join(', ')}`,
         type: 'group' as const,
         isMinimized: minimizedWindows.has(chat.id)
+      })),
+      ...Object.values(openApplications).map(app => ({
+        id: app.id,
+        title: app.title,
+        type: 'application' as const,
+        isMinimized: minimizedWindows.has(app.id)
       }))
     ];
   };
@@ -364,7 +457,7 @@ export default function AIM() {
     <div className="xp-desktop w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col">
       {/* Desktop Icons - Hidden on mobile */}
       <div className="hidden lg:block">
-        <DesktopIcons />
+        <DesktopIcons onOpenApplication={openApplication} />
       </div>
       
       {/* Mobile/Desktop Layout */}
@@ -595,11 +688,77 @@ export default function AIM() {
         />
       ))}
 
+      {/* Windows XP Applications */}
+      {Object.values(openApplications).map((app) => {
+        if (minimizedWindows.has(app.id)) return null;
+        
+        switch (app.type) {
+          case 'explorer':
+          case 'documents':
+            return (
+              <WindowsExplorer
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+              />
+            );
+          case 'calculator':
+            return (
+              <WindowsCalculator
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                zIndex={app.zIndex}
+              />
+            );
+          case 'notepad':
+            return (
+              <WindowsNotepad
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+              />
+            );
+          case 'paint':
+            return (
+              <WindowsPaint
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+              />
+            );
+          default:
+            return null;
+        }
+      })}
+
       {/* Windows XP Taskbar */}
       <WindowsTaskbar 
         openWindows={getTaskbarWindows()}
-        onWindowRestore={handleWindowRestore}
-        onWindowMinimize={handleWindowMinimize}
+        onWindowRestore={(windowId) => {
+          if (openApplications[windowId]) {
+            restoreApplication(windowId);
+          } else {
+            handleWindowRestore(windowId);
+          }
+        }}
+        onWindowMinimize={(windowId) => {
+          if (openApplications[windowId]) {
+            minimizeApplication(windowId);
+          } else {
+            handleWindowMinimize(windowId);
+          }
+        }}
         onShowDesktop={handleShowDesktop}
       />
     </div>

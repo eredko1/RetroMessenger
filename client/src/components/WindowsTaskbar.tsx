@@ -4,7 +4,7 @@ interface TaskbarProps {
   openWindows: Array<{
     id: string;
     title: string;
-    type: 'chat' | 'group' | 'buddy-list';
+    type: 'chat' | 'group' | 'buddy-list' | 'application';
     isMinimized: boolean;
   }>;
   onWindowRestore: (windowId: string) => void;
