@@ -764,6 +764,12 @@ export default function AIM() {
                 zIndex={app.zIndex}
               />
             );
+          case 'test':
+          case 'browser':
+          case 'mediaplayer':
+          case 'solitaire':
+          case 'minesweeper':
+          case 'recycle':
           default:
             return (
               <TestApp
