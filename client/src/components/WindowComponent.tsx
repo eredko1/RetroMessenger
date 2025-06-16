@@ -7,12 +7,14 @@ interface WindowComponentProps {
   zIndex: number;
   onClose: () => void;
   onMinimize?: () => void;
+  onMaximize?: () => void;
   onMove?: (position: { x: number; y: number }) => void;
   onResize?: (size: { width: number; height: number }) => void;
   onFocus?: () => void;
   children: React.ReactNode;
   resizable?: boolean;
   className?: string;
+  isMaximized?: boolean;
 }
 
 export default function WindowComponent({
@@ -22,18 +24,28 @@ export default function WindowComponent({
   zIndex,
   onClose,
   onMinimize,
+  onMaximize,
   onMove,
   onResize,
   onFocus,
   children,
   resizable = true,
-  className = ""
+  className = "",
+  isMaximized = false
 }: WindowComponentProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
   const windowRef = useRef<HTMLDivElement>(null);
+
+  // Get desktop boundaries
+  const getDesktopBounds = () => {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight - 40 // Account for taskbar
+    };
+  };
 
   // Handle dragging
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -153,6 +165,15 @@ export default function WindowComponent({
               style={{ borderStyle: 'outset' }}
             >
               _
+            </button>
+          )}
+          {onMaximize && (
+            <button
+              onClick={onMaximize}
+              className="w-5 h-4 bg-gray-200 border border-gray-400 hover:bg-gray-300 flex items-center justify-center text-black text-xs"
+              style={{ borderStyle: 'outset' }}
+            >
+              {isMaximized ? '❐' : '□'}
             </button>
           )}
           <button

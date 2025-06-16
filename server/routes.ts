@@ -551,15 +551,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid URL format" });
       }
 
-      // Fetch the content with Windows XP era headers
+      console.log('Proxy request for:', targetUrl);
+
+      // Fetch the content with Windows XP era headers and no auth
       const response = await fetch(targetUrl, {
         headers: {
           'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-us,en;q=0.5',
-          'Accept-Encoding': 'gzip,deflate',
           'Connection': 'keep-alive'
-        }
+        },
+        redirect: 'follow'
       });
 
       if (!response.ok) {

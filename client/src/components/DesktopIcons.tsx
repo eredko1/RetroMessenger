@@ -34,7 +34,12 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '💻',
       x: 20,
       y: 20,
-      action: () => handleIconClick('explorer')
+      action: () => {
+        console.log('My Computer clicked, calling onOpenApplication with explorer');
+        if (onOpenApplication) {
+          onOpenApplication('explorer');
+        }
+      }
     },
     {
       id: 'recycle-bin',
@@ -42,7 +47,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🗑️',
       x: 20,
       y: 100,
-      action: () => handleIconClick('recycle')
+      action: () => {
+        console.log('Recycle Bin clicked');
+        if (onOpenApplication) onOpenApplication('recycle');
+      }
     },
     {
       id: 'my-documents',
@@ -50,7 +58,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '📁',
       x: 20,
       y: 180,
-      action: () => handleIconClick('explorer')
+      action: () => {
+        console.log('My Documents clicked');
+        if (onOpenApplication) onOpenApplication('documents');
+      }
     },
     {
       id: 'internet-explorer',
@@ -58,7 +69,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🌐',
       x: 20,
       y: 260,
-      action: () => handleIconClick('internet-explorer')
+      action: () => {
+        console.log('Internet Explorer clicked');
+        if (onOpenApplication) onOpenApplication('internet-explorer');
+      }
     },
     {
       id: 'media-player',
@@ -66,7 +80,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🎵',
       x: 20,
       y: 340,
-      action: () => handleIconClick('mediaplayer')
+      action: () => {
+        console.log('Media Player clicked');
+        if (onOpenApplication) onOpenApplication('mediaplayer');
+      }
     },
     {
       id: 'paint',
@@ -74,7 +91,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🎨',
       x: 20,
       y: 420,
-      action: () => handleIconClick('paint')
+      action: () => {
+        console.log('Paint clicked');
+        if (onOpenApplication) onOpenApplication('paint');
+      }
     },
     {
       id: 'calculator',
@@ -82,7 +102,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🔢',
       x: 120,
       y: 20,
-      action: () => handleIconClick('calculator')
+      action: () => {
+        console.log('Calculator clicked');
+        if (onOpenApplication) onOpenApplication('calculator');
+      }
     },
     {
       id: 'notepad',
@@ -90,7 +113,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '📝',
       x: 120,
       y: 100,
-      action: () => handleIconClick('notepad')
+      action: () => {
+        console.log('Notepad clicked');
+        if (onOpenApplication) onOpenApplication('notepad');
+      }
     },
     {
       id: 'solitaire',
@@ -98,7 +124,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🃏',
       x: 120,
       y: 180,
-      action: () => handleIconClick('solitaire')
+      action: () => {
+        console.log('Solitaire clicked');
+        if (onOpenApplication) onOpenApplication('solitaire');
+      }
     },
     {
       id: 'minesweeper',
@@ -106,7 +135,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '💣',
       x: 120,
       y: 260,
-      action: () => handleIconClick('minesweeper')
+      action: () => {
+        console.log('Minesweeper clicked');
+        if (onOpenApplication) onOpenApplication('minesweeper');
+      }
     },
     {
       id: 'google-drive',
