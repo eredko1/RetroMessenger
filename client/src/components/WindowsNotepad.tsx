@@ -4,6 +4,8 @@ import WindowComponent from "./WindowComponent";
 interface WindowsNotepadProps {
   onClose: () => void;
   onMinimize?: () => void;
+  onMaximize?: () => void;
+  isMaximized?: boolean;
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
@@ -15,6 +17,8 @@ interface WindowsNotepadProps {
 export default function WindowsNotepad({ 
   onClose, 
   onMinimize, 
+  onMaximize,
+  isMaximized,
   position, 
   size, 
   zIndex,
@@ -91,6 +95,8 @@ export default function WindowsNotepad({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMaximize={onMaximize}
+      isMaximized={isMaximized}
       onMove={onMove}
       onResize={onResize}
       onFocus={onFocus}

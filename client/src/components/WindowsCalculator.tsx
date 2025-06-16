@@ -4,7 +4,10 @@ import WindowComponent from "./WindowComponent";
 interface WindowsCalculatorProps {
   onClose: () => void;
   onMinimize?: () => void;
+  onMaximize?: () => void;
+  isMaximized?: boolean;
   position: { x: number; y: number };
+  size: { width: number; height: number };
   zIndex: number;
   onMove?: (position: { x: number; y: number }) => void;
   onFocus?: () => void;
@@ -13,7 +16,10 @@ interface WindowsCalculatorProps {
 export default function WindowsCalculator({ 
   onClose, 
   onMinimize, 
+  onMaximize,
+  isMaximized,
   position, 
+  size,
   zIndex,
   onMove,
   onFocus
@@ -107,10 +113,12 @@ export default function WindowsCalculator({
     <WindowComponent
       title="Calculator"
       position={position}
-      size={{ width: 280, height: 320 }}
+      size={size}
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMaximize={onMaximize}
+      isMaximized={isMaximized}
       onMove={onMove}
       onFocus={onFocus}
       resizable={false}
