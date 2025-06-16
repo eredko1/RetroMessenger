@@ -4,6 +4,8 @@ import WindowComponent from "./WindowComponent";
 interface WindowsPaintProps {
   onClose: () => void;
   onMinimize?: () => void;
+  onMaximize?: () => void;
+  isMaximized?: boolean;
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
@@ -15,6 +17,8 @@ interface WindowsPaintProps {
 export default function WindowsPaint({ 
   onClose, 
   onMinimize, 
+  onMaximize,
+  isMaximized,
   position, 
   size, 
   zIndex,
@@ -140,6 +144,8 @@ export default function WindowsPaint({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMaximize={onMaximize}
+      isMaximized={isMaximized}
       onMove={onMove}
       onResize={onResize}
       onFocus={onFocus}
