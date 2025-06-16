@@ -387,6 +387,153 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Application instance management for database persistence
+  app.get("/api/user/:userId/applications", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const instances = await storage.getUserApplicationInstances(userId);
+      res.json(instances);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      res.status(500).json({ message: "Failed to fetch applications" });
+    }
+  });
+
+  app.post("/api/applications", async (req, res) => {
+    try {
+      const instance = await storage.saveApplicationInstance(req.body);
+      res.json(instance);
+    } catch (error) {
+      console.error("Error saving application:", error);
+      res.status(500).json({ message: "Failed to save application" });
+    }
+  });
+
+  app.put("/api/applications/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.updateApplicationInstance(id, req.body);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating application:", error);
+      res.status(500).json({ message: "Failed to update application" });
+    }
+  });
+
+  app.delete("/api/applications/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteApplicationInstance(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting application:", error);
+      res.status(500).json({ message: "Failed to delete application" });
+    }
+  });
+
+  // File system operations for Windows applications
+  app.get("/api/user/:userId/files", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const path = req.query.path as string || "/";
+      const contents = await storage.getDirectoryContents(userId, path);
+      res.json(contents);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      res.status(500).json({ message: "Failed to fetch files" });
+    }
+  });
+
+  app.post("/api/files", async (req, res) => {
+    try {
+      const file = await storage.createFileSystemEntry(req.body);
+      res.json(file);
+    } catch (error) {
+      console.error("Error creating file:", error);
+      res.status(500).json({ message: "Failed to create file" });
+    }
+  });
+
+  app.get("/api/user/:userId/files/:path(*)", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const path = req.params.path;
+      const file = await storage.getFileSystemEntry(userId, path);
+      if (!file) {
+        return res.status(404).json({ message: "File not found" });
+      }
+      res.json(file);
+    } catch (error) {
+      console.error("Error fetching file:", error);
+      res.status(500).json({ message: "Failed to fetch file" });
+    }
+  });
+
+  // Desktop settings with Bliss wallpaper
+  app.get("/api/user/:userId/desktop", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const settings = await storage.getDesktopSettings(userId);
+      res.json(settings || {
+        wallpaper: "https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg",
+        theme: "windows_xp",
+        taskbarPosition: "bottom",
+        iconPositions: {}
+      });
+    } catch (error) {
+      console.error("Error fetching desktop settings:", error);
+      res.status(500).json({ message: "Failed to fetch desktop settings" });
+    }
+  });
+
+  app.post("/api/user/:userId/desktop", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const settings = await storage.saveDesktopSettings({
+        userId,
+        ...req.body
+      });
+      res.json(settings);
+    } catch (error) {
+      console.error("Error saving desktop settings:", error);
+      res.status(500).json({ message: "Failed to save desktop settings" });
+    }
+  });
+
+  // Browser data for Internet Explorer
+  app.get("/api/user/:userId/browser/history", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const limit = parseInt(req.query.limit as string) || 50;
+      const history = await storage.getBrowserHistory(userId, limit);
+      res.json(history);
+    } catch (error) {
+      console.error("Error fetching browser history:", error);
+      res.status(500).json({ message: "Failed to fetch browser history" });
+    }
+  });
+
+  app.get("/api/user/:userId/browser/bookmarks", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const bookmarks = await storage.getBrowserBookmarks(userId);
+      res.json(bookmarks);
+    } catch (error) {
+      console.error("Error fetching bookmarks:", error);
+      res.status(500).json({ message: "Failed to fetch bookmarks" });
+    }
+  });
+
+  app.post("/api/browser", async (req, res) => {
+    try {
+      const data = await storage.saveBrowserData(req.body);
+      res.json(data);
+    } catch (error) {
+      console.error("Error saving browser data:", error);
+      res.status(500).json({ message: "Failed to save browser data" });
+    }
+  });
+
   // WebSocket connection handling
   wss.on('connection', (ws: WebSocketClient, req) => {
     console.log('New WebSocket connection');
