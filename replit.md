@@ -201,6 +201,15 @@ Changelog:
   - Implemented away message display in chat windows when messaging users who are away
   - Applied consistent Bliss background wallpaper throughout the entire application
   - Enhanced Windows Explorer with working system tasks including Windows Update and System Restore
+- June 16, 2025. Critical bug fixes and system stability improvements
+  - Completely rebuilt desktop icons system with proper single-click application launching
+  - Fixed screensaver activity detection to only activate when no windows are open
+  - Resolved Internet Explorer CORS/iframe issues by implementing secure new tab navigation
+  - Fixed WebSocket connection and authentication issues for real-time messaging
+  - Improved window position saving with proper error handling and JSON response validation
+  - Enhanced application stability with comprehensive error recovery mechanisms
+  - Web applications (Google Drive, Telegram, Replit, OpenAI, Gemini) now open securely in new tabs
+  - All critical functionality restored including real-time chat, buddy status updates, and application management
 
 ## User Preferences
 
