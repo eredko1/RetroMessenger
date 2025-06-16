@@ -12,16 +12,14 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
     console.log('Desktop icon clicked:', iconName);
     setSelectedIcon(iconName);
     
-    // Single click launches application immediately
-    setTimeout(() => {
-      if (action) {
-        console.log('Executing custom action for:', iconName);
-        action();
-      } else if (onOpenApplication) {
-        console.log('Opening application:', iconName);
-        onOpenApplication(iconName);
-      }
-    }, 100);
+    // Execute immediately on click
+    if (action) {
+      console.log('Executing custom action for:', iconName);
+      action();
+    } else if (onOpenApplication) {
+      console.log('Opening application:', iconName);
+      onOpenApplication(iconName);
+    }
   };
 
   const openWebsite = (url: string) => {
@@ -157,8 +155,8 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       {desktopIcons.map((icon) => (
         <div
           key={icon.id}
-          className={`absolute pointer-events-auto cursor-pointer select-none transition-all duration-200 ${
-            selectedIcon === icon.id ? 'bg-blue-500 bg-opacity-30' : 'hover:bg-blue-300 hover:bg-opacity-20'
+          className={`absolute pointer-events-auto cursor-pointer select-none transition-all duration-200 rounded-lg ${
+            selectedIcon === icon.id ? 'bg-blue-500 bg-opacity-40 scale-105' : 'hover:bg-blue-300 hover:bg-opacity-30 hover:scale-102'
           }`}
           style={{
             left: icon.x,
@@ -166,7 +164,15 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
             width: '80px',
             height: '80px'
           }}
-          onClick={icon.action}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            icon.action();
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setSelectedIcon(icon.id);
+          }}
         >
           <div className="flex flex-col items-center justify-center h-full p-2">
             <div className="text-2xl mb-1">{icon.icon}</div>

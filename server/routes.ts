@@ -534,6 +534,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Browser proxy route for iframe content
+  app.get("/api/proxy", async (req, res) => {
+    try {
+      const { url } = req.query;
+      if (!url || typeof url !== 'string') {
+        return res.status(400).json({ message: "URL parameter required" });
+      }
+
+      // Validate and normalize URL
+      let targetUrl: string;
+      try {
+        targetUrl = url.startsWith('http') ? url : `https://${url}`;
+        new URL(targetUrl); // Validate URL format
+      } catch {
+        return res.status(400).json({ message: "Invalid URL format" });
+      }
+
+      // Fetch the content with Windows XP era headers
+      const response = await fetch(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-us,en;q=0.5',
+          'Accept-Encoding': 'gzip,deflate',
+          'Connection': 'keep-alive'
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).json({ 
+          message: `Failed to fetch: ${response.status} ${response.statusText}` 
+        });
+      }
+
+      let content = await response.text();
+      
+      // Rewrite URLs to make them absolute and fix relative links
+      const baseUrl = new URL(targetUrl).origin;
+      const basePath = new URL(targetUrl).pathname.split('/').slice(0, -1).join('/');
+      
+      content = content
+        .replace(/href="\/([^"]*?)"/g, `href="${baseUrl}/$1"`)
+        .replace(/src="\/([^"]*?)"/g, `src="${baseUrl}/$1"`)
+        .replace(/action="\/([^"]*?)"/g, `action="${baseUrl}/$1"`)
+        .replace(/href="([^"]*?)"/g, (match, url) => {
+          if (url.startsWith('http') || url.startsWith('//')) return match;
+          if (url.startsWith('/')) return `href="${baseUrl}${url}"`;
+          return `href="${baseUrl}${basePath}/${url}"`;
+        })
+        .replace(/src="([^"]*?)"/g, (match, url) => {
+          if (url.startsWith('http') || url.startsWith('//')) return match;
+          if (url.startsWith('/')) return `src="${baseUrl}${url}"`;
+          return `src="${baseUrl}${basePath}/${url}"`;
+        });
+
+      // Remove frame-busting scripts and X-Frame-Options restrictions
+      content = content
+        .replace(/<script[^>]*>[\s\S]*?if\s*\(\s*top\s*!=\s*self\s*\)[\s\S]*?<\/script>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?top\.location[\s\S]*?<\/script>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?window\.top[\s\S]*?<\/script>/gi, '');
+
+      res.setHeader('Content-Type', response.headers.get('content-type') || 'text/html');
+      res.setHeader('X-Frame-Options', 'ALLOWALL');
+      res.setHeader('Content-Security-Policy', '');
+      res.send(content);
+    } catch (error) {
+      console.error("Proxy error:", error);
+      res.status(500).json({ message: "Proxy request failed" });
+    }
+  });
+
   // WebSocket connection handling
   wss.on('connection', (ws: WebSocketClient, req) => {
     console.log('New WebSocket connection');

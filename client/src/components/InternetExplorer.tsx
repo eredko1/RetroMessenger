@@ -99,11 +99,10 @@ export default function InternetExplorer({
       type: 'history'
     });
 
-    // Since iframes are blocked by CORS, open in new tab
+    // Use proxy for iframe content
     setTimeout(() => {
       setIsLoading(false);
-      window.open(finalUrl, '_blank');
-    }, 1000);
+    }, 500);
   };
 
   const goBack = () => {
@@ -266,9 +265,9 @@ export default function InternetExplorer({
         )}
 
         {/* Content Area */}
-        <div className="flex-1 p-4 overflow-auto bg-white">
+        <div className="flex-1 overflow-hidden bg-white">
           {currentUrl === "about:blank" ? (
-            <div className="h-full flex flex-col items-center justify-center text-center">
+            <div className="h-full p-4 flex flex-col items-center justify-center text-center">
               <div className="mb-8">
                 <h1 className="text-2xl font-bold mb-4 text-blue-800">Internet Explorer</h1>
                 <p className="text-gray-600 mb-6">Welcome to the World Wide Web</p>
@@ -287,33 +286,28 @@ export default function InternetExplorer({
                 ))}
               </div>
 
-              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded max-w-md">
-                <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Due to modern security restrictions, websites will open in new tabs. 
-                  This maintains the authentic Windows XP browsing experience while ensuring compatibility.
+              <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded max-w-md">
+                <p className="text-sm text-green-800">
+                  <strong>Authentic Internet Explorer:</strong> Websites now load directly in the browser window using our secure proxy system. Experience the web exactly as it was in the Windows XP era!
                 </p>
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center">
+            <div className="h-full">
               {isLoading ? (
-                <div className="text-center">
+                <div className="h-full flex flex-col items-center justify-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                   <p>Loading {currentUrl}...</p>
                 </div>
               ) : (
-                <div className="text-center p-8 bg-blue-50 border border-blue-200 rounded">
-                  <h3 className="text-lg font-semibold mb-4">Opening Website</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    {currentUrl} has been opened in a new tab for your security.
-                  </p>
-                  <button
-                    onClick={() => navigateToUrl("about:blank")}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
-                  >
-                    Return to Home
-                  </button>
-                </div>
+                <iframe
+                  src={`/api/proxy?url=${encodeURIComponent(currentUrl)}`}
+                  className="w-full h-full border-none"
+                  title="Web Content"
+                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                  onLoad={() => console.log('Iframe loaded:', currentUrl)}
+                  onError={() => console.error('Iframe load error:', currentUrl)}
+                />
               )}
             </div>
           )}
