@@ -76,6 +76,9 @@ export default function AIM() {
       size: { width: number; height: number };
       zIndex: number;
       isMinimized: boolean;
+      isMaximized: boolean;
+      normalPosition?: { x: number; y: number };
+      normalSize?: { width: number; height: number };
     }
   }>({});
   
@@ -451,17 +454,31 @@ export default function AIM() {
       gemini: { width: 900, height: 700 }
     };
 
+    // Constrain initial position to desktop boundaries
+    const desktopWidth = window.innerWidth;
+    const desktopHeight = window.innerHeight - 40; // Account for taskbar
+    const appSize = savedPosition?.size || appSizes[appType] || { width: 600, height: 400 };
+    
+    const initialX = Math.min(
+      100 + Object.keys(openApplications).length * 30,
+      desktopWidth - appSize.width
+    );
+    const initialY = Math.min(
+      100 + Object.keys(openApplications).length * 30,
+      desktopHeight - appSize.height
+    );
+
     const newApp = {
       id: appId,
       type: appType,
       title: appTitles[appType] || appType,
-      position: savedPosition?.position || { 
-        x: 100 + Object.keys(openApplications).length * 30, 
-        y: 100 + Object.keys(openApplications).length * 30 
-      },
-      size: savedPosition?.size || appSizes[appType] || { width: 600, height: 400 },
+      position: savedPosition?.position || { x: Math.max(0, initialX), y: Math.max(0, initialY) },
+      size: appSize,
       zIndex: nextZIndex + 1000,
-      isMinimized: false
+      isMinimized: false,
+      isMaximized: false,
+      normalPosition: undefined,
+      normalSize: undefined
     };
 
     console.log('Creating new app:', newApp);
@@ -502,6 +519,44 @@ export default function AIM() {
       return newSet;
     });
     setAllWindowsMinimized(false);
+  };
+
+  const maximizeApplication = (appId: string) => {
+    setOpenApplications(prev => {
+      const app = prev[appId];
+      if (!app) return prev;
+
+      const desktopWidth = window.innerWidth;
+      const desktopHeight = window.innerHeight - 40; // Account for taskbar
+
+      if (app.isMaximized) {
+        // Restore to normal size
+        return {
+          ...prev,
+          [appId]: {
+            ...app,
+            isMaximized: false,
+            position: app.normalPosition || app.position,
+            size: app.normalSize || app.size,
+            normalPosition: undefined,
+            normalSize: undefined
+          }
+        };
+      } else {
+        // Maximize
+        return {
+          ...prev,
+          [appId]: {
+            ...app,
+            isMaximized: true,
+            normalPosition: app.position,
+            normalSize: app.size,
+            position: { x: 0, y: 0 },
+            size: { width: desktopWidth, height: desktopHeight }
+          }
+        };
+      }
+    });
   };
 
   const getTaskbarWindows = () => {
@@ -909,7 +964,10 @@ export default function AIM() {
                 key={app.id}
                 onClose={() => closeApplication(app.id)}
                 onMinimize={() => minimizeApplication(app.id)}
+                onMaximize={() => maximizeApplication(app.id)}
+                isMaximized={app.isMaximized}
                 position={app.position}
+                size={app.size}
                 zIndex={app.zIndex}
                 onMove={(position) => {
                   setOpenApplications(prev => ({
@@ -932,6 +990,8 @@ export default function AIM() {
                 key={app.id}
                 onClose={() => closeApplication(app.id)}
                 onMinimize={() => minimizeApplication(app.id)}
+                onMaximize={() => maximizeApplication(app.id)}
+                isMaximized={app.isMaximized}
                 position={app.position}
                 size={app.size}
                 zIndex={app.zIndex}
