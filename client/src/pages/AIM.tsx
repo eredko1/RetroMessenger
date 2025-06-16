@@ -380,6 +380,7 @@ export default function AIM() {
       paint: 'Paint',
       documents: 'My Documents',
       recycle: 'Recycle Bin',
+      'internet-explorer': 'Internet Explorer',
       browser: 'Internet Explorer',
       mediaplayer: 'Windows Media Player',
       solitaire: 'Solitaire',
@@ -394,6 +395,7 @@ export default function AIM() {
       documents: { width: 700, height: 500 },
       recycle: { width: 500, height: 400 },
       browser: { width: 900, height: 700 },
+      'internet-explorer': { width: 900, height: 700 },
       mediaplayer: { width: 400, height: 300 },
       solitaire: { width: 600, height: 500 },
       minesweeper: { width: 300, height: 350 }

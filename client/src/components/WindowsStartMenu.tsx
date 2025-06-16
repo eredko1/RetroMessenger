@@ -23,12 +23,14 @@ export default function WindowsStartMenu({
   const applications = [
     { name: "My Computer", icon: <Monitor className="w-5 h-5" />, app: "explorer" },
     { name: "My Documents", icon: <Folder className="w-5 h-5" />, app: "documents" },
+    { name: "Internet Explorer", icon: "🌐", app: "internet-explorer" },
     { name: "Calculator", icon: <Calculator className="w-5 h-5" />, app: "calculator" },
     { name: "Notepad", icon: <FileText className="w-5 h-5" />, app: "notepad" },
     { name: "Paint", icon: <Palette className="w-5 h-5" />, app: "paint" },
     { name: "Windows Media Player", icon: <Music className="w-5 h-5" />, app: "mediaplayer" },
     { name: "Solitaire", icon: <GamepadIcon className="w-5 h-5" />, app: "solitaire" },
     { name: "Minesweeper", icon: <Bomb className="w-5 h-5" />, app: "minesweeper" },
+    { name: "Recycle Bin", icon: "🗑️", app: "recycle" },
   ];
 
   return (
