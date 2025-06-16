@@ -1,4 +1,13 @@
-import { users, buddyLists, messages, blockedUsers, userWarnings, type User, type InsertUser, type BuddyList, type InsertBuddyList, type Message, type InsertMessage, type UserWithStatus } from "@shared/schema";
+import { 
+  users, buddyLists, messages, blockedUsers, userWarnings, 
+  applicationInstances, filesystemEntries, desktopSettings, browserData,
+  type User, type InsertUser, type BuddyList, type InsertBuddyList, 
+  type Message, type InsertMessage, type UserWithStatus,
+  type ApplicationInstance, type InsertApplicationInstance,
+  type FilesystemEntry, type InsertFilesystemEntry,
+  type DesktopSettings, type InsertDesktopSettings,
+  type BrowserData, type InsertBrowserData
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, or, and, desc, sql } from "drizzle-orm";
 
@@ -33,6 +42,30 @@ export interface IStorage {
   setUserOnline(userId: number): Promise<void>;
   setUserOffline(userId: number): Promise<void>;
   getOnlineUsers(): Promise<number[]>;
+  
+  // Application instance management
+  saveApplicationInstance(instance: InsertApplicationInstance): Promise<ApplicationInstance>;
+  updateApplicationInstance(id: string, updates: Partial<InsertApplicationInstance>): Promise<void>;
+  getUserApplicationInstances(userId: number): Promise<ApplicationInstance[]>;
+  deleteApplicationInstance(id: string): Promise<void>;
+  
+  // File system operations
+  createFileSystemEntry(entry: InsertFilesystemEntry): Promise<FilesystemEntry>;
+  getFileSystemEntry(userId: number, path: string): Promise<FilesystemEntry | undefined>;
+  getDirectoryContents(userId: number, path: string): Promise<FilesystemEntry[]>;
+  updateFileSystemEntry(id: number, updates: Partial<InsertFilesystemEntry>): Promise<void>;
+  deleteFileSystemEntry(id: number): Promise<void>;
+  
+  // Desktop settings
+  getDesktopSettings(userId: number): Promise<DesktopSettings | undefined>;
+  saveDesktopSettings(settings: InsertDesktopSettings): Promise<DesktopSettings>;
+  updateDesktopSettings(userId: number, updates: Partial<InsertDesktopSettings>): Promise<void>;
+  
+  // Browser data
+  saveBrowserData(data: InsertBrowserData): Promise<BrowserData>;
+  getBrowserHistory(userId: number, limit?: number): Promise<BrowserData[]>;
+  getBrowserBookmarks(userId: number): Promise<BrowserData[]>;
+  deleteBrowserData(id: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
