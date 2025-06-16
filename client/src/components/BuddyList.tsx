@@ -145,13 +145,18 @@ export default function BuddyList({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, isResizing, dragStart, resizeStart]);
 
   return (
     <div 
@@ -270,6 +275,12 @@ export default function BuddyList({
               onClick={() => onOpenChat(buddy)}
               onContextMenu={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                onShowProfile(buddy);
+              }}
+              onDoubleClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 onShowProfile(buddy);
               }}
               title="Click to chat, right-click for profile"
@@ -365,13 +376,13 @@ export default function BuddyList({
             e.preventDefault();
             e.stopPropagation();
             console.log('Group chat button clicked, online buddies:', onlineBuddies.length);
-            if (onShowGroupChat && onlineBuddies.length >= 2) {
+            console.log('onShowGroupChat function exists:', !!onShowGroupChat);
+            if (onShowGroupChat) {
               onShowGroupChat();
             }
           }}
           className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-2 px-3 rounded shadow-md transition-all duration-200 transform hover:scale-105 text-sm cursor-pointer"
-          disabled={onlineBuddies.length < 2}
-          title={onlineBuddies.length < 2 ? "Need at least 2 online buddies for group chat" : "Start a group chat with multiple buddies"}
+          title="Start a group chat with multiple buddies"
         >
           <div className="flex items-center justify-center space-x-2">
             <span className="text-lg">👥</span>

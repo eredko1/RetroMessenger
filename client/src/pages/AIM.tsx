@@ -455,9 +455,11 @@ export default function AIM() {
 
   return (
     <div className="xp-desktop w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col">
-      {/* Desktop Icons - Hidden on mobile */}
-      <div className="hidden lg:block">
-        <DesktopIcons onOpenApplication={openApplication} />
+      {/* Desktop Icons - Always visible on desktop */}
+      <div className="hidden md:block absolute inset-0 pointer-events-none z-0">
+        <div className="pointer-events-auto">
+          <DesktopIcons onOpenApplication={openApplication} />
+        </div>
       </div>
       
       {/* Mobile/Desktop Layout */}
