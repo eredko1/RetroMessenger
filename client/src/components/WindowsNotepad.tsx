@@ -7,6 +7,9 @@ interface WindowsNotepadProps {
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
+  onMove?: (position: { x: number; y: number }) => void;
+  onResize?: (size: { width: number; height: number }) => void;
+  onFocus?: () => void;
 }
 
 export default function WindowsNotepad({ 
@@ -14,7 +17,10 @@ export default function WindowsNotepad({
   onMinimize, 
   position, 
   size, 
-  zIndex 
+  zIndex,
+  onMove,
+  onResize,
+  onFocus
 }: WindowsNotepadProps) {
   const [content, setContent] = useState("");
   const [fileName, setFileName] = useState("Untitled");
@@ -85,6 +91,9 @@ export default function WindowsNotepad({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMove={onMove}
+      onResize={onResize}
+      onFocus={onFocus}
       className="text-xs"
     >
       <div className="h-full flex flex-col bg-gray-100">

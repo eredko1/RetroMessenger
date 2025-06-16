@@ -7,6 +7,9 @@ interface WindowsPaintProps {
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
+  onMove?: (position: { x: number; y: number }) => void;
+  onResize?: (size: { width: number; height: number }) => void;
+  onFocus?: () => void;
 }
 
 export default function WindowsPaint({ 
@@ -14,7 +17,10 @@ export default function WindowsPaint({
   onMinimize, 
   position, 
   size, 
-  zIndex 
+  zIndex,
+  onMove,
+  onResize,
+  onFocus
 }: WindowsPaintProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -134,6 +140,9 @@ export default function WindowsPaint({
       zIndex={zIndex}
       onClose={onClose}
       onMinimize={onMinimize}
+      onMove={onMove}
+      onResize={onResize}
+      onFocus={onFocus}
       className="text-xs"
     >
       <div className="h-full flex flex-col bg-gray-100">

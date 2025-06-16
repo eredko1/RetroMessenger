@@ -866,6 +866,25 @@ export default function AIM() {
                 position={app.position}
                 size={app.size}
                 zIndex={app.zIndex}
+                onMove={(position) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], position }
+                  }));
+                }}
+                onResize={(size) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], size }
+                  }));
+                }}
+                onFocus={() => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], zIndex: nextZIndex + 1000 }
+                  }));
+                  setNextZIndex(prev => prev + 1);
+                }}
               />
             );
           case 'paint':
