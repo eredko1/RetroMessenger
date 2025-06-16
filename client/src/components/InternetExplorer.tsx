@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 import WindowComponent from './WindowComponent';
 
 interface InternetExplorerProps {
@@ -8,6 +10,9 @@ interface InternetExplorerProps {
   size: { width: number; height: number };
   zIndex: number;
   instanceId?: string;
+  onMove?: (position: { x: number; y: number }) => void;
+  onResize?: (size: { width: number; height: number }) => void;
+  onFocus?: () => void;
 }
 
 export default function InternetExplorer({ 
@@ -16,14 +21,29 @@ export default function InternetExplorer({
   position, 
   size, 
   zIndex, 
-  instanceId 
+  instanceId,
+  onMove,
+  onResize,
+  onFocus
 }: InternetExplorerProps) {
   const [currentUrl, setCurrentUrl] = useState('https://www.google.com');
   const [urlInput, setUrlInput] = useState('https://www.google.com');
   const [isLoading, setIsLoading] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
+  const [history, setHistory] = useState<string[]>(['https://www.google.com']);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Browser history persistence
+  const saveBrowserHistory = useMutation({
+    mutationFn: async (data: { url: string; title: string; userId: number; type: 'history' }) => {
+      return await apiRequest('/api/browser-data', {
+        method: 'POST',
+        body: data
+      });
+    }
+  });
 
   const handleNavigate = (url: string) => {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -32,6 +52,22 @@ export default function InternetExplorer({
     setIsLoading(true);
     setCurrentUrl(url);
     setUrlInput(url);
+    
+    // Add to history
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(url);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+    setCanGoBack(newHistory.length > 1);
+    setCanGoForward(false);
+    
+    // Save to database
+    saveBrowserHistory.mutate({
+      url,
+      title: url,
+      userId: 12, // TODO: Get from current user
+      type: 'history'
+    });
   };
 
   const handleUrlSubmit = (e: React.FormEvent) => {
@@ -40,14 +76,26 @@ export default function InternetExplorer({
   };
 
   const handleBack = () => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.history.back();
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      const url = history[newIndex];
+      setCurrentUrl(url);
+      setUrlInput(url);
+      setCanGoBack(newIndex > 0);
+      setCanGoForward(true);
     }
   };
 
   const handleForward = () => {
-    if (iframeRef.current && iframeRef.current.contentWindow) {
-      iframeRef.current.contentWindow.history.forward();
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      const url = history[newIndex];
+      setCurrentUrl(url);
+      setUrlInput(url);
+      setCanGoBack(true);
+      setCanGoForward(newIndex < history.length - 1);
     }
   };
 
