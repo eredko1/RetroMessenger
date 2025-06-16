@@ -43,6 +43,13 @@ export default function RichTextEditor({
     }
   };
 
+  const handleFileUpload = () => {
+    if (disabled) return;
+    fileInputRef.current?.click();
+  };
+
+
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -52,20 +59,15 @@ export default function RichTextEditor({
     }
   };
 
-  const handleImageClick = () => {
-    if (disabled) return;
-    fileInputRef.current?.click();
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/') && onImageUpload) {
+    if (file && onImageUpload) {
       try {
-        console.log('Uploading image:', file.name, file.size);
+        console.log('Uploading file:', file.name, file.size);
         await onImageUpload(file);
       } catch (error) {
-        console.error('Image upload failed:', error);
-        alert('Failed to upload image. Please try again.');
+        console.error('File upload failed:', error);
+        alert('Failed to upload file. Please try again.');
       }
     }
     // Reset input to allow same file again
@@ -123,9 +125,9 @@ export default function RichTextEditor({
         />
         <button
           type="button"
-          onClick={handleImageClick}
+          onClick={handleFileUpload}
           className="p-1 rounded hover:bg-gray-200 transition-colors"
-          title="Insert Image"
+          title="Insert Image or File"
           disabled={disabled}
         >
           <Image className="w-4 h-4" />
