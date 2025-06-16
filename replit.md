@@ -210,6 +210,14 @@ Changelog:
   - Enhanced application stability with comprehensive error recovery mechanisms
   - Web applications (Google Drive, Telegram, Replit, OpenAI, Gemini) now open securely in new tabs
   - All critical functionality restored including real-time chat, buddy status updates, and application management
+- June 16, 2025. Desktop icons and window management system overhaul
+  - Fixed desktop icon click functionality by resolving z-index layer conflicts
+  - All desktop shortcuts now properly launch applications (Paint, Gemini, Calculator, etc.)
+  - Added comprehensive maximize/restore functionality to all window components
+  - Implemented window size constraints to prevent applications from exceeding desktop boundaries
+  - Enhanced window management with proper state tracking for maximized windows
+  - Desktop icons positioned above background elements to ensure proper click event handling
+  - All applications now support single-click launching and maximize functionality
 
 ## User Preferences
 
