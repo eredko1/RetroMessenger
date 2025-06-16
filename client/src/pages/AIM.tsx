@@ -662,7 +662,7 @@ export default function AIM() {
       }}
     >
       {/* Desktop Icons - Always visible on desktop */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-10">
         <DesktopIcons 
           onOpenApplication={openApplication}
           onOpenBuddyList={() => {
@@ -1181,46 +1181,50 @@ export default function AIM() {
         onDismiss={() => setIsScreensaverActive(false)}
       />
 
-      {/* Desktop wallpaper context menu */}
+      {/* Desktop wallpaper context menu - positioned behind everything */}
       <div 
-        className="absolute inset-0 z-0"
+        className="fixed inset-0 z-0"
         onContextMenu={(e) => {
-          e.preventDefault();
-          const menu = document.createElement('div');
-          menu.className = 'fixed bg-white border border-gray-400 shadow-lg z-50 min-w-48';
-          menu.style.left = `${e.clientX}px`;
-          menu.style.top = `${e.clientY}px`;
-          
-          const wallpaperSubmenu = document.createElement('div');
-          wallpaperSubmenu.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs relative group';
-          wallpaperSubmenu.textContent = 'Properties';
-          
-          const submenu = document.createElement('div');
-          submenu.className = 'absolute left-full top-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg min-w-40';
-          
-          wallpaperOptions.forEach(option => {
-            const item = document.createElement('div');
-            item.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs';
-            item.textContent = option.name;
-            item.onclick = () => {
-              handleWallpaperChange(option.value);
-              document.body.removeChild(menu);
+          // Only show context menu if clicking on empty desktop space
+          if (e.target === e.currentTarget) {
+            e.preventDefault();
+            e.stopPropagation();
+            const menu = document.createElement('div');
+            menu.className = 'fixed bg-white border border-gray-400 shadow-lg z-50 min-w-48';
+            menu.style.left = `${e.clientX}px`;
+            menu.style.top = `${e.clientY}px`;
+            
+            const wallpaperSubmenu = document.createElement('div');
+            wallpaperSubmenu.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs relative group';
+            wallpaperSubmenu.textContent = 'Properties';
+            
+            const submenu = document.createElement('div');
+            submenu.className = 'absolute left-full top-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg min-w-40';
+            
+            wallpaperOptions.forEach(option => {
+              const item = document.createElement('div');
+              item.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs';
+              item.textContent = option.name;
+              item.onclick = () => {
+                handleWallpaperChange(option.value);
+                document.body.removeChild(menu);
+              };
+              submenu.appendChild(item);
+            });
+            
+            wallpaperSubmenu.appendChild(submenu);
+            menu.appendChild(wallpaperSubmenu);
+            
+            const closeHandler = () => {
+              if (document.body.contains(menu)) {
+                document.body.removeChild(menu);
+              }
+              document.removeEventListener('click', closeHandler);
             };
-            submenu.appendChild(item);
-          });
-          
-          wallpaperSubmenu.appendChild(submenu);
-          menu.appendChild(wallpaperSubmenu);
-          
-          const closeHandler = () => {
-            if (document.body.contains(menu)) {
-              document.body.removeChild(menu);
-            }
-            document.removeEventListener('click', closeHandler);
-          };
-          
-          setTimeout(() => document.addEventListener('click', closeHandler), 100);
-          document.body.appendChild(menu);
+            
+            setTimeout(() => document.addEventListener('click', closeHandler), 100);
+            document.body.appendChild(menu);
+          }
         }}
       />
     </div>
