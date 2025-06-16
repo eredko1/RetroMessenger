@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Minus, Square } from "lucide-react";
+import WindowComponent from "./WindowComponent";
 
 interface WindowsNotepadProps {
   onClose: () => void;
@@ -26,22 +26,14 @@ export default function WindowsNotepad({
   };
 
   const handleNew = () => {
+    if (isModified) {
+      const save = confirm("Do you want to save changes to " + fileName + "?");
+      if (save) {
+        handleSave();
+      }
+    }
     setContent("");
     setFileName("Untitled");
-    setIsModified(false);
-  };
-
-  const handleSave = () => {
-    // Create a blob and download
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName.endsWith('.txt') ? fileName : `${fileName}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
     setIsModified(false);
   };
 
@@ -54,7 +46,7 @@ export default function WindowsNotepad({
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          setContent(e.target?.result as string || '');
+          setContent(e.target?.result as string || "");
           setFileName(file.name);
           setIsModified(false);
         };
@@ -64,83 +56,75 @@ export default function WindowsNotepad({
     input.click();
   };
 
+  const handleSave = () => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName.endsWith('.txt') ? fileName : fileName + '.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setIsModified(false);
+  };
+
+  const handleSaveAs = () => {
+    const newName = prompt("Save as:", fileName);
+    if (newName) {
+      setFileName(newName);
+      handleSave();
+    }
+  };
+
   return (
-    <div
-      className="fixed bg-white shadow-lg select-none border-2"
-      style={{
-        left: position.x,
-        top: position.y,
-        width: size.width,
-        height: size.height,
-        zIndex: zIndex,
-        border: '2px outset #c0c0c0',
-        minWidth: '400px',
-        minHeight: '300px'
-      }}
+    <WindowComponent
+      title={`${fileName}${isModified ? '*' : ''} - Notepad`}
+      position={position}
+      size={size}
+      zIndex={zIndex}
+      onClose={onClose}
+      onMinimize={onMinimize}
+      className="text-xs"
     >
-      {/* Title Bar */}
-      <div className="h-7 px-2 flex justify-between items-center text-white text-sm font-bold"
-           style={{ 
-             background: 'linear-gradient(to bottom, #0078d4 0%, #1e3c72 100%)',
-             borderBottom: '1px solid #316ac5'
-           }}>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-yellow-400 border border-gray-600 flex items-center justify-center">
-            <span style={{ fontSize: '8px' }}>📝</span>
+      <div className="h-full flex flex-col bg-gray-100">
+        {/* Menu Bar */}
+        <div className="h-6 px-2 flex items-center text-xs bg-gray-100 border-b border-gray-300">
+          <div className="relative group">
+            <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">File</span>
+            <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
+              <div className="py-1 px-2 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleNew}>New</div>
+              <div className="py-1 px-2 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleOpen}>Open</div>
+              <div className="py-1 px-2 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleSave}>Save</div>
+              <div className="py-1 px-2 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleSaveAs}>Save As</div>
+              <hr className="my-1" />
+              <div className="py-1 px-2 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={onClose}>Exit</div>
+            </div>
           </div>
-          <span>{fileName}{isModified ? '*' : ''} - Notepad</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Edit</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Format</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">View</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Help</span>
         </div>
-        <div className="flex space-x-1">
-          {onMinimize && (
-            <button 
-              className="w-5 h-4 bg-gray-300 hover:bg-gray-400 border border-gray-600 text-black text-xs flex items-center justify-center"
-              onClick={onMinimize}
-            >
-              <Minus className="w-3 h-3" />
-            </button>
-          )}
-          <button 
-            className="w-5 h-4 bg-gray-300 hover:bg-gray-400 border border-gray-600 text-black text-xs flex items-center justify-center"
-          >
-            <Square className="w-2 h-2" />
-          </button>
-          <button 
-            className="w-5 h-4 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs flex items-center justify-center"
-            onClick={onClose}
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
 
-      {/* Menu Bar */}
-      <div className="h-6 px-2 flex items-center text-xs bg-gray-100 border-b border-gray-300">
-        <div className="relative group">
-          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">File</span>
-          <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-300 shadow-lg z-10 min-w-32">
-            <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleNew}>New</div>
-            <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleOpen}>Open...</div>
-            <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={handleSave}>Save</div>
-            <div className="border-t border-gray-300 my-1"></div>
-            <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={onClose}>Exit</div>
-          </div>
-        </div>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Edit</span>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Format</span>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">View</span>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Help</span>
-      </div>
-
-      {/* Text Area */}
-      <div className="flex-1" style={{ height: 'calc(100% - 3.25rem)' }}>
+        {/* Text Area */}
         <textarea
-          className="w-full h-full p-2 text-sm font-mono resize-none border-none outline-none bg-white"
+          className="flex-1 p-2 bg-white border-none outline-none resize-none font-mono text-sm"
           value={content}
           onChange={handleContentChange}
           placeholder="Type your text here..."
-          style={{ fontFamily: 'Courier New, monospace' }}
+          style={{
+            fontFamily: 'Courier New, monospace',
+            lineHeight: '1.4'
+          }}
         />
+
+        {/* Status Bar */}
+        <div className="h-5 px-2 flex items-center justify-between text-xs bg-gray-100 border-t border-gray-300">
+          <span>Line 1, Col 1</span>
+          <span>{content.length} characters</span>
+        </div>
       </div>
-    </div>
+    </WindowComponent>
   );
 }

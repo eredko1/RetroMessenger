@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Minus, Square } from "lucide-react";
+import WindowComponent from "./WindowComponent";
 
 interface WindowsCalculatorProps {
   onClose: () => void;
@@ -15,20 +15,37 @@ export default function WindowsCalculator({
   zIndex 
 }: WindowsCalculatorProps) {
   const [display, setDisplay] = useState("0");
+  const [memory, setMemory] = useState(0);
   const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
-  const [waitingForNewValue, setWaitingForNewValue] = useState(false);
+  const [waitingForOperand, setWaitingForOperand] = useState(false);
 
   const inputNumber = (num: string) => {
-    if (waitingForNewValue) {
+    if (waitingForOperand) {
       setDisplay(num);
-      setWaitingForNewValue(false);
+      setWaitingForOperand(false);
     } else {
       setDisplay(display === "0" ? num : display + num);
     }
   };
 
-  const inputOperation = (nextOperation: string) => {
+  const inputDecimal = () => {
+    if (waitingForOperand) {
+      setDisplay("0.");
+      setWaitingForOperand(false);
+    } else if (display.indexOf(".") === -1) {
+      setDisplay(display + ".");
+    }
+  };
+
+  const clear = () => {
+    setDisplay("0");
+    setPreviousValue(null);
+    setOperation(null);
+    setWaitingForOperand(false);
+  };
+
+  const performOperation = (nextOperation: string) => {
     const inputValue = parseFloat(display);
 
     if (previousValue === null) {
@@ -41,7 +58,7 @@ export default function WindowsCalculator({
       setPreviousValue(newValue);
     }
 
-    setWaitingForNewValue(true);
+    setWaitingForOperand(true);
     setOperation(nextOperation);
   };
 
@@ -51,9 +68,9 @@ export default function WindowsCalculator({
         return firstValue + secondValue;
       case "-":
         return firstValue - secondValue;
-      case "×":
+      case "*":
         return firstValue * secondValue;
-      case "÷":
+      case "/":
         return firstValue / secondValue;
       case "=":
         return secondValue;
@@ -62,156 +79,90 @@ export default function WindowsCalculator({
     }
   };
 
-  const performCalculation = () => {
-    const inputValue = parseFloat(display);
-
-    if (previousValue !== null && operation) {
-      const newValue = calculate(previousValue, inputValue, operation);
-      setDisplay(String(newValue));
-      setPreviousValue(null);
-      setOperation(null);
-      setWaitingForNewValue(true);
-    }
+  const memoryAdd = () => {
+    setMemory(memory + parseFloat(display));
   };
 
-  const clear = () => {
-    setDisplay("0");
-    setPreviousValue(null);
-    setOperation(null);
-    setWaitingForNewValue(false);
+  const memorySubtract = () => {
+    setMemory(memory - parseFloat(display));
   };
 
-  const clearEntry = () => {
-    setDisplay("0");
+  const memoryRecall = () => {
+    setDisplay(String(memory));
+    setWaitingForOperand(true);
   };
 
-  const inputDecimal = () => {
-    if (waitingForNewValue) {
-      setDisplay("0.");
-      setWaitingForNewValue(false);
-    } else if (display.indexOf(".") === -1) {
-      setDisplay(display + ".");
-    }
+  const memoryClear = () => {
+    setMemory(0);
   };
 
-  const buttons = [
-    [
-      { text: "Backspace", span: 2, action: () => setDisplay(display.length > 1 ? display.slice(0, -1) : "0") },
-      { text: "CE", action: clearEntry },
-      { text: "C", action: clear }
-    ],
-    [
-      { text: "MC", action: () => {} },
-      { text: "MR", action: () => {} },
-      { text: "MS", action: () => {} },
-      { text: "M+", action: () => {} }
-    ],
-    [
-      { text: "7", action: () => inputNumber("7") },
-      { text: "8", action: () => inputNumber("8") },
-      { text: "9", action: () => inputNumber("9") },
-      { text: "÷", action: () => inputOperation("÷") }
-    ],
-    [
-      { text: "4", action: () => inputNumber("4") },
-      { text: "5", action: () => inputNumber("5") },
-      { text: "6", action: () => inputNumber("6") },
-      { text: "×", action: () => inputOperation("×") }
-    ],
-    [
-      { text: "1", action: () => inputNumber("1") },
-      { text: "2", action: () => inputNumber("2") },
-      { text: "3", action: () => inputNumber("3") },
-      { text: "-", action: () => inputOperation("-") }
-    ],
-    [
-      { text: "0", action: () => inputNumber("0") },
-      { text: "+/-", action: () => setDisplay(String(-parseFloat(display))) },
-      { text: ".", action: inputDecimal },
-      { text: "+", action: () => inputOperation("+") }
-    ],
-    [
-      { text: "=", span: 4, action: performCalculation }
-    ]
-  ];
+  const buttonStyle = "h-8 bg-gray-200 hover:bg-gray-300 border border-gray-400 text-black text-sm font-medium";
+  const operatorStyle = "h-8 bg-blue-200 hover:bg-blue-300 border border-blue-400 text-black text-sm font-medium";
 
   return (
-    <div
-      className="fixed bg-gray-200 shadow-lg select-none"
-      style={{
-        left: position.x,
-        top: position.y,
-        width: '280px',
-        height: '320px',
-        zIndex: zIndex,
-        border: '2px outset #c0c0c0'
-      }}
+    <WindowComponent
+      title="Calculator"
+      position={position}
+      size={{ width: 280, height: 320 }}
+      zIndex={zIndex}
+      onClose={onClose}
+      onMinimize={onMinimize}
+      resizable={false}
+      className="text-xs"
     >
-      {/* Title Bar */}
-      <div className="h-7 px-2 flex justify-between items-center text-white text-sm font-bold"
-           style={{ 
-             background: 'linear-gradient(to bottom, #0078d4 0%, #1e3c72 100%)',
-             borderBottom: '1px solid #316ac5'
-           }}>
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-yellow-400 border border-gray-600 flex items-center justify-center">
-            <span style={{ fontSize: '8px' }}>🔢</span>
-          </div>
-          <span>Calculator</span>
+      <div className="p-2 bg-gray-100 h-full flex flex-col">
+        {/* Menu Bar */}
+        <div className="h-6 flex items-center text-xs bg-gray-100 border-b border-gray-300 mb-2">
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Edit</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">View</span>
+          <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Help</span>
         </div>
-        <div className="flex space-x-1">
-          {onMinimize && (
-            <button 
-              className="w-5 h-4 bg-gray-300 hover:bg-gray-400 border border-gray-600 text-black text-xs flex items-center justify-center"
-              onClick={onMinimize}
-            >
-              <Minus className="w-3 h-3" />
-            </button>
-          )}
-          <button 
-            className="w-5 h-4 bg-red-500 hover:bg-red-600 border border-red-700 text-white text-xs flex items-center justify-center"
-            onClick={onClose}
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
 
-      {/* Menu Bar */}
-      <div className="h-6 px-2 flex items-center text-xs bg-gray-100 border-b border-gray-300">
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Edit</span>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">View</span>
-        <span className="px-2 hover:bg-blue-500 hover:text-white cursor-pointer">Help</span>
-      </div>
-
-      {/* Display */}
-      <div className="p-2">
-        <div className="bg-white border-2 border-inset p-2 mb-2 text-right text-lg font-mono h-8 flex items-center justify-end"
-             style={{ borderColor: '#8b8b8b' }}>
+        {/* Display */}
+        <div className="mb-2 p-2 bg-white border-2 border-gray-400 text-right text-lg font-mono"
+             style={{ borderStyle: 'inset' }}>
           {display}
         </div>
 
-        {/* Button Grid */}
-        <div className="space-y-1">
-          {buttons.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex space-x-1">
-              {row.map((button, buttonIndex) => (
-                <button
-                  key={buttonIndex}
-                  className="h-8 bg-gray-300 hover:bg-gray-400 border-2 border-outset text-sm font-medium"
-                  style={{ 
-                    width: button.span ? `${button.span * 25 + (button.span - 1) * 4}%` : '25%',
-                    borderColor: '#c0c0c0'
-                  }}
-                  onClick={button.action}
-                >
-                  {button.text}
-                </button>
-              ))}
-            </div>
-          ))}
+        {/* Memory Buttons */}
+        <div className="grid grid-cols-5 gap-1 mb-2">
+          <button className={buttonStyle} onClick={() => setDisplay("0")}>Backspace</button>
+          <button className={buttonStyle} onClick={clear}>CE</button>
+          <button className={buttonStyle} onClick={clear}>C</button>
+          <button className={buttonStyle} onClick={memoryClear}>MC</button>
+          <button className={buttonStyle} onClick={memoryRecall}>MR</button>
+        </div>
+
+        <div className="grid grid-cols-5 gap-1 mb-2">
+          <button className={buttonStyle} onClick={memoryAdd}>M+</button>
+          <button className={buttonStyle} onClick={memorySubtract}>M-</button>
+          <button className={buttonStyle} onClick={() => setDisplay(String(-parseFloat(display)))}>+/-</button>
+          <button className={buttonStyle} onClick={() => setDisplay(String(Math.sqrt(parseFloat(display))))}>sqrt</button>
+          <button className={operatorStyle} onClick={() => performOperation("/")}>/</button>
+        </div>
+
+        {/* Number Buttons */}
+        <div className="grid grid-cols-4 gap-1 flex-1">
+          <button className={buttonStyle} onClick={() => inputNumber("7")}>7</button>
+          <button className={buttonStyle} onClick={() => inputNumber("8")}>8</button>
+          <button className={buttonStyle} onClick={() => inputNumber("9")}>9</button>
+          <button className={operatorStyle} onClick={() => performOperation("*")}>*</button>
+
+          <button className={buttonStyle} onClick={() => inputNumber("4")}>4</button>
+          <button className={buttonStyle} onClick={() => inputNumber("5")}>5</button>
+          <button className={buttonStyle} onClick={() => inputNumber("6")}>6</button>
+          <button className={operatorStyle} onClick={() => performOperation("-")}>-</button>
+
+          <button className={buttonStyle} onClick={() => inputNumber("1")}>1</button>
+          <button className={buttonStyle} onClick={() => inputNumber("2")}>2</button>
+          <button className={buttonStyle} onClick={() => inputNumber("3")}>3</button>
+          <button className={operatorStyle} onClick={() => performOperation("+")}>+</button>
+
+          <button className={`${buttonStyle} col-span-2`} onClick={() => inputNumber("0")}>0</button>
+          <button className={buttonStyle} onClick={inputDecimal}>.</button>
+          <button className={operatorStyle} onClick={() => performOperation("=")}>=</button>
         </div>
       </div>
-    </div>
+    </WindowComponent>
   );
 }
