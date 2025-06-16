@@ -148,6 +148,35 @@ export default function AIM() {
     return () => clearTimeout(saveTimer);
   }, [openApplications]);
 
+  // Screensaver and activity detection
+  useEffect(() => {
+    const handleActivity = () => {
+      setLastActivity(Date.now());
+      if (isScreensaverActive) {
+        setIsScreensaverActive(false);
+      }
+    };
+
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    activityEvents.forEach(event => {
+      document.addEventListener(event, handleActivity, true);
+    });
+
+    const checkInactivity = setInterval(() => {
+      const now = Date.now();
+      if (now - lastActivity > 30000 && !isScreensaverActive) { // 30 seconds
+        setIsScreensaverActive(true);
+      }
+    }, 1000);
+
+    return () => {
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, handleActivity, true);
+      });
+      clearInterval(checkInactivity);
+    };
+  }, [lastActivity, isScreensaverActive]);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -535,19 +564,33 @@ export default function AIM() {
     }
   });
 
+  // Desktop wallpaper options
+  const wallpaperOptions = [
+    { name: 'Bliss', value: 'bliss', gradient: 'bg-gradient-to-br from-green-400 via-blue-500 to-blue-600' },
+    { name: 'Azul', value: 'azul', gradient: 'bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800' },
+    { name: 'Energy', value: 'energy', gradient: 'bg-gradient-to-br from-orange-400 via-red-500 to-pink-600' },
+    { name: 'Peace', value: 'peace', gradient: 'bg-gradient-to-br from-purple-400 via-pink-500 to-red-500' },
+    { name: 'Radiance', value: 'radiance', gradient: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600' },
+    { name: 'Serenity', value: 'serenity', gradient: 'bg-gradient-to-br from-teal-400 via-blue-500 to-indigo-600' }
+  ];
+
+  const getCurrentWallpaper = () => {
+    const wallpaper = wallpaperOptions.find(w => w.value === desktopWallpaper);
+    return wallpaper?.gradient || wallpaperOptions[0].gradient;
+  };
+
+  const handleWallpaperChange = (wallpaperValue: string) => {
+    setDesktopWallpaper(wallpaperValue);
+  };
+
   if (!currentUser) {
     return <LoginForm onLogin={handleLogin} />;
   }
 
   return (
     <div 
-      className="w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col"
+      className={`w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col ${getCurrentWallpaper()}`}
       style={{
-        backgroundImage: 'url("https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
         fontFamily: 'Tahoma, sans-serif'
       }}
     >
@@ -1024,6 +1067,55 @@ export default function AIM() {
         onOpenApplication={openApplication}
         onLogout={handleLogout}
         user={currentUser}
+      />
+
+      {/* Screensaver */}
+      <Screensaver 
+        isActive={isScreensaverActive}
+        onDismiss={() => setIsScreensaverActive(false)}
+      />
+
+      {/* Desktop wallpaper context menu */}
+      <div 
+        className="absolute inset-0 z-0"
+        onContextMenu={(e) => {
+          e.preventDefault();
+          const menu = document.createElement('div');
+          menu.className = 'fixed bg-white border border-gray-400 shadow-lg z-50 min-w-48';
+          menu.style.left = `${e.clientX}px`;
+          menu.style.top = `${e.clientY}px`;
+          
+          const wallpaperSubmenu = document.createElement('div');
+          wallpaperSubmenu.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs relative group';
+          wallpaperSubmenu.textContent = 'Properties';
+          
+          const submenu = document.createElement('div');
+          submenu.className = 'absolute left-full top-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg min-w-40';
+          
+          wallpaperOptions.forEach(option => {
+            const item = document.createElement('div');
+            item.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs';
+            item.textContent = option.name;
+            item.onclick = () => {
+              handleWallpaperChange(option.value);
+              document.body.removeChild(menu);
+            };
+            submenu.appendChild(item);
+          });
+          
+          wallpaperSubmenu.appendChild(submenu);
+          menu.appendChild(wallpaperSubmenu);
+          
+          const closeHandler = () => {
+            if (document.body.contains(menu)) {
+              document.body.removeChild(menu);
+            }
+            document.removeEventListener('click', closeHandler);
+          };
+          
+          setTimeout(() => document.addEventListener('click', closeHandler), 100);
+          document.body.appendChild(menu);
+        }}
       />
     </div>
   );

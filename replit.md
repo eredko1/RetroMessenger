@@ -179,6 +179,17 @@ Changelog:
   - Fixed group chat system to properly open new windows with selected participants
   - Enhanced file and image upload system with comprehensive format support
   - All applications feature authentic Windows XP styling with proper title bars and menus
+- June 16, 2025. Enhanced desktop experience with web applications and screensaver
+  - Added desktop icons for Google Drive, Telegram, Replit, OpenAI, and Gemini web applications
+  - Enhanced Internet Explorer with comprehensive toolbars including bookmarks, settings, and history
+  - Implemented functional menu bar with File, Edit, View, Favorites, Tools, and Help menus
+  - Added bookmarks management with add/remove functionality and quick navigation
+  - Implemented screensaver system with 30-second inactivity detection and floating bubbles animation
+  - Added desktop wallpaper customization with 6 gradient options (Bliss, Azul, Energy, Peace, Radiance, Serenity)
+  - Created right-click desktop context menu for wallpaper selection
+  - All web applications open in browser windows with proper authentication flows
+  - Enhanced single-click interface compatibility for Mac browsers and smartphones
+  - Comprehensive activity detection system prevents screensaver during user interaction
 
 ## User Preferences
 
