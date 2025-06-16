@@ -1022,6 +1022,8 @@ export default function AIM() {
                 key={app.id}
                 onClose={() => closeApplication(app.id)}
                 onMinimize={() => minimizeApplication(app.id)}
+                onMaximize={() => maximizeApplication(app.id)}
+                isMaximized={app.isMaximized}
                 position={app.position}
                 size={app.size}
                 zIndex={app.zIndex}
@@ -1057,6 +1059,8 @@ export default function AIM() {
                 key={app.id}
                 onClose={() => closeApplication(app.id)}
                 onMinimize={() => minimizeApplication(app.id)}
+                onMaximize={() => maximizeApplication(app.id)}
+                isMaximized={app.isMaximized}
                 position={app.position}
                 size={app.size}
                 zIndex={app.zIndex}

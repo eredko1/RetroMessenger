@@ -7,6 +7,8 @@ import { apiRequest } from "@/lib/queryClient";
 interface InternetExplorerProps {
   onClose: () => void;
   onMinimize?: () => void;
+  onMaximize?: () => void;
+  isMaximized?: boolean;
   position: { x: number; y: number };
   size: { width: number; height: number };
   zIndex: number;
@@ -20,9 +22,13 @@ interface InternetExplorerProps {
 export default function InternetExplorer({ 
   onClose, 
   onMinimize, 
+  onMaximize,
+  isMaximized,
   position, 
   size, 
   zIndex,
+  instanceId,
+  appType,
   onMove,
   onResize,
   onFocus
@@ -157,6 +163,8 @@ export default function InternetExplorer({
       title="Internet Explorer"
       onClose={onClose}
       onMinimize={onMinimize}
+      onMaximize={onMaximize}
+      isMaximized={isMaximized}
       position={position}
       size={size}
       zIndex={zIndex}

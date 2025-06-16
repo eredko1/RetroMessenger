@@ -146,7 +146,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '☁️',
       x: 220,
       y: 20,
-      action: () => openWebsite('https://drive.google.com')
+      action: () => {
+        console.log('Google Drive clicked');
+        if (onOpenApplication) onOpenApplication('google-drive');
+      }
     },
     {
       id: 'telegram',
@@ -154,7 +157,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '✈️',
       x: 220,
       y: 100,
-      action: () => openWebsite('https://web.telegram.org')
+      action: () => {
+        console.log('Telegram clicked');
+        if (onOpenApplication) onOpenApplication('telegram');
+      }
     },
     {
       id: 'replit',
@@ -162,7 +168,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🔧',
       x: 220,
       y: 180,
-      action: () => openWebsite('https://replit.com')
+      action: () => {
+        console.log('Replit clicked');
+        if (onOpenApplication) onOpenApplication('replit');
+      }
     },
     {
       id: 'openai',
@@ -170,7 +179,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '🤖',
       x: 220,
       y: 260,
-      action: () => openWebsite('https://chat.openai.com')
+      action: () => {
+        console.log('OpenAI clicked');
+        if (onOpenApplication) onOpenApplication('openai');
+      }
     },
     {
       id: 'gemini',
@@ -178,7 +190,10 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       icon: '💎',
       x: 220,
       y: 340,
-      action: () => openWebsite('https://gemini.google.com')
+      action: () => {
+        console.log('Gemini clicked');
+        if (onOpenApplication) onOpenApplication('gemini');
+      }
     }
   ];
 
