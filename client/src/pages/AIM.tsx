@@ -1181,50 +1181,35 @@ export default function AIM() {
         onDismiss={() => setIsScreensaverActive(false)}
       />
 
-      {/* Desktop wallpaper context menu - positioned behind everything */}
+      {/* Desktop wallpaper context menu - hidden behind desktop icons */}
       <div 
         className="fixed inset-0 z-0"
         onContextMenu={(e) => {
-          // Only show context menu if clicking on empty desktop space
-          if (e.target === e.currentTarget) {
-            e.preventDefault();
-            e.stopPropagation();
-            const menu = document.createElement('div');
-            menu.className = 'fixed bg-white border border-gray-400 shadow-lg z-50 min-w-48';
-            menu.style.left = `${e.clientX}px`;
-            menu.style.top = `${e.clientY}px`;
-            
-            const wallpaperSubmenu = document.createElement('div');
-            wallpaperSubmenu.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs relative group';
-            wallpaperSubmenu.textContent = 'Properties';
-            
-            const submenu = document.createElement('div');
-            submenu.className = 'absolute left-full top-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg min-w-40';
-            
-            wallpaperOptions.forEach(option => {
-              const item = document.createElement('div');
-              item.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs';
-              item.textContent = option.name;
-              item.onclick = () => {
-                handleWallpaperChange(option.value);
-                document.body.removeChild(menu);
-              };
-              submenu.appendChild(item);
-            });
-            
-            wallpaperSubmenu.appendChild(submenu);
-            menu.appendChild(wallpaperSubmenu);
-            
-            const closeHandler = () => {
-              if (document.body.contains(menu)) {
-                document.body.removeChild(menu);
-              }
-              document.removeEventListener('click', closeHandler);
-            };
-            
-            setTimeout(() => document.addEventListener('click', closeHandler), 100);
-            document.body.appendChild(menu);
-          }
+          // Right-click context menu for desktop wallpaper
+          e.preventDefault();
+          const menu = document.createElement('div');
+          menu.className = 'fixed bg-white border border-gray-400 shadow-lg z-50 min-w-48';
+          menu.style.left = `${e.clientX}px`;
+          menu.style.top = `${e.clientY}px`;
+          
+          const wallpaperItem = document.createElement('div');
+          wallpaperItem.className = 'py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs';
+          wallpaperItem.textContent = 'Properties';
+          wallpaperItem.onclick = () => {
+            // Handle wallpaper properties
+            document.body.removeChild(menu);
+          };
+          menu.appendChild(wallpaperItem);
+          
+          const closeHandler = () => {
+            if (document.body.contains(menu)) {
+              document.body.removeChild(menu);
+            }
+            document.removeEventListener('click', closeHandler);
+          };
+          
+          setTimeout(() => document.addEventListener('click', closeHandler), 100);
+          document.body.appendChild(menu);
         }}
       />
     </div>
