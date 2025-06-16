@@ -589,8 +589,13 @@ export default function AIM() {
 
   return (
     <div 
-      className={`w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col ${getCurrentWallpaper()}`}
+      className="w-screen h-screen relative text-xs overflow-hidden md:flex md:flex-col"
       style={{
+        backgroundImage: 'url("https://www.newegg.com/insider/wp-content/uploads/windows_xp_bliss-wide.jpg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
         fontFamily: 'Tahoma, sans-serif'
       }}
     >

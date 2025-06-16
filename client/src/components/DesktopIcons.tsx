@@ -137,6 +137,9 @@ export default function DesktopIcons({ onOpenApplication, onOpenBuddyList }: Des
       console.log('Calling onOpenApplication with:', icon.app);
       onOpenApplication(icon.app);
     }
+    
+    // Clear selection after a short delay
+    setTimeout(() => setSelectedIcon(null), 300);
   };
 
   return (

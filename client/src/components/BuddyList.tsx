@@ -272,23 +272,56 @@ export default function BuddyList({
           {expandedGroups.has('Buddies') && onlineBuddies.map((buddy, index) => (
             <div 
               key={`buddy-online-${buddy.id}`}
-              className="buddy-item px-3 py-2 hover:bg-blue-50 cursor-pointer flex items-center space-x-3 border-b border-gray-100 last:border-b-0 transition-colors group"
-              onClick={() => onOpenChat(buddy)}
-              title={`Click to chat with ${buddy.screenName}`}
+              className="buddy-item px-3 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors group"
             >
-              <div className="relative">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
-                  {buddy.screenName[0].toUpperCase()}
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md">
+                    {buddy.screenName[0].toUpperCase()}
+                  </div>
+                  <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${getStatusDotClass(buddy)} shadow-sm`}></span>
                 </div>
-                <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border border-white ${getStatusDotClass(buddy)} shadow-sm`}></span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-gray-800 truncate">{buddy.screenName}</div>
+                  {buddy.status === 'away' && buddy.awayMessage && (
+                    <div className="text-xs text-gray-500 truncate">{buddy.awayMessage}</div>
+                  )}
+                </div>
+                <div className="flex space-x-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShowProfile(buddy);
+                    }}
+                    className="text-xs text-blue-600 hover:text-blue-800 hover:underline px-1"
+                    title="View Profile"
+                  >
+                    Profile
+                  </button>
+                  {buddy.status === 'away' && buddy.awayMessage && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert(`Away Message: ${buddy.awayMessage}`);
+                      }}
+                      className="text-xs text-orange-600 hover:text-orange-800 hover:underline px-1"
+                      title="View Away Message"
+                    >
+                      Away
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenChat(buddy);
+                    }}
+                    className="text-xs text-green-600 hover:text-green-800 hover:underline px-1"
+                    title="Start Chat"
+                  >
+                    Chat
+                  </button>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-800 truncate">{buddy.screenName}</div>
-                {buddy.status === 'away' && buddy.awayMessage && (
-                  <div className="text-xs text-gray-500 truncate">{buddy.awayMessage}</div>
-                )}
-              </div>
-              <div className="text-xs text-gray-400">💬</div>
             </div>
           ))}
         </div>
