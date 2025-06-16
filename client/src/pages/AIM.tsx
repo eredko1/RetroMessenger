@@ -23,6 +23,7 @@ import WindowsExplorer from "@/components/WindowsExplorer";
 import WindowsCalculator from "@/components/WindowsCalculator";
 import WindowsNotepad from "@/components/WindowsNotepad";
 import WindowsPaint from "@/components/WindowsPaint";
+import WindowsMediaPlayer from "@/components/WindowsMediaPlayer";
 import InternetExplorer from "@/components/InternetExplorer";
 import TestApp from "@/components/TestApp";
 import LoginForm from "@/components/LoginForm";
@@ -1017,6 +1018,36 @@ export default function AIM() {
               />
             );
           case 'mediaplayer':
+            return (
+              <WindowsMediaPlayer
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+                instanceId={app.id}
+                onMove={(position) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], position }
+                  }));
+                }}
+                onResize={(size) => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], size }
+                  }));
+                }}
+                onFocus={() => {
+                  setOpenApplications(prev => ({
+                    ...prev,
+                    [app.id]: { ...prev[app.id], zIndex: nextZIndex + 1000 }
+                  }));
+                  setNextZIndex(prev => prev + 1);
+                }}
+              />
+            );
           case 'solitaire':
           case 'minesweeper':
           case 'recycle':

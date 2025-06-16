@@ -15,29 +15,50 @@ export default function Screensaver({ isActive, onDismiss }: ScreensaverProps) {
     speedX: number;
     speedY: number;
     color: string;
+    opacity: number;
+  }>>([]);
+  const [stars, setStars] = useState<Array<{
+    id: number;
+    x: number;
+    y: number;
+    size: number;
+    twinkleSpeed: number;
+    brightness: number;
   }>>([]);
 
   useEffect(() => {
     if (!isActive) return;
 
-    // Initialize floating bubbles
-    const initialBubbles = Array.from({ length: 15 }, (_, i) => ({
+    // Initialize floating bubbles with enhanced colors
+    const initialBubbles = Array.from({ length: 20 }, (_, i) => ({
       id: i,
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      size: Math.random() * 40 + 20,
-      speedX: (Math.random() - 0.5) * 2,
-      speedY: (Math.random() - 0.5) * 2,
-      color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      size: Math.random() * 60 + 30,
+      speedX: (Math.random() - 0.5) * 1.5,
+      speedY: (Math.random() - 0.5) * 1.5,
+      color: `hsl(${Math.random() * 60 + 180}, 80%, 70%)`, // Blue/cyan range
+      opacity: Math.random() * 0.6 + 0.3
     }));
     setBubbles(initialBubbles);
+
+    // Initialize twinkling stars
+    const initialStars = Array.from({ length: 100 }, (_, i) => ({
+      id: i,
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      size: Math.random() * 3 + 1,
+      twinkleSpeed: Math.random() * 0.02 + 0.01,
+      brightness: Math.random()
+    }));
+    setStars(initialStars);
 
     // Update time every second
     const timeInterval = setInterval(() => {
       setTime(new Date());
     }, 1000);
 
-    // Animate bubbles
+    // Animate bubbles and stars
     const animationInterval = setInterval(() => {
       setBubbles(prev => prev.map(bubble => {
         let newX = bubble.x + bubble.speedX;
@@ -63,6 +84,12 @@ export default function Screensaver({ isActive, onDismiss }: ScreensaverProps) {
           speedY: newSpeedY
         };
       }));
+
+      // Animate star twinkling
+      setStars(prev => prev.map(star => ({
+        ...star,
+        brightness: Math.abs(Math.sin(Date.now() * star.twinkleSpeed))
+      })));
     }, 16); // 60fps
 
     return () => {
@@ -75,24 +102,55 @@ export default function Screensaver({ isActive, onDismiss }: ScreensaverProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-purple-900 to-black cursor-none select-none"
+      className="fixed inset-0 z-50 cursor-none select-none"
+      style={{
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #87CEEB 50%, #98FB98 75%, #90EE90 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 15s ease infinite'
+      }}
       onClick={onDismiss}
       onKeyDown={onDismiss}
       tabIndex={0}
     >
-      {/* Floating Bubbles */}
+      <style>{`
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
+
+      {/* Twinkling Stars */}
+      {stars.map(star => (
+        <div
+          key={star.id}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            left: star.x,
+            top: star.y,
+            width: star.size,
+            height: star.size,
+            backgroundColor: '#ffffff',
+            opacity: star.brightness * 0.8,
+            boxShadow: `0 0 ${star.size * 2}px rgba(255,255,255,${star.brightness * 0.5})`
+          }}
+        />
+      ))}
+
+      {/* Enhanced Floating Bubbles */}
       {bubbles.map(bubble => (
         <div
           key={bubble.id}
-          className="absolute rounded-full opacity-60 pointer-events-none"
+          className="absolute rounded-full pointer-events-none"
           style={{
             left: bubble.x,
             top: bubble.y,
             width: bubble.size,
             height: bubble.size,
-            backgroundColor: bubble.color,
-            boxShadow: `0 0 ${bubble.size / 2}px ${bubble.color}`,
-            filter: 'blur(0.5px)'
+            background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), ${bubble.color})`,
+            opacity: bubble.opacity,
+            boxShadow: `0 0 ${bubble.size}px ${bubble.color}, inset 0 0 ${bubble.size / 3}px rgba(255,255,255,0.3)`,
+            filter: 'blur(1px)'
           }}
         />
       ))}
