@@ -149,7 +149,7 @@ export default function AIM() {
     return () => clearTimeout(saveTimer);
   }, [openApplications]);
 
-  // Screensaver and activity detection
+  // Screensaver and activity detection - only activate when no windows are open
   useEffect(() => {
     const handleActivity = () => {
       setLastActivity(Date.now());
@@ -165,7 +165,13 @@ export default function AIM() {
 
     const checkInactivity = setInterval(() => {
       const now = Date.now();
-      if (now - lastActivity > 30000 && !isScreensaverActive) { // 30 seconds
+      const hasOpenWindows = Object.keys(openApplications).length > 0 || 
+                            openChats.length > 0 || 
+                            openGroupChats.length > 0 ||
+                            !minimizedWindows.has('buddy-list');
+      
+      // Only activate screensaver if no windows are open and enough time has passed
+      if (now - lastActivity > 30000 && !isScreensaverActive && !hasOpenWindows) {
         setIsScreensaverActive(true);
       }
     }, 1000);
@@ -176,7 +182,7 @@ export default function AIM() {
       });
       clearInterval(checkInactivity);
     };
-  }, [lastActivity, isScreensaverActive]);
+  }, [lastActivity, isScreensaverActive, openApplications, openChats, openGroupChats, minimizedWindows]);
 
   useEffect(() => {
     if (!socket) return;

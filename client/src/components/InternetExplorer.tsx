@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
-import WindowComponent from './WindowComponent';
+import { useState, useRef } from "react";
+import { ArrowLeft, ArrowRight, RotateCcw, Home, Search, Star, Settings, Menu } from "lucide-react";
+import WindowComponent from "./WindowComponent";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface InternetExplorerProps {
   onClose: () => void;
@@ -21,296 +22,309 @@ export default function InternetExplorer({
   onMinimize, 
   position, 
   size, 
-  zIndex, 
-  instanceId,
-  appType = 'internet-explorer',
+  zIndex,
   onMove,
   onResize,
   onFocus
 }: InternetExplorerProps) {
-  // URL mappings for different app types
-  const getInitialUrl = (type: string) => {
-    const urlMap: { [key: string]: string } = {
-      'internet-explorer': 'https://www.google.com',
-      'google-drive': 'https://drive.google.com',
-      'telegram': 'https://web.telegram.org',
-      'replit': 'https://replit.com',
-      'openai': 'https://chat.openai.com',
-      'gemini': 'https://gemini.google.com'
-    };
-    return urlMap[type] || 'https://www.google.com';
-  };
-
-  const initialUrl = getInitialUrl(appType);
-  const [currentUrl, setCurrentUrl] = useState(initialUrl);
-  const [urlInput, setUrlInput] = useState(initialUrl);
-  const [isLoading, setIsLoading] = useState(false);
-  const [canGoBack, setCanGoBack] = useState(false);
-  const [canGoForward, setCanGoForward] = useState(false);
-  const [history, setHistory] = useState<string[]>([initialUrl]);
+  const [currentUrl, setCurrentUrl] = useState("about:blank");
+  const [urlInput, setUrlInput] = useState("");
+  const [history, setHistory] = useState<string[]>(["about:blank"]);
   const [historyIndex, setHistoryIndex] = useState(0);
-  const [bookmarks, setBookmarks] = useState<Array<{title: string, url: string}>>([
-    { title: 'Google', url: 'https://www.google.com' },
-    { title: 'Replit', url: 'https://replit.com' },
-    { title: 'OpenAI', url: 'https://chat.openai.com' },
-    { title: 'Gemini', url: 'https://gemini.google.com' },
-    { title: 'GitHub', url: 'https://github.com' },
-    { title: 'Stack Overflow', url: 'https://stackoverflow.com' }
-  ]);
   const [showBookmarks, setShowBookmarks] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [showMenus, setShowMenus] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Browser history persistence
-  const saveBrowserHistory = useMutation({
-    mutationFn: async (data: { url: string; title: string; userId: number; type: 'history' }) => {
-      return await apiRequest('/api/browser-data', {
-        method: 'POST',
-        body: data
-      });
-    }
+  // Fetch bookmarks
+  const { data: bookmarks = [] } = useQuery({
+    queryKey: ['/api/browser-data', 'bookmarks'],
+    queryFn: () => apiRequest('/api/browser-data?type=bookmark'),
   });
 
-  const handleNavigate = (url: string) => {
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://' + url;
-    }
-    setIsLoading(true);
-    setCurrentUrl(url);
-    setUrlInput(url);
+  // Fetch browser history
+  const { data: browserHistory = [] } = useQuery({
+    queryKey: ['/api/browser-data', 'history'],
+    queryFn: () => apiRequest('/api/browser-data?type=history'),
+  });
+
+  // Add bookmark mutation
+  const addBookmarkMutation = useMutation({
+    mutationFn: (data: { url: string; title: string; type: string }) =>
+      apiRequest('/api/browser-data', 'POST', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/browser-data', 'bookmarks'] });
+    },
+  });
+
+  // Add to history mutation
+  const addHistoryMutation = useMutation({
+    mutationFn: (data: { url: string; title: string; type: string }) =>
+      apiRequest('/api/browser-data', 'POST', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/browser-data', 'history'] });
+    },
+  });
+
+  const navigateToUrl = (url: string) => {
+    let finalUrl = url.trim();
     
+    // Handle special URLs
+    if (finalUrl === "about:blank" || finalUrl === "") {
+      setCurrentUrl("about:blank");
+      setUrlInput("");
+      return;
+    }
+
+    // Add protocol if missing
+    if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+      finalUrl = 'https://' + finalUrl;
+    }
+
+    setIsLoading(true);
+    setCurrentUrl(finalUrl);
+    setUrlInput(finalUrl);
+
     // Add to history
     const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push(url);
+    newHistory.push(finalUrl);
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
-    setCanGoBack(newHistory.length > 1);
-    setCanGoForward(false);
-    
-    // Save to database
-    saveBrowserHistory.mutate({
-      url,
-      title: url,
-      userId: 12, // TODO: Get from current user
+
+    // Save to browser history
+    addHistoryMutation.mutate({
+      url: finalUrl,
+      title: new URL(finalUrl).hostname,
       type: 'history'
     });
+
+    // Since iframes are blocked by CORS, open in new tab
+    setTimeout(() => {
+      setIsLoading(false);
+      window.open(finalUrl, '_blank');
+    }, 1000);
   };
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleNavigate(urlInput);
-  };
-
-  const handleBack = () => {
+  const goBack = () => {
     if (historyIndex > 0) {
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
       const url = history[newIndex];
       setCurrentUrl(url);
       setUrlInput(url);
-      setCanGoBack(newIndex > 0);
-      setCanGoForward(true);
     }
   };
 
-  const handleForward = () => {
+  const goForward = () => {
     if (historyIndex < history.length - 1) {
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
       const url = history[newIndex];
       setCurrentUrl(url);
       setUrlInput(url);
-      setCanGoBack(true);
-      setCanGoForward(newIndex < history.length - 1);
     }
   };
 
-  const handleRefresh = () => {
-    if (iframeRef.current) {
-      iframeRef.current.src = currentUrl;
-      setIsLoading(true);
+  const refresh = () => {
+    navigateToUrl(currentUrl);
+  };
+
+  const goHome = () => {
+    navigateToUrl("https://www.google.com");
+  };
+
+  const addBookmark = () => {
+    if (currentUrl && currentUrl !== "about:blank") {
+      addBookmarkMutation.mutate({
+        url: currentUrl,
+        title: new URL(currentUrl).hostname,
+        type: 'bookmark'
+      });
     }
   };
 
-  const handleHome = () => {
-    handleNavigate('https://www.google.com');
-  };
-
-  const handleIframeLoad = () => {
-    setIsLoading(false);
-    try {
-      if (iframeRef.current && iframeRef.current.contentWindow) {
-        const iframeUrl = iframeRef.current.contentWindow.location.href;
-        if (iframeUrl !== 'about:blank') {
-          setCurrentUrl(iframeUrl);
-          setUrlInput(iframeUrl);
-        }
-      }
-    } catch (error) {
-      // Cross-origin restrictions prevent access to iframe URL
-      console.log('Cannot access iframe URL due to CORS policy');
-    }
-  };
+  const quickLinks = [
+    { name: "Google", url: "https://www.google.com" },
+    { name: "Yahoo", url: "https://www.yahoo.com" },
+    { name: "MSN", url: "https://www.msn.com" },
+    { name: "CNN", url: "https://www.cnn.com" },
+    { name: "eBay", url: "https://www.ebay.com" },
+    { name: "Amazon", url: "https://www.amazon.com" }
+  ];
 
   return (
     <WindowComponent
-      title={`Internet Explorer - ${currentUrl}`}
+      title="Internet Explorer"
+      onClose={onClose}
+      onMinimize={onMinimize}
       position={position}
       size={size}
       zIndex={zIndex}
-      onClose={onClose}
-      onMinimize={onMinimize}
       onMove={onMove}
       onResize={onResize}
       onFocus={onFocus}
-      className="bg-gray-100"
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-gray-100">
         {/* Menu Bar */}
-        <div className="bg-gray-200 border-b border-gray-300 px-2 py-1">
-          <div className="flex items-center text-xs space-x-4">
-            <div className="relative group">
-              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">File</span>
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-40">
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">New Window</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Save Page As...</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Print</div>
-                <hr className="my-1" />
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={onClose}>Exit</div>
+        {showMenus && (
+          <div className="bg-gray-200 px-2 py-1 border-b border-gray-300 text-xs">
+            <div className="flex space-x-4">
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1">File</div>
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1">Edit</div>
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1">View</div>
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1" onClick={() => setShowBookmarks(!showBookmarks)}>
+                Favorites
               </div>
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1">Tools</div>
+              <div className="cursor-pointer hover:bg-blue-100 px-2 py-1">Help</div>
             </div>
-            <div className="relative group">
-              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Edit</span>
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Copy</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Paste</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Find</div>
-              </div>
-            </div>
-            <div className="relative group">
-              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">View</span>
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Source</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Full Screen</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Zoom</div>
-              </div>
-            </div>
-            <div className="relative group">
-              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1" onClick={() => setShowBookmarks(!showBookmarks)}>Favorites</span>
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-48">
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => setBookmarks([...bookmarks, {title: currentUrl, url: currentUrl}])}>Add to Favorites</div>
-                <hr className="my-1" />
-                {bookmarks.map((bookmark, idx) => (
-                  <div key={idx} className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => handleNavigate(bookmark.url)}>
-                    {bookmark.title}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="relative group">
-              <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Tools</span>
-              <div className="absolute top-full left-0 hidden group-hover:block bg-white border border-gray-400 shadow-lg z-10 min-w-32">
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs" onClick={() => setShowHistory(!showHistory)}>History</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Downloads</div>
-                <div className="py-1 px-3 hover:bg-blue-500 hover:text-white cursor-pointer text-xs">Internet Options</div>
-              </div>
-            </div>
-            <span className="font-bold cursor-pointer hover:bg-blue-500 hover:text-white px-2 py-1">Help</span>
           </div>
-        </div>
+        )}
 
         {/* Toolbar */}
-        <div className="bg-gray-200 border-b border-gray-300 p-2">
-          <div className="flex items-center space-x-2">
-            {/* Navigation Buttons */}
+        <div className="bg-gray-200 p-2 border-b border-gray-300 flex items-center space-x-2">
+          <button
+            onClick={goBack}
+            disabled={historyIndex <= 0}
+            className="p-1 bg-gray-300 hover:bg-gray-400 disabled:opacity-50 border border-gray-500 rounded"
+            style={{ borderStyle: 'outset' }}
+          >
+            <ArrowLeft size={14} />
+          </button>
+          <button
+            onClick={goForward}
+            disabled={historyIndex >= history.length - 1}
+            className="p-1 bg-gray-300 hover:bg-gray-400 disabled:opacity-50 border border-gray-500 rounded"
+            style={{ borderStyle: 'outset' }}
+          >
+            <ArrowRight size={14} />
+          </button>
+          <button
+            onClick={refresh}
+            className="p-1 bg-gray-300 hover:bg-gray-400 border border-gray-500 rounded"
+            style={{ borderStyle: 'outset' }}
+          >
+            <RotateCcw size={14} />
+          </button>
+          <button
+            onClick={goHome}
+            className="p-1 bg-gray-300 hover:bg-gray-400 border border-gray-500 rounded"
+            style={{ borderStyle: 'outset' }}
+          >
+            <Home size={14} />
+          </button>
+          
+          <div className="flex-1 flex items-center space-x-2">
+            <span className="text-xs">Address:</span>
+            <input
+              type="text"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && navigateToUrl(urlInput)}
+              className="flex-1 px-2 py-1 text-xs border border-gray-400 focus:outline-none focus:border-blue-500"
+              placeholder="Enter URL..."
+            />
             <button
-              onClick={handleBack}
-              disabled={!canGoBack}
-              className="px-3 py-1 bg-gray-100 border border-gray-400 rounded text-xs hover:bg-gray-50 disabled:opacity-50"
-              style={{ borderStyle: 'outset' }}
-            >
-              ◀ Back
-            </button>
-            <button
-              onClick={handleForward}
-              disabled={!canGoForward}
-              className="px-3 py-1 bg-gray-100 border border-gray-400 rounded text-xs hover:bg-gray-50 disabled:opacity-50"
-              style={{ borderStyle: 'outset' }}
-            >
-              Forward ▶
-            </button>
-            <button
-              onClick={handleRefresh}
-              className="px-3 py-1 bg-gray-100 border border-gray-400 rounded text-xs hover:bg-gray-50"
-              style={{ borderStyle: 'outset' }}
-            >
-              🔄 Refresh
-            </button>
-            <button
-              onClick={handleHome}
-              className="px-3 py-1 bg-gray-100 border border-gray-400 rounded text-xs hover:bg-gray-50"
-              style={{ borderStyle: 'outset' }}
-            >
-              🏠 Home
-            </button>
-
-            {/* Address Bar */}
-            <div className="flex-1 flex items-center space-x-2">
-              <span className="text-xs font-bold">Address:</span>
-              <form onSubmit={handleUrlSubmit} className="flex-1">
-                <input
-                  type="text"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  className="w-full px-2 py-1 border border-gray-400 text-xs"
-                  style={{ borderStyle: 'inset' }}
-                />
-              </form>
-            </div>
-
-            {/* Go Button */}
-            <button
-              onClick={() => handleNavigate(urlInput)}
-              className="px-3 py-1 bg-gray-100 border border-gray-400 rounded text-xs hover:bg-gray-50"
+              onClick={() => navigateToUrl(urlInput)}
+              className="px-3 py-1 bg-gray-300 hover:bg-gray-400 border border-gray-500 text-xs rounded"
               style={{ borderStyle: 'outset' }}
             >
               Go
             </button>
           </div>
+
+          <button
+            onClick={addBookmark}
+            className="p-1 bg-gray-300 hover:bg-gray-400 border border-gray-500 rounded"
+            style={{ borderStyle: 'outset' }}
+            title="Add to Favorites"
+          >
+            <Star size={14} />
+          </button>
         </div>
 
-        {/* Loading Indicator */}
-        {isLoading && (
-          <div className="bg-yellow-100 border-b border-yellow-300 px-2 py-1">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin text-xs">⟳</div>
-              <span className="text-xs">Loading...</span>
+        {/* Bookmarks Bar */}
+        {showBookmarks && (
+          <div className="bg-gray-100 p-2 border-b border-gray-300 text-xs">
+            <div className="flex flex-wrap gap-2">
+              <span className="text-gray-600">Bookmarks:</span>
+              {bookmarks.map((bookmark: any, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => navigateToUrl(bookmark.url)}
+                  className="px-2 py-1 bg-white hover:bg-blue-100 border border-gray-400 rounded text-xs"
+                >
+                  {bookmark.title}
+                </button>
+              ))}
+              {bookmarks.length === 0 && (
+                <span className="text-gray-500 italic">No bookmarks saved</span>
+              )}
             </div>
           </div>
         )}
 
-        {/* Web Content */}
-        <div className="flex-1 bg-white">
-          <iframe
-            ref={iframeRef}
-            src={currentUrl}
-            className="w-full h-full border-0"
-            onLoad={handleIframeLoad}
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-            title="Internet Explorer Content"
-          />
+        {/* Content Area */}
+        <div className="flex-1 p-4 overflow-auto bg-white">
+          {currentUrl === "about:blank" ? (
+            <div className="h-full flex flex-col items-center justify-center text-center">
+              <div className="mb-8">
+                <h1 className="text-2xl font-bold mb-4 text-blue-800">Internet Explorer</h1>
+                <p className="text-gray-600 mb-6">Welcome to the World Wide Web</p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-md">
+                <h3 className="col-span-full text-lg font-semibold mb-2">Quick Links</h3>
+                {quickLinks.map((link, index) => (
+                  <button
+                    key={index}
+                    onClick={() => navigateToUrl(link.url)}
+                    className="p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded text-sm"
+                  >
+                    {link.name}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded max-w-md">
+                <p className="text-sm text-yellow-800">
+                  <strong>Note:</strong> Due to modern security restrictions, websites will open in new tabs. 
+                  This maintains the authentic Windows XP browsing experience while ensuring compatibility.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center">
+              {isLoading ? (
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p>Loading {currentUrl}...</p>
+                </div>
+              ) : (
+                <div className="text-center p-8 bg-blue-50 border border-blue-200 rounded">
+                  <h3 className="text-lg font-semibold mb-4">Opening Website</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    {currentUrl} has been opened in a new tab for your security.
+                  </p>
+                  <button
+                    onClick={() => navigateToUrl("about:blank")}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm"
+                  >
+                    Return to Home
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Status Bar */}
-        <div className="bg-gray-200 border-t border-gray-300 px-2 py-1">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center space-x-4">
-              <span>Ready</span>
-              <span>Internet</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span>🔒 {isLoading ? 'Connecting...' : 'Done'}</span>
-            </div>
+        <div className="bg-gray-200 px-2 py-1 border-t border-gray-300 text-xs flex items-center justify-between">
+          <div>Done</div>
+          <div className="flex items-center space-x-4">
+            <div>Internet Zone</div>
+            <div className="w-4 h-4 bg-green-400 rounded border"></div>
           </div>
         </div>
       </div>
