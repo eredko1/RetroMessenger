@@ -22,6 +22,7 @@ import WindowsExplorer from "@/components/WindowsExplorer";
 import WindowsCalculator from "@/components/WindowsCalculator";
 import WindowsNotepad from "@/components/WindowsNotepad";
 import WindowsPaint from "@/components/WindowsPaint";
+import InternetExplorer from "@/components/InternetExplorer";
 import TestApp from "@/components/TestApp";
 import LoginForm from "@/components/LoginForm";
 import { useToast } from "@/hooks/use-toast";
@@ -831,7 +832,18 @@ export default function AIM() {
                 zIndex={app.zIndex}
               />
             );
-          case 'browser':
+          case 'internet-explorer':
+            return (
+              <InternetExplorer
+                key={app.id}
+                onClose={() => closeApplication(app.id)}
+                onMinimize={() => minimizeApplication(app.id)}
+                position={app.position}
+                size={app.size}
+                zIndex={app.zIndex}
+                instanceId={app.id}
+              />
+            );
           case 'mediaplayer':
           case 'solitaire':
           case 'minesweeper':

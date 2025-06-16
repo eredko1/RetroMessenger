@@ -35,7 +35,7 @@ export default function DesktopIcons({ onOpenApplication }: DesktopIconsProps) {
       icon: "🌐", 
       x: 20, 
       y: 260,
-      app: "browser"
+      app: "internet-explorer"
     },
     { 
       name: "Windows Media Player", 
